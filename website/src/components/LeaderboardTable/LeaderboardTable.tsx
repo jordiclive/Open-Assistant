@@ -69,7 +69,6 @@ export const LeaderboardTable = ({
               authMethod={user.auth_method}
               displayName={getValue()}
               userId={user.user_id}
-              avatarUrl={user.image}
             ></UserDisplayNameCell>
           );
         },

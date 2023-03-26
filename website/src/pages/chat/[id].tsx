@@ -3,22 +3,13 @@ import { List } from "lucide-react";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import { getToken } from "next-auth/jwt";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { ChatContextProvider } from "src/components/Chat/ChatContext";
-import { ChatSection } from "src/components/Chat/ChatSection";
+import { Flags } from "react-feature-flags";
+import { ChatConversation } from "src/components/Chat/ChatConversation";
 import { getDashboardLayout } from "src/components/Layout";
-import { isChatEnabled } from "src/lib/chat_enabled";
-import { createInferenceClient } from "src/lib/oasst_inference_client";
-import { ModelInfo } from "src/types/Chat";
 
-interface ChatProps {
-  id: string;
-  modelInfos: ModelInfo[];
-}
-
-const Chat = ({ id, modelInfos }: ChatProps) => {
+const Chat = ({ id }: { id: string }) => {
   const { t } = useTranslation(["common", "chat"]);
 
   return (
@@ -27,7 +18,7 @@ const Chat = ({ id, modelInfos }: ChatProps) => {
         <title>{t("chat")}</title>
       </Head>
 
-      <ChatContextProvider modelInfos={modelInfos}>
+      <Flags authorizedFlags={["chat"]}>
         <Card>
           <CardBody>
             <Flex direction="column" gap="2">
@@ -36,39 +27,26 @@ const Chat = ({ id, modelInfos }: ChatProps) => {
                   {t("chat:back_to_chat_list")}
                 </Button>
               </Link>
-              <ChatSection chatId={id} />
+
+              <ChatConversation chatId={id} />
             </Flex>
           </CardBody>
         </Card>
-      </ChatContextProvider>
+      </Flags>
     </>
   );
 };
 
 Chat.getLayout = getDashboardLayout;
 
-export const getServerSideProps: GetServerSideProps<ChatProps, { id: string }> = async ({
+export const getServerSideProps: GetServerSideProps<{ id: string }, { id: string }> = async ({
   locale = "en",
   params,
-  req,
-}) => {
-  if (!isChatEnabled()) {
-    return {
-      notFound: true,
-    };
-  }
-
-  const token = await getToken({ req });
-  const client = createInferenceClient(token);
-  const modelInfos = await client.get_models();
-
-  return {
-    props: {
-      id: params!.id,
-      modelInfos,
-      ...(await serverSideTranslations(locale)),
-    },
-  };
-};
+}) => ({
+  props: {
+    id: params.id,
+    ...(await serverSideTranslations(locale)),
+  },
+});
 
 export default Chat;

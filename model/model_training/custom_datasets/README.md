@@ -12,11 +12,9 @@ currently dataset can be divided into 3 classes
 
 - STEM : knowledge about the world
 
-  - code
+  - coding
 
   - world knowledge <= ideally we want to handle this via prefix context
-
-- qa
 
 Issues and TODO:
 

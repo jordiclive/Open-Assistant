@@ -7,9 +7,17 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import datasets
 import torch
-from model_training.custom_datasets.dialogue_collator import DialogueDataCollator
-from model_training.efficiency_utils import fuse_gelu
-from model_training.utils import (
+from custom_datasets.dialogue_collator import DialogueDataCollator
+from efficiency_utils import fuse_gelu
+from torch import nn
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+from transformers import PreTrainedModel, Trainer, TrainingArguments
+from transformers.trainer_pt_utils import IterableDatasetShard
+from transformers.trainer_utils import seed_worker
+from transformers.training_args import OptimizerNames
+from transformers.utils import is_datasets_available
+from utils import (
     PerDatasetSampler,
     _strtobool,
     get_dataset,
@@ -19,14 +27,6 @@ from model_training.utils import (
     get_tokenizer,
     read_yamls,
 )
-from torch import nn
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-from transformers import PreTrainedModel, Trainer, TrainingArguments
-from transformers.trainer_pt_utils import IterableDatasetShard
-from transformers.trainer_utils import seed_worker
-from transformers.training_args import OptimizerNames
-from transformers.utils import is_datasets_available
 
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
@@ -67,6 +67,7 @@ class SFTTrainer(Trainer):
         outputs = model(
             input_ids=inputs["input_ids"],
             attention_mask=inputs.get("attention_mask", None),
+            use_cache=False,
         )
 
         loss = self.loss_fct(outputs.get("logits"), targets, mask=labels_mask)
@@ -82,6 +83,7 @@ class SFTTrainer(Trainer):
         outputs = model(
             input_ids=inputs["input_ids"],
             attention_mask=inputs.get("attention_mask", None),
+            use_cache=False,
         )
 
         logits = outputs.get("logits")
@@ -187,6 +189,8 @@ def argument_parsing(notebook=False, notebook_args=None):
     else:
         args, remaining = parser.parse_known_args()
 
+    print(args)
+
     # Config from YAML
     conf = {}
     configs = read_yamls("./configs")
@@ -220,58 +224,53 @@ def argument_parsing(notebook=False, notebook_args=None):
         if type_ == bool:
             type_ = _strtobool
         parser.add_argument(f"--{key}", type=type_, default=value)
-        # Allow --no-{key}  to remove it completely
-        parser.add_argument(f"--no-{key}", dest=key, action="store_const", const=None)
 
-    args = parser.parse_args(remaining)
-    print(args)
-    return args
-
-
-def tokenizer_sanity_check(tokenizer):
-    print("Tokenizer sanity check:")
-    print(f"Type: {type(tokenizer).__name__}")
-
-    print("special_tokens_map:", tokenizer.special_tokens_map)
-
-    print(f"bos_token='{tokenizer.bos_token}', bos_token_id={tokenizer.bos_token_id}")
-    print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
-
-    from model_training.custom_datasets.formatting import QA_SPECIAL_TOKENS, format_pairs
-
-    in_text = format_pairs(["Q1", "A1", "Q2", "A2"], tokenizer.eos_token)
-    in_text = "".join(in_text)
-
-    prompter_token_id = tokenizer.convert_tokens_to_ids(QA_SPECIAL_TOKENS["Question"])
-    assistant_token_id = tokenizer.convert_tokens_to_ids(QA_SPECIAL_TOKENS["Answer"])
-    print(f"{prompter_token_id=}, {assistant_token_id=}")
-
-    tr = tokenizer(in_text, max_length=1024, pad_to_max_length=False, truncation=True)
-
-    message_indices = []
-    i = -1
-    for id in tr.input_ids:
-        if id in (prompter_token_id, assistant_token_id):
-            i += 1
-        message_indices.append(i)
-
-    print("encoding result:", tr)
-    for i, xs in enumerate(tr.input_ids):
-        decoded = tokenizer.decode(xs)
-        print(f'{i}: {xs} -> "{decoded}"')
-
-    print("message_indices:", message_indices)
+    return parser.parse_args(remaining)
 
 
 if __name__ == "__main__":
     training_conf = argument_parsing()
     import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
 
+    output_dir = (
+        training_conf.output_dir
+        if training_conf.output_dir
+        else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
+    )
+
+    optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
+
+    # needs to happen before model loading in case of stage 3 training
+    args = TrainingArguments(
+        output_dir=output_dir,
+        num_train_epochs=training_conf.num_train_epochs,
+        warmup_steps=training_conf.warmup_steps,
+        learning_rate=float(training_conf.learning_rate),
+        deepspeed=training_conf.deepspeed_config if training_conf.deepspeed else None,
+        optim=optimizer,
+        fp16=training_conf.dtype in ["fp16", "float16"],
+        bf16=training_conf.dtype in ["bf16", "bfloat16"],
+        local_rank=training_conf.local_rank,
+        gradient_checkpointing=training_conf.gradient_checkpointing,
+        gradient_accumulation_steps=training_conf.gradient_accumulation_steps,
+        per_device_train_batch_size=training_conf.per_device_train_batch_size,
+        per_device_eval_batch_size=training_conf.per_device_eval_batch_size,
+        adam_beta1=training_conf.adam_beta1,
+        adam_beta2=training_conf.adam_beta2,
+        adam_epsilon=float(training_conf.adam_epsilon),
+        weight_decay=training_conf.weight_decay,
+        max_grad_norm=training_conf.max_grad_norm,
+        logging_steps=training_conf.logging_steps,
+        save_total_limit=training_conf.save_total_limit,
+        evaluation_strategy="steps",
+        eval_steps=training_conf.eval_steps,
+        save_steps=training_conf.save_steps,
+        eval_accumulation_steps=training_conf.eval_accumulation_steps,
+        resume_from_checkpoint=training_conf.resume_from_checkpoint,
+        report_to="wandb" if training_conf.log_wandb else None,
+    )
+
     tokenizer = get_tokenizer(training_conf)
-
-    if not training_conf.deepspeed or training_conf.local_rank == 0:
-        tokenizer_sanity_check(tokenizer)
-
     model = get_model(training_conf, tokenizer)
 
     train, evals = get_dataset(training_conf)
@@ -314,7 +313,6 @@ if __name__ == "__main__":
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
-    optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
 
     if training_conf.quantization:
         for module in model.modules():
@@ -326,40 +324,6 @@ if __name__ == "__main__":
     if training_conf.fuse_gelu:
         model = fuse_gelu(model)
 
-    output_dir = (
-        training_conf.output_dir
-        if training_conf.output_dir
-        else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
-    )
-
-    args = TrainingArguments(
-        output_dir=output_dir,
-        num_train_epochs=training_conf.num_train_epochs,
-        warmup_steps=training_conf.warmup_steps,
-        learning_rate=float(training_conf.learning_rate),
-        deepspeed="configs/zero_config.json" if training_conf.deepspeed else None,
-        optim=optimizer,
-        fp16=training_conf.fp16,
-        local_rank=training_conf.local_rank,
-        gradient_checkpointing=training_conf.gradient_checkpointing,
-        gradient_accumulation_steps=training_conf.gradient_accumulation_steps,
-        per_device_train_batch_size=training_conf.per_device_train_batch_size,
-        per_device_eval_batch_size=training_conf.per_device_eval_batch_size,
-        adam_beta1=training_conf.adam_beta1,
-        adam_beta2=training_conf.adam_beta2,
-        adam_epsilon=float(training_conf.adam_epsilon),
-        weight_decay=training_conf.weight_decay,
-        max_grad_norm=training_conf.max_grad_norm,
-        logging_steps=training_conf.logging_steps,
-        save_total_limit=training_conf.save_total_limit,
-        evaluation_strategy="steps",
-        eval_steps=training_conf.eval_steps,
-        save_steps=training_conf.save_steps,
-        eval_accumulation_steps=training_conf.eval_accumulation_steps,
-        resume_from_checkpoint=training_conf.resume_from_checkpoint,
-        report_to="wandb" if training_conf.log_wandb else None,
-    )
-
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
 
@@ -369,10 +333,11 @@ if __name__ == "__main__":
         wandb.init(
             project="supervised-finetuning",
             entity=training_conf.wandb_entity,
-            config=training_conf,
             resume=training_conf.resume_from_checkpoint,
             name=f"{training_conf.model_name}-{training_conf.log_dir}-finetuned",
+            config=training_conf,
         )
+        wandb.config["_max_length"] = training_conf.max_length
 
     trainer = SFTTrainer(
         model=model,

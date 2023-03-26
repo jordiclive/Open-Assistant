@@ -1,12 +1,12 @@
 // https://nextjs.org/docs/basic-features/layouts
 
-import { Box } from "@chakra-ui/react";
+import { Box, Grid } from "@chakra-ui/react";
 import { Activity, BarChart2, ExternalLink, Layout, MessageSquare, Settings, TrendingUp, Users } from "lucide-react";
 import type { NextPage } from "next";
+import { Header } from "src/components/Header";
 
 import { SlimFooter } from "./Dashboard/SlimFooter";
 import { Footer } from "./Footer";
-import { HeaderLayout } from "./Header/Header";
 import { SideMenuLayout } from "./SideMenuLayout";
 import { ToSWrapper } from "./ToSWrapper";
 
@@ -15,17 +15,27 @@ export type NextPageWithLayout<P = unknown, IP = P> = NextPage<P, IP> & {
 };
 
 export const getDefaultLayout = (page: React.ReactElement) => (
-  <HeaderLayout>
+  <div className="grid grid-rows-[min-content_1fr_min-content] h-full justify-items-stretch">
+    <Header />
     {page}
     <Footer />
-  </HeaderLayout>
+  </div>
+);
+
+export const getTransparentHeaderLayout = (page: React.ReactElement) => (
+  <div className="grid grid-rows-[min-content_1fr_min-content] h-full justify-items-stretch">
+    <Header />
+    {page}
+    <Footer />
+  </div>
 );
 
 export const getDashboardLayout = (page: React.ReactElement) => (
-  <HeaderLayout>
+  <Grid templateRows="min-content 1fr" h="full" gridTemplateColumns="minmax(0, 1fr)">
+    <Header />
     <ToSWrapper>
       <SideMenuLayout
-        items={[
+        menuButtonOptions={[
           {
             labelID: "dashboard",
             pathname: "/dashboard",
@@ -60,13 +70,14 @@ export const getDashboardLayout = (page: React.ReactElement) => (
         </Box>
       </SideMenuLayout>
     </ToSWrapper>
-  </HeaderLayout>
+  </Grid>
 );
 
 export const getAdminLayout = (page: React.ReactElement) => (
-  <HeaderLayout>
+  <Grid templateRows="min-content 1fr" h="full" gridTemplateColumns="minmax(0, 1fr)">
+    <Header />
     <SideMenuLayout
-      items={[
+      menuButtonOptions={[
         {
           labelID: "users",
           pathname: "/admin",
@@ -94,9 +105,9 @@ export const getAdminLayout = (page: React.ReactElement) => (
         },
       ]}
     >
-      <Box>{page}</Box>
+      {page}
     </SideMenuLayout>
-  </HeaderLayout>
+  </Grid>
 );
 
 export const noLayout = (page: React.ReactElement) => page;

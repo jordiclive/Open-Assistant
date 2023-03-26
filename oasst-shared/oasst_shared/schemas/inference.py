@@ -1,16 +1,20 @@
+import datetime
 import enum
 import platform
 import random
 import uuid
-from datetime import datetime
 from typing import Annotated, Literal, Union
 
 import psutil
 import pydantic
 import pynvml
-from oasst_shared.model_configs import ModelConfig
 
 INFERENCE_PROTOCOL_VERSION = "1"
+DEFAULT_MODEL_NAME = "distilgpt2"
+
+
+def compat_hash(*, model_name: str) -> str:
+    return f"{model_name}"
 
 
 class WorkerGpuInfo(pydantic.BaseModel):
@@ -60,17 +64,13 @@ class WorkerHardwareInfo(pydantic.BaseModel):
 
 
 class WorkerConfig(pydantic.BaseModel):
-    model_config: ModelConfig
-    max_parallel_requests: int = 1
+    model_name: str = DEFAULT_MODEL_NAME
+    hardware_info: WorkerHardwareInfo
+    max_parallel_requests: int = 8
 
     @property
     def compat_hash(self) -> str:
-        return self.model_config.compat_hash
-
-
-class WorkerInfo(pydantic.BaseModel):
-    config: WorkerConfig
-    hardware_info: WorkerHardwareInfo
+        return compat_hash(model_name=self.model_name)
 
 
 class GpuMetricsInfo(pydantic.BaseModel):
@@ -106,26 +106,19 @@ class WorkerMetricsInfo(pydantic.BaseModel):
         super().__init__(**data)
 
 
-class SamplingParameters(pydantic.BaseModel):
+class WorkParametersInput(pydantic.BaseModel):
+    model_name: str = DEFAULT_MODEL_NAME
     top_k: int | None = None
     top_p: float | None = None
     typical_p: float | None = None
     temperature: float | None = None
     repetition_penalty: float | None = None
-    max_new_tokens: int = 1024
+    max_new_tokens: int | None = None
 
 
-def make_seed() -> int:
-    return random.randint(0, 0xFFFF_FFFF_FFFF_FFFF - 1)
-
-
-class WorkParameters(pydantic.BaseModel):
-    model_config: ModelConfig
-    sampling_parameters: SamplingParameters = pydantic.Field(default_factory=SamplingParameters)
+class WorkParameters(WorkParametersInput):
     do_sample: bool = True
-    seed: int = pydantic.Field(
-        default_factory=make_seed,
-    )
+    seed: int = pydantic.Field(default_factory=lambda: random.randint(0, 0xFFFF_FFFF_FFFF_FFFF - 1))
 
 
 class ReportType(str, enum.Enum):
@@ -151,15 +144,13 @@ class MessageState(str, enum.Enum):
     in_progress = "in_progress"
     complete = "complete"
     aborted_by_worker = "aborted_by_worker"
-    cancelled = "cancelled"
-    timeout = "timeout"
 
 
 class MessageRead(pydantic.BaseModel):
     id: str
     parent_id: str | None
     content: str | None
-    created_at: datetime
+    created_at: datetime.datetime
     role: Literal["prompter", "assistant"]
     state: MessageState
     score: int
@@ -181,7 +172,7 @@ class WorkerRequestBase(pydantic.BaseModel):
 class WorkRequest(WorkerRequestBase):
     request_type: Literal["work"] = "work"
     thread: Thread = pydantic.Field(..., repr=False)
-    created_at: datetime = pydantic.Field(default_factory=datetime.utcnow)
+    created_at: datetime.datetime = pydantic.Field(default_factory=datetime.datetime.utcnow)
     parameters: WorkParameters = pydantic.Field(default_factory=WorkParameters)
 
 
@@ -192,14 +183,6 @@ class PingRequest(WorkerRequestBase):
 class ErrorRequest(WorkerRequestBase):
     request_type: Literal["error"] = "error"
     error: str
-
-
-class UpgradeProtocolRequest(WorkerRequestBase):
-    request_type: Literal["upgrade_protocol"] = "upgrade_protocol"
-
-
-class WrongApiKeyRequest(WorkerRequestBase):
-    request_type: Literal["wrong_api_key"] = "wrong_api_key"
 
 
 class TerminateRequest(WorkerRequestBase):
@@ -218,7 +201,7 @@ class PongResponse(WorkerResponseBase):
 class TokenResponse(WorkerResponseBase):
     response_type: Literal["token"] = "token"
     text: str
-    log_prob: float | None
+    log_prob: float
     token_id: int
 
 
@@ -234,11 +217,6 @@ class InternalFinishedMessageResponse(WorkerResponseBase):
     message: MessageRead
 
 
-class InternalErrorResponse(WorkerResponseBase):
-    response_type: Literal["internal_error"] = "internal_error"
-    error: str
-
-
 class ErrorResponse(WorkerResponseBase):
     response_type: Literal["error"] = "error"
     metrics: WorkerMetricsInfo = pydantic.Field(default_factory=WorkerMetricsInfo)
@@ -251,27 +229,12 @@ class GeneralErrorResponse(WorkerResponseBase):
     error: str
 
 
-_WorkerRequest = Union[
-    WorkRequest,
-    PingRequest,
-    ErrorRequest,
-    TerminateRequest,
-    UpgradeProtocolRequest,
-    WrongApiKeyRequest,
-]
 WorkerRequest = Annotated[
-    _WorkerRequest,
+    Union[WorkRequest, PingRequest, ErrorRequest, TerminateRequest],
     pydantic.Field(discriminator="request_type"),
 ]
 
 WorkerResponse = Annotated[
-    Union[
-        TokenResponse,
-        GeneratedTextResponse,
-        ErrorResponse,
-        PongResponse,
-        InternalFinishedMessageResponse,
-        InternalErrorResponse,
-    ],
+    Union[TokenResponse, GeneratedTextResponse, ErrorResponse, PongResponse, InternalFinishedMessageResponse],
     pydantic.Field(discriminator="response_type"),
 ]

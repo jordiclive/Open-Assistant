@@ -6,7 +6,12 @@ const headers = {
   "Content-Type": "application/json",
 };
 
-const api = axios.create({ headers });
+// Create Axios such that we always send credential cookies along with the
+// request.  This allows the Backend services to authenticate the user.
+const api = axios.create({
+  headers,
+  withCredentials: true,
+});
 
 export const get = (url: string) => api.get(url).then((res) => res.data);
 

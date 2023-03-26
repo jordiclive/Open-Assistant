@@ -1,5 +1,6 @@
 import { Box, Heading } from "@chakra-ui/react";
 import Head from "next/head";
+import { getTransparentHeaderLayout } from "src/components/Layout";
 import { TermsOfService } from "src/components/ToS";
 export { getDefaultStaticProps as getStaticProps } from "src/lib/default_static_props";
 
@@ -21,5 +22,7 @@ const TermsOfServicePage = () => {
     </>
   );
 };
+
+TermsOfServicePage.getLayout = getTransparentHeaderLayout;
 
 export default TermsOfServicePage;

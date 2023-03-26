@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   Card,
@@ -15,7 +16,6 @@ import {
 } from "@chakra-ui/react";
 import Head from "next/head";
 import { useTranslation } from "next-i18next";
-import React from "react";
 export { getDefaultStaticProps as getStaticProps } from "src/lib/default_static_props";
 import { AdminArea } from "src/components/AdminArea";
 import { getAdminLayout } from "src/components/Layout";

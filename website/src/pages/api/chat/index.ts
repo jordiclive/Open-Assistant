@@ -1,9 +1,8 @@
 import { withoutRole } from "src/lib/auth";
-import { createInferenceClient } from "src/lib/oasst_inference_client";
+import { OasstInferenceClient } from "src/lib/oasst_inference_client";
 
 const handler = withoutRole("banned", async (req, res, token) => {
-  const client = createInferenceClient(token);
-
+  const client = new OasstInferenceClient(req, res, token);
   let data;
   if (req.method === "GET") {
     if (req.query.chat_id) {

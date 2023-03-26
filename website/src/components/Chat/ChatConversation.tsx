@@ -1,21 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, CircularProgress, Flex, Icon, Textarea, useBoolean, useColorModeValue } from "@chakra-ui/react";
-import { XCircle } from "lucide-react";
+import { Button, Flex, Textarea, useBoolean, useColorModeValue } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useTranslation } from "next-i18next";
 import { memo, ReactNode, useCallback, useMemo, useRef, useState } from "react";
-import { useFormContext } from "react-hook-form";
 import { useMessageVote } from "src/hooks/chat/useMessageVote";
 import { get, post } from "src/lib/api";
 import { handleChatEventStream, QueueInfo } from "src/lib/chat_stream";
 import { API_ROUTES } from "src/lib/routes";
-import {
-  ChatConfigForm,
-  ChatItem,
-  InferenceMessage,
-  InferencePostMessageParams,
-  InferencePostMessageResponse,
-} from "src/types/Chat";
+import { ChatItem, InferenceMessage, InferencePostMessageResponse } from "src/types/Chat";
 import useSWR from "swr";
 
 import { BaseMessageEntry } from "../Messages/BaseMessageEntry";
@@ -35,10 +27,8 @@ export const ChatConversation = ({ chatId }: ChatConversationProps) => {
   const [queueInfo, setQueueInfo] = useState<QueueInfo | null>(null);
   const [isSending, setIsSending] = useBoolean();
 
-  useSWR<ChatItem>(API_ROUTES.GET_CHAT(chatId), get, {
-    onSuccess: (chat) => setMessages(chat.messages.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at))),
-  });
-  const { getValues: getFormValues } = useFormContext<ChatConfigForm>();
+  useSWR<ChatItem>(API_ROUTES.GET_CHAT(chatId), get, { onSuccess: (chat) => setMessages(chat.messages) });
+
   const send = useCallback(async () => {
     const content = inputRef.current?.value.trim();
     if (!content || !chatId) {
@@ -46,22 +36,16 @@ export const ChatConversation = ({ chatId }: ChatConversationProps) => {
     }
     setIsSending.on();
 
-    // find last VALID assistant message
+    // find last assistant message, is usually last message but not always
+    // TODO: the inference server does not return the messages sorted, this is only a best guess
     const parent_id =
       messages
         .slice()
         .reverse()
-        .find((m) => m.role === "assistant" && m.state === "complete")?.id ?? null;
-    const { model_config_name, ...sampling_parameters } = getFormValues();
-    const arg: InferencePostMessageParams = {
-      chat_id: chatId,
-      content,
-      parent_id,
-      model_config_name,
-      sampling_parameters,
-    };
-
-    const response: InferencePostMessageResponse = await post(API_ROUTES.CREATE_CHAT_MESSAGE, { arg });
+        .find((m) => m.role === "assistant")?.id ?? null;
+    const response: InferencePostMessageResponse = await post(API_ROUTES.CREATE_CHAT_MESSAGE, {
+      arg: { chat_id: chatId, content, parent_id },
+    });
 
     setMessages((messages) => [...messages, response.prompter_message]);
 
@@ -89,7 +73,7 @@ export const ChatConversation = ({ chatId }: ChatConversationProps) => {
     setQueueInfo(null);
     setResponse(null);
     setIsSending.off();
-  }, [chatId, getFormValues, messages, setIsSending]);
+  }, [chatId, messages, setIsSending]);
 
   const sendVote = useMessageVote();
 
@@ -125,7 +109,6 @@ export const ChatConversation = ({ chatId }: ChatConversationProps) => {
           messageId={message.id}
           chatId={chatId}
           score={message.score}
-          state={message.state}
           onVote={handleOnVote}
         >
           {message.content}
@@ -153,7 +136,6 @@ export const ChatConversation = ({ chatId }: ChatConversationProps) => {
 type ChatMessageEntryProps = {
   isAssistant: boolean;
   children: InferenceMessage["content"];
-  state: InferenceMessage["state"];
   chatId: string;
   messageId: string;
   score: number;
@@ -180,7 +162,6 @@ const ChatMessageEntry = memo(function ChatMessageEntry({
   chatId,
   messageId,
   score,
-  state,
   onVote,
 }: ChatMessageEntryProps) {
   const handleVote = useCallback(
@@ -203,10 +184,6 @@ const ChatMessageEntry = memo(function ChatMessageEntry({
     <PendingMessageEntry isAssistant={isAssistant} content={children!}>
       {isAssistant && (
         <MessageInlineEmojiRow>
-          {state === "pending" && <CircularProgress isIndeterminate size="20px" title={state} />}
-          {(state === "aborted_by_worker" || state === "cancelled" || state === "timeout") && (
-            <Icon as={XCircle} color="red" />
-          )}
           <MessageEmojiButton
             emoji={{ name: "+1", count: 0 }}
             checked={score === 1}

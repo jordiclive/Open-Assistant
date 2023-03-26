@@ -1,42 +1,23 @@
 import { Button, Divider, Flex, Progress, Text } from "@chakra-ui/react";
-import { GetServerSideProps } from "next";
 import Head from "next/head";
+import { useTranslation } from "next-i18next";
+import { useCallback, useMemo } from "react";
+import { getDashboardLayout } from "src/components/Layout";
+import { get, post } from "src/lib/api";
+export { getDefaultStaticProps as getStaticProps } from "src/lib/default_static_props";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
-import { useTranslation } from "next-i18next";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useCallback, useMemo } from "react";
-import { ChatAuth } from "src/components/Chat/ChatAuth";
-import { getDashboardLayout } from "src/components/Layout";
+import { Flags } from "react-feature-flags";
 import { SurveyCard } from "src/components/Survey/SurveyCard";
-import { get, post } from "src/lib/api";
-import { isChatEnabled } from "src/lib/chat_enabled";
 import { GetChatsResponse } from "src/types/Chat";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
-export const getServerSideProps: GetServerSideProps = async ({ locale }) => {
-  if (!isChatEnabled()) {
-    return {
-      notFound: true,
-    };
-  }
-  return {
-    props: {
-      inferenceHost: process.env.INFERENCE_SERVER_HOST,
-      ...(await serverSideTranslations(locale)),
-    },
-  };
-};
-
-const Chat = ({ inferenceHost }: { inferenceHost: string }) => {
+const Chat = () => {
   const { t } = useTranslation(["common", "chat"]);
   const router = useRouter();
-  const { data: session } = useSession();
-  const isAuthenticatedInference = session?.inference.isAuthenticated;
 
-  const { data } = useSWR<GetChatsResponse>(isAuthenticatedInference && "/api/chat", get, { revalidateOnFocus: true });
+  const { data } = useSWR<GetChatsResponse>("/api/chat", get, { revalidateOnFocus: true });
 
   const { trigger: newChatTrigger } = useSWRMutation<{ id: string }>("/api/chat", post);
 
@@ -83,8 +64,8 @@ const Chat = ({ inferenceHost }: { inferenceHost: string }) => {
       <Head>
         <title>{t("chat")}</title>
       </Head>
-      {content}
-      <ChatAuth inferenceHost={inferenceHost} />
+
+      <Flags authorizedFlags={["chat"]}>{content}</Flags>
     </>
   );
 };
