@@ -172,7 +172,7 @@ gpt-neox:
 
 gpt-neox-jordan:
   model_name: EleutherAI/gpt-neox-20b
-  deepspeed_config: configs/zero_config.json
+  deepspeed_config: configs/zero_config2.json
   dtype: fp16
   learning_rate: 8e-6
   weight_decay: 0.0
@@ -185,7 +185,7 @@ gpt-neox-jordan:
   per_device_eval_batch_size: 16
   residual_dropout: 0.0
   use_flash_attention: false
-
+  quantization: false
 
 galactica-125m:
   learning_rate: 5e-5
