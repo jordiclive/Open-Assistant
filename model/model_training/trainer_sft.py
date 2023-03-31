@@ -37,7 +37,7 @@ def get_llama_model(
 
     model = LlamaForCausalLM.from_pretrained(
         base_model,
-        load_in_8bit=True,
+        # load_in_8bit=True,
         torch_dtype=torch.float16,
         # device_map=device_map,
     )
@@ -48,7 +48,7 @@ def get_llama_model(
     # )
     # tokenizer.padding_side = "left"  # Allow batched inference
 
-    model = prepare_model_for_int8_training(model)
+    # model = prepare_model_for_int8_training(model)
 
     config = LoraConfig(
         r=lora_r,
