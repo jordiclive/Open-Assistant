@@ -17,7 +17,7 @@ from transformers import LlamaForCausalLM, LlamaTokenizer
 
 def get_llama_model(
         # model/data params
-        base_model: str = "decapoda-research/llama-7b-hf",  # the only required argument
+        model,  # the only required argument
         # training hyperparams
         cutoff_len: int = 256,
         # lora hyperparams
@@ -34,14 +34,13 @@ def get_llama_model(
         prompt_template_name: str = "alpaca",  # The prompt template to use, will default to alpaca.
 ):
     # device_map = "auto"
-
-    model = LlamaForCausalLM.from_pretrained(
-        base_model,
-        # load_in_8bit=True,
-        torch_dtype=torch.float16,
-        # device_map=device_map,
-    )
-    tokenizer = LlamaTokenizer.from_pretrained(base_model)
+    #
+    # model = LlamaForCausalLM.from_pretrained(
+    #     base_model,
+    #     # load_in_8bit=True,
+    #     torch_dtype=torch.float16,
+    #     # device_map=device_map,
+    # )
 
     # tokenizer.pad_token_id = (
     #     0  # unk. we want this to be different from the eos token
@@ -81,11 +80,12 @@ def get_llama_model(
             print(f"Checkpoint {checkpoint_name} not found")
 
     model.print_trainable_parameters()  # Be more transparent about the % of trainable params.
-    return model, tokenizer
+    return model
 
 
 
 
+ 
 
 
 
@@ -400,15 +400,15 @@ if __name__ == "__main__":
         report_to="wandb" if training_conf.log_wandb else None,
     )
 
-    # tokenizer = get_tokenizer(training_conf)
+    tokenizer = get_tokenizer(training_conf)
 
-    model, tokenizer = get_llama_model()
 
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
 
-    # model = get_model(training_conf, tokenizer)
+    model = get_model(training_conf, tokenizer)
 
+    model = get_llama_model(model)
 
     train, evals = get_dataset(training_conf)
     train_collate_fn = DialogueDataCollator(
