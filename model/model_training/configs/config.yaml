@@ -149,7 +149,7 @@ llama-7b:
   dtype: fp16
   log_dir: "llama_log_7b"
   learning_rate: 2e-5
-  model_name: /home/ubuntu/llama_hf/7B
+  model_name: "https://huggingface.co/decapoda-research/llama-7b-hf" #/admin/home-jordiclive/llama/7B
   output_dir: llama_model
   weight_decay: 0.0
   max_length: 620
