@@ -96,16 +96,16 @@ oasst_export_eu:
     - oasst_export:
         lang: "en,es,de,fr"
         input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
-    - alpaca
-    - oig_file:
-        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
-        max_count: 10000
-        min_length: 1000
-        val_split: 0.2
-    - oig_file:
-        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
-        val_split: 0.1
-        min_length: 1000
+#    - alpaca
+#    - oig_file:
+#        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
+#        max_count: 10000
+#        min_length: 1000
+#        val_split: 0.2
+#    - oig_file:
+#        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
+#        val_split: 0.1
+#        min_length: 1000
   sort_by_length: false
   use_custom_sampler: false
 
