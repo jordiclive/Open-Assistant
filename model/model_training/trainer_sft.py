@@ -33,13 +33,13 @@ def get_llama_model(
         resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
         prompt_template_name: str = "alpaca",  # The prompt template to use, will default to alpaca.
 ):
-    device_map = "auto"
+    # device_map = "auto"
 
     model = LlamaForCausalLM.from_pretrained(
         base_model,
         load_in_8bit=True,
         torch_dtype=torch.float16,
-        device_map=device_map,
+        # device_map=device_map,
     )
     tokenizer = LlamaTokenizer.from_pretrained(base_model)
 
