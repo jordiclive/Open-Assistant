@@ -19,6 +19,7 @@ from model_training.utils import (
     get_tokenizer,
     read_yamls,
 )
+from model_training.models.lora_llama import get_llama_model
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -307,12 +308,15 @@ if __name__ == "__main__":
         report_to="wandb" if training_conf.log_wandb else None,
     )
 
-    tokenizer = get_tokenizer(training_conf)
+    # tokenizer = get_tokenizer(training_conf)
+
+    model, tokenizer = get_llama_model()
 
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
 
-    model = get_model(training_conf, tokenizer)
+    # model = get_model(training_conf, tokenizer)
+
 
     train, evals = get_dataset(training_conf)
     train_collate_fn = DialogueDataCollator(
@@ -362,8 +366,10 @@ if __name__ == "__main__":
                     module, "weight", {"optim_bits": 32}
                 )
 
-    if training_conf.fuse_gelu:
-        model = fuse_gelu(model)
+    # if training_conf.fuse_gelu:
+    #     model = fuse_gelu(model)
+
+
 
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
@@ -371,9 +377,11 @@ if __name__ == "__main__":
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
 
+
+        os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         wandb.init(
             project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
             name=f"{training_conf.model_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
