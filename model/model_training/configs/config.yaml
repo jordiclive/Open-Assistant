@@ -145,11 +145,29 @@ pythia-12b:
   num_train_epochs: 16
   save_total_limit: 4
 
+
+llama-7b1:
+  log_dir: "llama_log_7b"
+  learning_rate: 2e-5
+  model_name: /Users/jordanclive/Desktop/llama/7B
+  output_dir: llama_model
+  weight_decay: 0.0
+  max_length: 620
+  warmup_steps: 100
+  gradient_checkpointing: false
+  gradient_accumulation_steps: 4
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 10
+  eval_steps: 100
+  save_steps: 500
+  num_train_epochs: 16
+  save_total_limit: 4
+
 llama-7b:
   dtype: fp16
   log_dir: "llama_log_7b"
   learning_rate: 2e-5
-  model_name: "https://huggingface.co/decapoda-research/llama-7b-hf" #/admin/home-jordiclive/llama/7B
+  model_name: "/admin/home-jordiclive/llama/7B" #"https://huggingface.co/decapoda-research/llama-7b-hf" #/admin/home-jordiclive/llama/7B
   output_dir: llama_model
   weight_decay: 0.0
   max_length: 620
