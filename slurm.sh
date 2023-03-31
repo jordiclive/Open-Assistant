@@ -13,6 +13,8 @@ cd /admin/home-jordiclive/Open-Assistant
 export TRANSFORMERS_CACHE=/admin/home-jordiclive/transformers_cache
 #export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
+export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
+
 #export MASTER_PORT="12802"
 #master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 #export MASTER_ADDR=$master_addr
