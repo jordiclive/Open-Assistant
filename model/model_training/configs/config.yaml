@@ -181,6 +181,7 @@ llama-7b:
   save_steps: 500
   num_train_epochs: 16
   save_total_limit: 4
+  use_flash_attention: True
 
 llama-13b:
   dtype: fp16
