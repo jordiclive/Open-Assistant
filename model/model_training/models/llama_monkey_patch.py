@@ -47,7 +47,7 @@ def forward(
                                                     key_states,
                                                     cos,
                                                     sin,
-                                                    offset=offset,position_ids=position_ids)
+                                                    position_ids=position_ids)
     # [bsz, nh, t, hd]
     assert not output_attentions, "output_attentions is not supported"
     assert not use_cache, "use_cache is not supported"
