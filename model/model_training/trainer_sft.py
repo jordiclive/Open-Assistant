@@ -22,12 +22,9 @@ def get_llama_model(
         cutoff_len: int = 256,
         # lora hyperparams
         lora_r: int = 8,
-        lora_alpha: int = 16,
+        lora_alpha: int = 32,
         lora_dropout: float = 0.05,
-        lora_target_modules: List[str] = [
-            "q_proj",
-            "v_proj",
-        ],
+        lora_target_modules: List[str] = ['q_proj','k_proj','v_proj','o_proj'],
         # llm hyperparams
         # wandb params
         resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
@@ -475,7 +472,7 @@ if __name__ == "__main__":
             project="supervised-finetuning",
             entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
-            name=f"{training_conf.model_name}-{training_conf.log_dir}-finetuned",
+            name=f"LORA_{training_conf.model_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
