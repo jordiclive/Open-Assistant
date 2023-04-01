@@ -427,8 +427,9 @@ def main(
             lora_weights,
             torch_dtype=torch.float16,
         )
-        target_size = len(tokenizer)
-        model.resize_token_embeddings(target_size)
+        p = 16
+        target_size = len(tokenizer) if not p else math.ceil(len(tokenizer) / p) * p
+        model.resize_token_embeddings(32016)
         model.base_model.model.model.embed_tokens.weight[32000:, :] = torch.load("/fsx/home-jordiclive/adapter/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(device)
 
         model = model.half().to("cuda")
