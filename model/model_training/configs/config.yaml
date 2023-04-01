@@ -91,21 +91,40 @@ math:
   datasets_extra: # Will get merged with datasets
     - minimath
 
+oasst_export_jordan:
+  datasets:
+    - oasst_export:
+        lang: "en,es,de,fr"
+        input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
+    - gpt4all
+    - alpaca
+    - code_alpaca
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
+        min_length: 100
+        val_split: 0.1
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
+        val_split: 0.1
+        min_length: 100
+  sort_by_length: false
+  use_custom_sampler: false
+
 oasst_export_eu:
   datasets:
     - oasst_export:
         lang: "en,es,de,fr"
         input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
-#    - alpaca
-#    - oig_file:
-#        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
-#        max_count: 10000
-#        min_length: 1000
-#        val_split: 0.2
-#    - oig_file:
-#        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
-#        val_split: 0.1
-#        min_length: 1000
+    - alpaca
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
+        max_count: 10000
+        min_length: 1000
+        val_split: 0.2
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
+        val_split: 0.1
+        min_length: 1000
   sort_by_length: false
   use_custom_sampler: false
 
@@ -182,6 +201,7 @@ llama-7b:
   num_train_epochs: 16
   save_total_limit: 4
   use_flash_attention: True
+
 
 llama-13b:
   dtype: fp16

@@ -2,7 +2,7 @@
 import os
 from typing import List
 
-
+import time
 import torch
 
 from peft import (
@@ -364,6 +364,7 @@ if __name__ == "__main__":
         if training_conf.output_dir
         else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
     )
+    output_dir += f"{time.strftime('%Y%m%d_%H%M%S')}"
 
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
 
