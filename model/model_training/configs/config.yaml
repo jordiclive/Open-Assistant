@@ -69,7 +69,7 @@ defaults:
   label_masking: true
   residual_dropout: 0.1
   use_flash_attention: false
-  sort_by_length: false
+  sort_by_length: true
   use_system_prefix: false
   system_prefix:
     "You are Joi, a large language model trained by Open-Assistant. Answer as
@@ -117,6 +117,27 @@ pretrain:
     - explain_prosocial:
         fraction: 0.05
 
+oasst_export_eu_11b:
+  datasets:
+    - oasst_export:
+        lang: "en,es,de,fr"
+        input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
+    - gpt4all:
+        val_split: 0.01
+    - alpaca:
+        val_split: 0.025
+    - code_alpaca
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
+        max_count: 20000
+        min_length: 100
+        val_split: 0.01
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
+        val_split: 0.05
+        min_length: 100
+  use_custom_sampler: false
+
 oasst_export_eu:
   datasets:
     - oasst_export:
@@ -136,7 +157,6 @@ oasst_export_eu:
         source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
         val_split: 0.05
         min_length: 100
-  sort_by_length: false
   use_custom_sampler: false
 
 oasst_export_latin_cyrillic:
@@ -205,13 +225,14 @@ llama-7b:
   warmup_steps: 30000
   gradient_checkpointing: False
   gradient_accumulation_steps: 1
-  per_device_train_batch_size: 6
-  per_device_eval_batch_size: 8
+  per_device_train_batch_size: 5
+  per_device_eval_batch_size: 6
   eval_steps: 5000
   save_steps: 5000
   num_train_epochs: 4
   save_total_limit: 2
   use_flash_attention: True
+  sort_by_length: true
 
 llama-13b:
   dtype: fp16
@@ -232,6 +253,7 @@ llama-13b:
   save_total_limit: 2
   use_flash_attention: True
   deepspeed_config: configs/zero3_config.json
+  sort_by_length: true
 
 llama-30b:
   dtype: fp16
