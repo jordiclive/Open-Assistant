@@ -221,14 +221,14 @@ llama-7b:
   model_name: "decapoda-research/llama-7b-hf" #"decapoda-research/llama-7b-hf"  #/admin/home-jordiclive/llama/7B" #"https://huggingface.co/decapoda-research/llama-7b-hf" #/admin/home-jordiclive/llama/7B
   output_dir: llama_model
   weight_decay: 0.0
-  max_length: 2048
-  warmup_steps: 30000
-  gradient_checkpointing: True
+  max_length: 1600
+  warmup_steps: 1000
+  gradient_checkpointing: False
   gradient_accumulation_steps: 1
-  per_device_train_batch_size: 10
-  per_device_eval_batch_size: 8
-  eval_steps: 5000
-  save_steps: 5000
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  eval_steps: 500
+  save_steps: 500
   num_train_epochs: 4
   save_total_limit: 2
   use_flash_attention: True
