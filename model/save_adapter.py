@@ -440,10 +440,10 @@ def main(
                 continue
             input_ids = tokenizer(text, return_tensors="pt").input_ids.to("cuda")
             from transformers import GenerationConfig
-            temperature = 0.1,
-            top_p = 0.75,
-            top_k = 40,
-            num_beams = 4,
+            temperature = 0.1
+            top_p = 0.75
+            top_k = 40
+            num_beams = 4
             max_new_tokens = 128
             generation_config = GenerationConfig(
                 temperature=temperature,
