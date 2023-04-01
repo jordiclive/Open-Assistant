@@ -494,6 +494,9 @@ if __name__ == "__main__":
 
     model = get_llama_model(model)
 
+    for _, param in model.named_parameters():
+        param.requires_grad = True
+
     train, evals = get_dataset(training_conf)
     train_collate_fn = DialogueDataCollator(
         tokenizer,
