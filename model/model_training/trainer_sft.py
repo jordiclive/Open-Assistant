@@ -559,7 +559,7 @@ if __name__ == "__main__":
             project="supervised-finetuning",
             entity="open-assistant", #open-assistant jordanclive
             resume=training_conf.resume_from_checkpoint,
-            name=f"LORA_{training_conf.model_name}-{training_conf.log_dir}-finetuned",
+            name=f"LORA_{training_conf.model_name}-{training_conf.max_length}-finetuned",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
