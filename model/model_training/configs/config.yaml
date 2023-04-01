@@ -222,7 +222,7 @@ llama-13b:
   weight_decay: 0.01
   max_length: 2048
   warmup_steps: 30000
-  gradient_checkpointing: false
+  gradient_checkpointing: true
   gradient_accumulation_steps: 1
   per_device_train_batch_size: 4
   per_device_eval_batch_size: 8

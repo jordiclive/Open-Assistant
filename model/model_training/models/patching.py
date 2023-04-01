@@ -155,10 +155,10 @@ or run with:
 
     for layer in model.layers:
         if flash_attention:
-            # if isinstance(model, LlamaModel):
-            #     warnings.warn("Flash attention is not supported for LLaMA models.")
-            # else:
-            add_flash_attn(layer.attention, causal=True)
+            if isinstance(model, LlamaModel):
+                warnings.warn("Flash attention is not supported for LLaMA models.")
+            else:
+                add_flash_attn(layer.attention, causal=True)
 
         if resid_pdrop is not None and resid_pdrop > 0:
             add_dropout(getattr(layer, attention_key), _patched_attn_forward, resid_pdrop)
