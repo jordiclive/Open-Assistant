@@ -203,7 +203,7 @@ llama-7b:
   warmup_steps: 10000
   gradient_checkpointing: False
   gradient_accumulation_steps: 1
-  per_device_train_batch_size: 16
+  per_device_train_batch_size: 8
   per_device_eval_batch_size: 10
   eval_steps: 1000
   save_steps: 1000
