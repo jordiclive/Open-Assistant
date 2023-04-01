@@ -438,22 +438,47 @@ def main(
             text = str(text)
             if len(text) == 0:
                 continue
-            ids = tokenizer(text, return_tensors="pt").input_ids.to("cuda")
+            input_ids = tokenizer(text, return_tensors="pt").input_ids.to("cuda")
+            from transformers import GenerationConfig
+            temperature = 0.1,
+            top_p = 0.75,
+            top_k = 40,
+            num_beams = 4,
+            max_new_tokens = 128
+            generation_config = GenerationConfig(
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                num_beams=num_beams,
 
-            # add the length of the prompt tokens to match with the mesh-tf generation
-            max_length = 400 + ids.shape[1]
-
-            gen_tokens = model.generate(
-                ids,
-                do_sample=True,
-                min_length=max_length,
-                max_length=max_length,
-                temperature=0.9,
-                use_cache=True
             )
-            gen_text = tokenizer.batch_decode(gen_tokens)[0]
+            with torch.no_grad():
+                generation_output = model.generate(
+                    input_ids=input_ids,
+                    generation_config=generation_config,
+                    return_dict_in_generate=True,
+                    output_scores=True,
+                    max_new_tokens=max_new_tokens,
+                )
+            s = generation_output.sequences[0]
+            output = tokenizer.decode(s)
             print("Text generated:")
-            print(gen_text)
+            print(output)
+
+            # # add the length of the prompt tokens to match with the mesh-tf generation
+            # max_length = 400 + ids.shape[1]
+            #
+            # gen_tokens = model.generate(
+            #     ids,
+            #     do_sample=True,
+            #     min_length=max_length,
+            #     max_length=max_length,
+            #     temperature=0.9,
+            #     use_cache=True
+            # )
+            # gen_text = tokenizer.batch_decode(gen_tokens)[0]
+            print("Text generated:")
+            # print(gen_text)
 
 
 
