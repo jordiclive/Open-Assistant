@@ -74,6 +74,7 @@ def add_flash_attn(module: nn.Module, causal: bool = True):
     flash_attn = FlashSelfAttention(causal=causal)
     if isinstance(module, transformers.models.llama.modeling_llama.LlamaAttention):
         module.old_forward = module.forward
+        warnings.warn("FLASH activated for LlamaAttention!!!")
         module.forward = partial(llama_forward_with_flash_attn, module, flash_attn)
     elif isinstance(module, transformers.models.gpt_neox.modeling_gpt_neox.GPTNeoXAttention):
         if not hasattr(module, "_attn"):
