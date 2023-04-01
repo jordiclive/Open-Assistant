@@ -127,7 +127,7 @@ oasst_export_eu:
     - code_alpaca
     - oig_file:
         source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
-        max_count: 100000
+        max_count: 50000
         min_length: 100
         val_split: 0.01
     - oig_file:
