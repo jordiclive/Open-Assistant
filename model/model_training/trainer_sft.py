@@ -391,7 +391,7 @@ if __name__ == "__main__":
         report_to="wandb" if training_conf.log_wandb else None,
     )
     model_name = training_conf.model_name
-    training_conf.model_name = "/Users/jordanclive/Desktop/llama/7B"
+    training_conf.model_name = "/admin/home-jordiclive/llama/7B"
     tokenizer = get_tokenizer(training_conf)
 
     if not training_conf.deepspeed or training_conf.local_rank == 0:
