@@ -19,6 +19,7 @@ def forward(
         attention_mask: Optional[torch.Tensor] = None,
         output_attentions: bool = False,
         use_cache: bool = False,
+        position_ids: Optional[torch.LongTensor] = None,
 ) -> Tuple[torch.Tensor, Optional[torch.Tensor],
            Optional[Tuple[torch.Tensor]]]:
     """Input shape: Batch x Time x Channel
@@ -46,7 +47,7 @@ def forward(
                                                     key_states,
                                                     cos,
                                                     sin,
-                                                    offset=offset)
+                                                    offset=offset,position_ids=position_ids)
     # [bsz, nh, t, hd]
     assert not output_attentions, "output_attentions is not supported"
     assert not use_cache, "use_cache is not supported"
