@@ -85,6 +85,7 @@ def forward(
         output = rearrange(pad_input(rearrange(output_unpad, 'nnz h d -> nnz (h d)'),
                                      indices, bsz, q_len),
                            'b s (h d) -> b s h d', h=nheads)
+    self.o_proj = self.o_proj.half()
     return self.o_proj(rearrange(output.to(torch.float16).to(qkv.device),
                                  'b s h d -> b s (h d)')), None, None
 
