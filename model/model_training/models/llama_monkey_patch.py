@@ -79,13 +79,13 @@ def forward(
         x_unpad, indices, cu_q_lens, max_s = unpad_input(x, key_padding_mask)
         x_unpad = rearrange(x_unpad, 'nnz (three h d) -> nnz three h d', three=3, h=nheads)
         output_unpad = flash_attn_unpadded_qkvpacked_func(
-            x_unpad.to(torch.float16), cu_q_lens.to(torch.int32), max_s, 0.0,
+            x_unpad.to(torch.float16).to(qkv.device), cu_q_lens.to(torch.int32), max_s, 0.0,
             softmax_scale=None, causal=True
         )
         output = rearrange(pad_input(rearrange(output_unpad, 'nnz h d -> nnz (h d)'),
                                      indices, bsz, q_len),
                            'b s (h d) -> b s h d', h=nheads)
-    return self.o_proj(rearrange(output,
+    return self.o_proj(rearrange(output.to(torch.float16).to(qkv.device),
                                  'b s h d -> b s (h d)')), None, None
 
 
