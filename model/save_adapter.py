@@ -429,7 +429,7 @@ def main(
         )
         target_size = len(tokenizer)
         model.resize_token_embeddings(target_size)
-        model.base_model.model.model.embed_tokens.weight[3200:, :] = torch.load("/fsx/home-jordiclive/adapter/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(device)
+        model.base_model.model.model.embed_tokens.weight[32000:, :] = torch.load("/fsx/home-jordiclive/adapter/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(device)
 
         model = model.half().to("cuda")
         while True:
