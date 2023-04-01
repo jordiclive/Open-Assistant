@@ -87,7 +87,7 @@ def forward(
                            'b s (h d) -> b s h d', h=nheads)
     self.o_proj = self.o_proj.half()
     return self.o_proj(rearrange(output.to(torch.float16).to(qkv.device),
-                                 'b s h d -> b s (h d)')), None, None
+                                 'b s h d -> b s (h d)')).to(hidden_states.device).to(hidden_states.dtype), None, None
 
 
 # Disable the transformation of the attention mask in LlamaModel as the flash attention
