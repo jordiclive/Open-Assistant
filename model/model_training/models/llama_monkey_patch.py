@@ -66,7 +66,7 @@ def forward(
     if key_padding_mask is None:
         qkv = rearrange(qkv, 'b s ... -> (b s) ...')
         max_s = q_len
-        cu_q_lens = torch.arange(0, (bsz + 1) * q_len, step=q_len, dtype=torch.int32,
+        cu_q_lens = torch.arange(0, (bsz + 1) * q_len, step=q_len, dtype=torch.float16,
                                  device=qkv.device)
         output = flash_attn_unpadded_qkvpacked_func(
             qkv, cu_q_lens, max_s, 0.0,
