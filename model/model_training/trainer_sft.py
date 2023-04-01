@@ -24,7 +24,7 @@ def get_llama_model(
         lora_r: int = 8,
         lora_alpha: int = 32,
         lora_dropout: float = 0.05,
-        lora_target_modules: List[str] = ['q_proj','k_proj','v_proj','o_proj'],
+        lora_target_modules: List[str] = ['q_proj', 'k_proj', 'v_proj', 'o_proj'],
         # llm hyperparams
         # wandb params
         resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
@@ -80,14 +80,6 @@ def get_llama_model(
     return model
 
 
-
-
- 
-
-
-
-
-
 import argparse
 import logging
 import os
@@ -106,12 +98,11 @@ from model_training.utils import (
     get_metrics,
     get_model,
     get_tokenizer,
-    init_rng,
     read_yamls,
 )
 # from model_training.models.lora_llama import get_llama_model
 from torch import nn
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import PreTrainedModel, Trainer, TrainingArguments
 from transformers.trainer_pt_utils import IterableDatasetShard
@@ -136,14 +127,14 @@ def preprocess_logits_for_metrics(logits, labels):
 
 class SFTTrainer(Trainer):
     def __init__(
-        self,
-        model: Union[PreTrainedModel, nn.Module] = None,
-        args: TrainingArguments = None,
-        sampler: torch.utils.data.sampler.Sampler = None,
-        loss_function: str = "CrossEntropyLoss",
-        poly_eps: float = 1.0,
-        train_collate_fn: Callable = None,
-        **kwargs,
+            self,
+            model: Union[PreTrainedModel, nn.Module] = None,
+            args: TrainingArguments = None,
+            sampler: torch.utils.data.sampler.Sampler = None,
+            loss_function: str = "CrossEntropyLoss",
+            poly_eps: float = 1.0,
+            train_collate_fn: Callable = None,
+            **kwargs,
     ):
         super().__init__(model, args, **kwargs)
         self.train_collate_fn = train_collate_fn
@@ -184,11 +175,11 @@ class SFTTrainer(Trainer):
         return loss, logits, targets, labels_mask
 
     def prediction_step(
-        self,
-        model: nn.Module,
-        inputs: Dict[str, Union[torch.Tensor, Any]],
-        prediction_loss_only: bool,
-        ignore_keys: Optional[List[str]] = None,
+            self,
+            model: nn.Module,
+            inputs: Dict[str, Union[torch.Tensor, Any]],
+            prediction_loss_only: bool,
+            ignore_keys: Optional[List[str]] = None,
     ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
         with torch.no_grad():
             loss, logits, labels, labels_mask = self._compute_loss(model, inputs)
@@ -273,8 +264,6 @@ def argument_parsing(notebook=False, notebook_args=None):
     parser.add_argument("--no-deepspeed", dest="deepspeed", action="store_false")
     parser.add_argument("--wandb-entity", type=str, default="open-assistant")
     parser.add_argument("--resume_from_checkpoint", action="store_true", help="Resume from last saved checkpoint")
-    parser.add_argument("--rng_seed", type=int, help="rng seed")
-    parser.add_argument("--dataset_stats", action="store_true", help="Show dataset stats", default=False)
     parser.set_defaults(deepspeed=False)
 
     if notebook:
@@ -301,9 +290,6 @@ def argument_parsing(notebook=False, notebook_args=None):
     conf["local_rank"] = args.local_rank
     conf["deepspeed"] = args.deepspeed
     conf["resume_from_checkpoint"] = args.resume_from_checkpoint
-    if args.rng_seed is not None:
-        conf["rng_seed"] = args.rng_seed
-    conf["dataset_stats"] = args.dataset_stats
 
     # get the world size in deeepspeed
     if conf["deepspeed"]:
@@ -361,8 +347,10 @@ def tokenizer_sanity_check(tokenizer):
     print("message_indices:", message_indices)
 
 
-def main():
+if __name__ == "__main__":
     training_conf = argument_parsing()
+    import \
+        bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
 
     output_dir = (
         training_conf.output_dir
@@ -403,10 +391,7 @@ def main():
         report_to="wandb" if training_conf.log_wandb else None,
     )
 
-    init_rng(training_conf)
-
     tokenizer = get_tokenizer(training_conf)
-
 
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
@@ -436,24 +421,6 @@ def main():
         system_prefix=training_conf.system_prefix,
     )
 
-    train, evals = get_dataset(training_conf)
-
-    if training_conf.dataset_stats:
-        print("Dataset stats before sampling:")
-        total = len(train)
-        for d in train.datasets:
-            if isinstance(d, Subset):
-                name = f"Subset of {type(d.dataset).__name__}"
-                if hasattr(d.dataset, "name"):
-                    name += f" ({d.dataset.name})"
-            else:
-                name = type(d).__name__
-                if hasattr(d, "name"):
-                    name += f" ({d.name})"
-            print(f"{name}: {len(d)} ({len(d) / total:%})")
-        print(f"Total train: {total}")
-        quit()
-
     if training_conf.use_custom_sampler:
         sampler = PerDatasetSampler.build_sampler_from_config(
             training_conf,
@@ -474,11 +441,7 @@ def main():
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
-    model = get_model(training_conf, tokenizer)
-
     if training_conf.quantization:
-        import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
-
         for module in model.modules():
             if isinstance(module, torch.nn.Embedding):
                 bitsandbytes.optim.GlobalOptimManager.get_instance().register_module_override(
@@ -488,14 +451,11 @@ def main():
     # if training_conf.fuse_gelu:
     #     model = fuse_gelu(model)
 
-
-
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
 
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
-
 
         os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         wandb.init(
@@ -524,7 +484,3 @@ def main():
     trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
-
-
-if __name__ == "__main__":
-    main()
