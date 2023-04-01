@@ -400,4 +400,4 @@ def save_adapter(torch_path,llama_path,adapter_save_path,dtype=torch.float16):
     torch.save(new_embs,  Path(adapter_save_path).joinpath("extra_embeddings.pt"))
 
 
-save_adapter(torch_path="/fsx/home-jordiclive/output_dir20230401_110057/checkpoint-1000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="adapter",dtype=torch.float16)
+save_adapter(torch_path="/fsx/home-jordiclive/output_dir20230401_110057/checkpoint-1000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
