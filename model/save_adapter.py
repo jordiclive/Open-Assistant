@@ -403,16 +403,11 @@ def save_adapter(torch_path,llama_path,adapter_save_path,dtype=torch.float16):
 # save_adapter(torch_path="/fsx/home-jordiclive/output_dir20230401_110057/checkpoint-1000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
 
 import os
-import sys
 
-import fire
-import gradio as gr
 import torch
 import transformers
 from peft import PeftModel
-from transformers import GenerationConfig, LlamaForCausalLM, LlamaTokenizer
 
-from utils.prompter import Prompter
 
 if torch.cuda.is_available():
     device = "cuda"
