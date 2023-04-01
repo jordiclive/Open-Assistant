@@ -390,12 +390,13 @@ if __name__ == "__main__":
         resume_from_checkpoint=training_conf.resume_from_checkpoint,
         report_to="wandb" if training_conf.log_wandb else None,
     )
-
+    model_name = training_conf.model_name
+    training_conf.model_name = "/Users/jordanclive/Desktop/llama/7B"
     tokenizer = get_tokenizer(training_conf)
 
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
-
+    training_conf.model_name = model_name
     model = get_model(training_conf, tokenizer)
 
     model = get_llama_model(model)

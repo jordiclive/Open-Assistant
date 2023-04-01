@@ -400,4 +400,66 @@ def save_adapter(torch_path,llama_path,adapter_save_path,dtype=torch.float16):
     torch.save(new_embs,  Path(adapter_save_path).joinpath("extra_embeddings.pt"))
 
 
-save_adapter(torch_path="/fsx/home-jordiclive/output_dir20230401_110057/checkpoint-1000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
+# save_adapter(torch_path="/fsx/home-jordiclive/output_dir20230401_110057/checkpoint-1000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
+
+import os
+import sys
+
+import fire
+import gradio as gr
+import torch
+import transformers
+from peft import PeftModel
+from transformers import GenerationConfig, LlamaForCausalLM, LlamaTokenizer
+
+from utils.prompter import Prompter
+
+if torch.cuda.is_available():
+    device = "cuda"
+
+
+
+def main(
+    load_8bit: bool = False,
+    base_model: str = "",
+    lora_weights: str = "/fsx/home-jordiclive/adapter",
+):
+    tokenizer = transformers.AutoTokenizer.from_pretrained("/fsx/home-jordiclive/adapter")
+    if device == "cuda":
+        model, n_embs, new_embs = get_model(tokenizer,"/admin/home-jordiclive/llama/7B",dtype=torch.float16)
+        model = PeftModel.from_pretrained(
+            model,
+            lora_weights,
+            torch_dtype=torch.float16,
+        )
+        target_size = len(tokenizer)
+        model.resize_token_embeddings(target_size)
+        model.base_model.model.model.embed_tokens.weight[3200:, :] = torch.load("extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(device)
+
+        model = model.half().to("cuda")
+        while True:
+            text = input("\n\nInput text to prompt the model: ")
+            text = str(text)
+            if len(text) == 0:
+                continue
+            ids = tokenizer(text, return_tensors="pt").input_ids.to("cuda")
+
+            # add the length of the prompt tokens to match with the mesh-tf generation
+            max_length = 400 + ids.shape[1]
+
+            gen_tokens = model.generate(
+                ids,
+                do_sample=True,
+                min_length=max_length,
+                max_length=max_length,
+                temperature=0.9,
+                use_cache=True
+            )
+            gen_text = tokenizer.batch_decode(gen_tokens)[0]
+            print("Text generated:")
+            print(gen_text)
+
+
+
+
+main()
