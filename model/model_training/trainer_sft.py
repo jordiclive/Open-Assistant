@@ -450,8 +450,8 @@ if __name__ == "__main__":
         if training_conf.output_dir
         else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
     )
-    output_dir += f"{time.strftime('%Y%m%d_%H%M%S')}"
-
+    output_dir += f"_{time.strftime('%Y%m%d_%H%M%S')}"
+    output_dir += f"_{training_conf.model_name}_{training_conf.max_length}"
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
 
     # needs to happen before model loading in case of stage 3 training
@@ -557,7 +557,7 @@ if __name__ == "__main__":
         os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         wandb.init(
             project="supervised-finetuning",
-            entity="jordanclive", #open-assistant jordanclive
+            entity="open-assistant", #open-assistant jordanclive
             resume=training_conf.resume_from_checkpoint,
             name=f"LORA_{training_conf.model_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
