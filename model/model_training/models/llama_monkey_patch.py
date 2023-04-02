@@ -86,7 +86,7 @@ def forward(
                                      indices, bsz, q_len),
                            'b s (h d) -> b s h d', h=nheads)
     self.o_proj = self.o_proj.half()
-    return self.o_proj(rearrange(output.to(torch.float16).to(qkv.device),
+    return self.o_proj(rearrange(output.to(hidden_states.dtype).to(hidden_states.device),
                                  'b s h d -> b s (h d)')).to(hidden_states.device).to(hidden_states.dtype), None, None
 
 
