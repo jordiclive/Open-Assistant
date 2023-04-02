@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
-# from model_training.models.llama_monkey_patch import replace_llama_attn_with_flash_attn
-# replace_llama_attn_with_flash_attn()
+from model_training.models.llama_monkey_patch import replace_llama_attn_with_flash_attn
+replace_llama_attn_with_flash_attn()
 from typing import List
 
 import time
