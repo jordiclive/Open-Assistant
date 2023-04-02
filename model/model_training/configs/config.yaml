@@ -224,9 +224,9 @@ llama-7b:
   max_length: 1600
   warmup_steps: 1000
   gradient_checkpointing: False
-  gradient_accumulation_steps: 4
-  per_device_train_batch_size: 1
-  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 2
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
   eval_steps: 1000
   save_steps: 1000
   num_train_epochs: 2
