@@ -585,6 +585,6 @@ if __name__ == "__main__":
     )
     logging.warning(f"RESUME FROM CHECKPOINT: {training_conf.resume_from_checkpoint}")
 
-    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
+    trainer.train(resume_from_checkpoint="/admin/home-jordiclive/18000_check_1600/checkpoint-18000/")
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
