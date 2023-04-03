@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
-from model_training.models.llama_monkey_patch import replace_llama_attn_with_flash_attn
-replace_llama_attn_with_flash_attn()
+# from model_training.models.llama_monkey_patch import replace_llama_attn_with_flash_attn
+# replace_llama_attn_with_flash_attn()
 from typing import List
 
 import time
@@ -562,7 +562,7 @@ if __name__ == "__main__":
         os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         wandb.init(
             project="supervised-finetuning",
-            entity="open-assistant", #open-assistant jordanclive
+            entity="jordanclive", #open-assistant jordanclive
             resume=training_conf.resume_from_checkpoint,
             name=f"LORA_{training_conf.model_name}_{training_conf.max_length}",
             config=training_conf,
