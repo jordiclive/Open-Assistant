@@ -57,7 +57,6 @@ def get_llama_model(
         task_type="CAUSAL_LM",
     )
     model = get_peft_model(model, config)
-
     if resume_from_checkpoint:
         # Check the available weights and load them
         checkpoint_name = os.path.join(
@@ -499,6 +498,9 @@ if __name__ == "__main__":
 
     model = get_llama_model(model)
 
+    model.load_state_dict(torch.load("/admin/home-jordiclive/18000_check_1600/checkpoint-18000/pytorch_model.bin"))
+
+
     # for _, param in model.named_parameters():
     #     param.requires_grad = True
 
@@ -583,8 +585,8 @@ if __name__ == "__main__":
         compute_metrics=partial(compute_metrics, metrics=metrics, preprocess_fns=preprocess_fns),
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
     )
-    logging.warning(f"RESUME FROM CHECKPOINT: {training_conf.resume_from_checkpoint}")
+    # logging.warning(f"RESUME FROM CHECKPOINT: {training_conf.resume_from_checkpoint}")
 
-    trainer.train(resume_from_checkpoint="/admin/home-jordiclive/18000_check_1600/checkpoint-18000/")
+    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
