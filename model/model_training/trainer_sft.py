@@ -497,9 +497,10 @@ if __name__ == "__main__":
     model = get_model(training_conf, tokenizer)
 
     model = get_llama_model(model)
+    model = model.to(torch.float32).to('cpu')
+    model.load_state_dict(torch.load("/admin/home-jordiclive/18000_check_1600/checkpoint-18000/pytorch_model.bin", map_location=torch.device('cpu')))
 
-    model.load_state_dict(torch.load("/admin/home-jordiclive/18000_check_1600/checkpoint-18000/pytorch_model.bin"))
-
+    model = model.to('cuda').half()
 
     # for _, param in model.named_parameters():
     #     param.requires_grad = True
