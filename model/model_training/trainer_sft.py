@@ -583,6 +583,8 @@ if __name__ == "__main__":
         compute_metrics=partial(compute_metrics, metrics=metrics, preprocess_fns=preprocess_fns),
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
     )
+    logging.warning(f"RESUME FROM CHECKPOINT: {training_conf.resume_from_checkpoint}")
+
     trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
