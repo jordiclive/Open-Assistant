@@ -532,23 +532,23 @@ if __name__ == "__main__":
 
     train, evals = get_dataset(training_conf)
 
-    show_dataset_stats = (training_conf.verbose or training_conf.dataset_stats) and (
-        not training_conf.deepspeed or training_conf.local_rank == 0
-    )
-    if show_dataset_stats:
-        print("Dataset stats before sampling:")
-        total = len(train)
-        for d in train.datasets:
-            if isinstance(d, Subset):
-                name = f"Subset of {type(d.dataset).__name__}"
-                if hasattr(d.dataset, "name"):
-                    name += f" ({d.dataset.name})"
-            else:
-                name = type(d).__name__
-                if hasattr(d, "name"):
-                    name += f" ({d.name})"
-            print(f"{name}: {len(d)} ({len(d) / total:%})")
-        print(f"Total train: {total}")
+    # show_dataset_stats = (training_conf.verbose or training_conf.dataset_stats) and (
+    #     not training_conf.deepspeed or training_conf.local_rank == 0
+    # )
+    # if show_dataset_stats:
+    #     print("Dataset stats before sampling:")
+    #     total = len(train)
+    #     for d in train.datasets:
+    #         if isinstance(d, Subset):
+    #             name = f"Subset of {type(d.dataset).__name__}"
+    #             if hasattr(d.dataset, "name"):
+    #                 name += f" ({d.dataset.name})"
+    #         else:
+    #             name = type(d).__name__
+    #             if hasattr(d, "name"):
+    #                 name += f" ({d.name})"
+    #         print(f"{name}: {len(d)} ({len(d) / total:%})")
+    #     print(f"Total train: {total}")
 
     if training_conf.use_custom_sampler:
         samples_length = None
