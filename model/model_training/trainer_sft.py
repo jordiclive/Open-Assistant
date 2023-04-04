@@ -352,6 +352,8 @@ class SFTTrainer(Trainer):
         output_dir = os.path.join(run_dir, checkpoint_folder)
         os.makedirs(output_dir, exist_ok=True)
 
+
+        # Save model checkpoint
         new_embs = self.model.state_dict()['base_model.model.model.embed_tokens.weight'][3200:, :]
         # iterate through the model's parameters and add those that contain 'lora' in their name
         lora_params = {}
