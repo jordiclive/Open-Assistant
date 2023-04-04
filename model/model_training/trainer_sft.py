@@ -361,13 +361,14 @@ class SFTTrainer(Trainer):
         #     if 'lora' in name:
         #         lora_params[name] = param
         # save the dictionary to a file
-        torch.save(model, os.path.join(output_dir,"lora.pth"))
-        self.tokenizer.save_pretrained(output_dir)
+        self._save(output_dir)
+        # torch.save(model.to, os.path.join(output_dir,"lora.pth"))
+        # self.tokenizer.save_pretrained(output_dir)
         # torch.save(new_embs, os.path.join(output_dir,"extra_embeddings.pt"))
-
-
-        # Good practice: save your training arguments together with the trained model
-        torch.save(self.args, os.path.join(output_dir,"training_args.bin"))
+        #
+        #
+        # # Good practice: save your training arguments together with the trained model
+        # torch.save(self.args, os.path.join(output_dir,"training_args.bin"))
 
         # A process can arrive here before the process 0 has a chance to save the model, in which case output_dir may
         # not yet exist.
