@@ -358,8 +358,7 @@ class SFTTrainer(Trainer):
             if 'lora' in name:
                 lora_params[name] = param
         # save the dictionary to a file
-        torch.save(lora_params, 'lora_params.pth')
-        self.model.save_pretrained(output_dir)
+        torch.save(lora_params, os.path.join(output_dir,"lora.pth"))
         self.tokenizer.save_pretrained(output_dir)
         torch.save(new_embs, os.path.join(output_dir,"extra_embeddings.pt"))
 
