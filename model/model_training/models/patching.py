@@ -157,7 +157,7 @@ or run with:
     for layer in model.layers:
         if flash_attention:
             add_flash_attn(getattr(layer, attention_key), causal=True)
-
+            warnings.warn('Using Flash Attention')
         if resid_pdrop is not None and resid_pdrop > 0:
             add_dropout(getattr(layer, attention_key), _patched_attn_forward, resid_pdrop)
             add_dropout(getattr(layer, mlp_key), _patched_mlp_forward, resid_pdrop)

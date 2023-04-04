@@ -23,7 +23,7 @@ def get_llama_model(
         # training hyperparams
         cutoff_len: int = 256,
         # lora hyperparams
-        lora_r: int = 8,
+        lora_r: int = 16,
         lora_alpha: int = 32,
         lora_dropout: float = 0.05,
         lora_target_modules: List[str] = ['q_proj', 'k_proj', 'v_proj', 'o_proj'],
@@ -126,72 +126,72 @@ def preprocess_logits_for_metrics(logits, labels):
     pred_ids = torch.argmax(logits, dim=-1)
     return pred_ids
 
-# from transformers import AdamW
-# import math
-# from transformers.trainer_pt_utils import get_parameter_names
-# from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
-# class CustomAdamW(AdamW):
-#     def step(self, closure: Callable = None):
-#         """
-#         Performs a single optimization step.
-#         Arguments:
-#             closure (`Callable`, *optional*): A closure that reevaluates the model and returns the loss.
-#         """
-#         loss = None
-#         if closure is not None:
-#             loss = closure()
-#
-#         for group in self.param_groups:
-#             for p in group["params"]:
-#                 if p.grad is None:
-#                     continue
-#                 if 'lora' not in p.grad_fn.variable.name:
-#                     continue
-#                 grad = p.grad.data
-#                 if grad.is_sparse:
-#                     raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
-#
-#                 state = self.state[p]
-#
-#                 # State initialization
-#                 if len(state) == 0:
-#                     state["step"] = 0
-#                     # Exponential moving average of gradient values
-#                     state["exp_avg"] = torch.zeros_like(p.data)
-#                     # Exponential moving average of squared gradient values
-#                     state["exp_avg_sq"] = torch.zeros_like(p.data)
-#
-#                 exp_avg, exp_avg_sq = state["exp_avg"], state["exp_avg_sq"]
-#                 beta1, beta2 = group["betas"]
-#
-#                 state["step"] += 1
-#
-#                 # Decay the first and second moment running average coefficient
-#                 # In-place operations to update the averages at the same time
-#                 exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
-#                 exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
-#                 denom = exp_avg_sq.sqrt().add_(group["eps"])
-#
-#                 step_size = group["lr"]
-#                 if group["correct_bias"]:  # No bias correction for Bert
-#                     bias_correction1 = 1.0 - beta1 ** state["step"]
-#                     bias_correction2 = 1.0 - beta2 ** state["step"]
-#                     step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
-#
-#                 p.data.addcdiv_(exp_avg, denom, value=-step_size)
-#
-#                 # Just adding the square of the weights to the loss function is *not*
-#                 # the correct way of using L2 regularization/weight decay with Adam,
-#                 # since that will interact with the m and v parameters in strange ways.
-#                 #
-#                 # Instead we want to decay the weights in a manner that doesn't interact
-#                 # with the m/v parameters. This is equivalent to adding the square
-#                 # of the weights to the loss with plain (non-momentum) SGD.
-#                 # Add weight decay at the end (fixed version)
-#                 if group["weight_decay"] > 0.0:
-#                     p.data.add_(p.data, alpha=(-group["lr"] * group["weight_decay"]))
-#
-#         return loss
+from transformers import AdamW
+import math
+from transformers.trainer_pt_utils import get_parameter_names
+from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
+class CustomAdamW(AdamW):
+    def step(self, closure: Callable = None):
+        """
+        Performs a single optimization step.
+        Arguments:
+            closure (`Callable`, *optional*): A closure that reevaluates the model and returns the loss.
+        """
+        loss = None
+        if closure is not None:
+            loss = closure()
+
+        for group in self.param_groups:
+            for p in group["params"]:
+                if p.grad is None:
+                    continue
+                if 'lora' not in p.grad_fn.variable.name:
+                    continue
+                grad = p.grad.data
+                if grad.is_sparse:
+                    raise RuntimeError("Adam does not support sparse gradients, please consider SparseAdam instead")
+
+                state = self.state[p]
+
+                # State initialization
+                if len(state) == 0:
+                    state["step"] = 0
+                    # Exponential moving average of gradient values
+                    state["exp_avg"] = torch.zeros_like(p.data)
+                    # Exponential moving average of squared gradient values
+                    state["exp_avg_sq"] = torch.zeros_like(p.data)
+
+                exp_avg, exp_avg_sq = state["exp_avg"], state["exp_avg_sq"]
+                beta1, beta2 = group["betas"]
+
+                state["step"] += 1
+
+                # Decay the first and second moment running average coefficient
+                # In-place operations to update the averages at the same time
+                exp_avg.mul_(beta1).add_(grad, alpha=(1.0 - beta1))
+                exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
+                denom = exp_avg_sq.sqrt().add_(group["eps"])
+
+                step_size = group["lr"]
+                if group["correct_bias"]:  # No bias correction for Bert
+                    bias_correction1 = 1.0 - beta1 ** state["step"]
+                    bias_correction2 = 1.0 - beta2 ** state["step"]
+                    step_size = step_size * math.sqrt(bias_correction2) / bias_correction1
+
+                p.data.addcdiv_(exp_avg, denom, value=-step_size)
+
+                # Just adding the square of the weights to the loss function is *not*
+                # the correct way of using L2 regularization/weight decay with Adam,
+                # since that will interact with the m and v parameters in strange ways.
+                #
+                # Instead we want to decay the weights in a manner that doesn't interact
+                # with the m/v parameters. This is equivalent to adding the square
+                # of the weights to the loss with plain (non-momentum) SGD.
+                # Add weight decay at the end (fixed version)
+                if group["weight_decay"] > 0.0:
+                    p.data.add_(p.data, alpha=(-group["lr"] * group["weight_decay"]))
+
+        return loss
 
 
 class SFTTrainer(Trainer):
@@ -498,10 +498,10 @@ if __name__ == "__main__":
 
     model = get_model(training_conf, tokenizer)
 
-    # model = get_llama_model(model)
+    model = get_llama_model(model)
 
-    # for _, param in model.named_parameters():
-    #     param.requires_grad = True
+    for _, param in model.named_parameters():
+        param.requires_grad = True
 
     train, evals = get_dataset(training_conf)
     train_collate_fn = DialogueDataCollator(
