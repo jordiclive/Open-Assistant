@@ -1,9 +1,10 @@
+from typing import List, NamedTuple
+
 import torch
 import transformers
 from huggingface_hub import hf_hub_download
 from peft import PeftModel
 from transformers import GenerationConfig
-from typing import List, NamedTuple
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = transformers.AutoTokenizer.from_pretrained("jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b")
@@ -47,14 +48,16 @@ generation_config = GenerationConfig(
     num_beams=4,
 )
 
-def format_system_prompt(prompt, eos_token='</s>'):
+
+def format_system_prompt(prompt, eos_token="</s>"):
     return "{}{}{}".format(
-        '<|prompter|>',
+        "<|prompter|>",
         prompt,
         eos_token,
     )
 
-def generate(prompt, generation_config=generation_config, max_new_tokens=1024, device="cuda"):
+
+def generate(prompt, generation_config=generation_config, max_new_tokens=2048, device=device):
     prompt = format_system_prompt(prompt)  # OpenAssistant Prompt Format expected
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
     with torch.no_grad():
@@ -63,7 +66,8 @@ def generate(prompt, generation_config=generation_config, max_new_tokens=1024, d
             generation_config=generation_config,
             return_dict_in_generate=True,
             output_scores=True,
-            max_new_tokens=max_new_tokens,eos_token_id=2
+            max_new_tokens=max_new_tokens,
+            eos_token_id=2,
         )
     s = generation_output.sequences[0]
     output = tokenizer.decode(s)
