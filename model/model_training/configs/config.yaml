@@ -152,7 +152,7 @@ oasst_export_eu:
     - code_alpaca
     - oig_file:
         source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
-        max_count: 50000
+        max_count: 20000
         min_length: 100
         val_split: 0.01
     - oig_file:
@@ -175,7 +175,7 @@ oasst_export_latin_cyrillic:
         val_split: 0.2
     - oig_file:
         source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
-        val_split: 0.1
+        val_split: 0.05
         min_length: 1000
   sort_by_length: false
   use_custom_sampler: false
@@ -250,8 +250,8 @@ llama-13b:
   gradient_accumulation_steps: 2
   per_device_train_batch_size: 4
   per_device_eval_batch_size: 8
-  eval_steps: 5000
-  save_steps: 5000
+  eval_steps: 7000
+  save_steps: 7000
   num_train_epochs: 4
   save_total_limit: 1
   use_flash_attention: True
