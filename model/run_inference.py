@@ -6,17 +6,17 @@ from transformers import GenerationConfig
 device  = 'cuda'
 
 tokenizer = transformers.AutoTokenizer.from_pretrained("jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b")
-model = transformers.AutoModelForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",torch_dtype=torch.float16)
-model.resize_token_embeddings(32016)
+model = transformers.AutoModelForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",torch_dtype=torch.float16) # Load Base Model
+model.resize_token_embeddings(32016) # This model repo also contains several embeddings for special tokens that need to be loaded.
 lora_weights = "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b"
 model = PeftModel.from_pretrained(
     model,
     lora_weights,
     torch_dtype=torch.float16,
-)
+) # Load Lora model
 model.base_model.model.model.embed_tokens.weight[32000:, :] = torch.load(
     "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(
-    device)
+    device) # Add special token embeddings
 model = model.half().to(device)
 
 generation_config = GenerationConfig(
@@ -28,7 +28,7 @@ generation_config = GenerationConfig(
 )
 
 def generate(prompt,generation_config=generation_config,max_new_tokens=1024,device='cuda'):
-    prompt = f"<|prompter|>{prompt}</s><|assistant|>"
+    prompt = f"<|prompter|>{prompt}</s><|assistant|>" # OpenAssistant Prompt Format expected
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
     with torch.no_grad():
         generation_output = model.generate(
