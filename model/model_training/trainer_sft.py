@@ -337,6 +337,34 @@ class SFTTrainer(Trainer):
 
         return self.optimizer
 
+    def _save_checkpoint(self, model, trial, metrics=None):
+        # In all cases, including ddp/dp/deepspeed, self.model is always a reference to the model we
+        # want to save except FullyShardedDDP.
+        # assert unwrap_model(model) is self.model, "internal model should be a reference to self.model"
+        from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
+        # Save model checkpoint
+        checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
+
+        if self.hp_search_backend is None and trial is None:
+            self.store_flos()
+
+        run_dir = self._get_output_dir(trial=trial)
+        output_dir = os.path.join(run_dir, checkpoint_folder)
+
+        new_embs = self.model.state_dict()['base_model.model.model.embed_tokens.weight'][3200:, :]
+        self.model.save_pretrained(output_dir)
+        self.tokenizer.save_pretrained(output_dir)
+        torch.save(new_embs, output_dir.joinpath("extra_embeddings.pt"))
+
+
+        # Good practice: save your training arguments together with the trained model
+        torch.save(self.args, os.path.join(output_dir,"training_args.bin"))
+
+        # A process can arrive here before the process 0 has a chance to save the model, in which case output_dir may
+        # not yet exist.
+        os.makedirs(output_dir, exist_ok=True)
+
+
 
 def argument_parsing(notebook=False, notebook_args=None):
     parser = argparse.ArgumentParser()
