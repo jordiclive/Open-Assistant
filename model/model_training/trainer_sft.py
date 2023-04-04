@@ -480,6 +480,7 @@ if __name__ == "__main__":
         save_total_limit=training_conf.save_total_limit,
         evaluation_strategy="steps",
         eval_steps=training_conf.eval_steps,
+        save_strategy=training_conf.save_strategy,
         save_steps=training_conf.save_steps,
         eval_accumulation_steps=training_conf.eval_accumulation_steps,
         resume_from_checkpoint=training_conf.resume_from_checkpoint,
@@ -513,13 +514,15 @@ if __name__ == "__main__":
         use_system_prefix=training_conf.use_system_prefix,
         system_prefix=training_conf.system_prefix,
     )
+
     if training_conf.val_max_length is not None:
         val_max_len = training_conf.val_max_length
     else:
         val_max_len = training_conf.max_length
+
     eval_collate_fn = DialogueDataCollator(
         tokenizer,
-        max_length= val_max_len,
+        max_length=val_max_len,
         random_offset_probability=training_conf.random_offset_probability,
         label_masking=training_conf.label_masking,
         samples_mixing=False,
@@ -527,20 +530,43 @@ if __name__ == "__main__":
         system_prefix=training_conf.system_prefix,
     )
 
+    train, evals = get_dataset(training_conf)
+
+    show_dataset_stats = (training_conf.verbose or training_conf.dataset_stats) and (
+        not training_conf.deepspeed or training_conf.local_rank == 0
+    )
+    if show_dataset_stats:
+        print("Dataset stats before sampling:")
+        total = len(train)
+        for d in train.datasets:
+            if isinstance(d, Subset):
+                name = f"Subset of {type(d.dataset).__name__}"
+                if hasattr(d.dataset, "name"):
+                    name += f" ({d.dataset.name})"
+            else:
+                name = type(d).__name__
+                if hasattr(d, "name"):
+                    name += f" ({d.name})"
+            print(f"{name}: {len(d)} ({len(d) / total:%})")
+        print(f"Total train: {total}")
+
     if training_conf.use_custom_sampler:
-        sampler = PerDatasetSampler.build_sampler_from_config(
-            training_conf,
-            train.datasets,
-            rank=training_conf.local_rank,
-            world_size=training_conf.world_size,
-            samples_length=list(
+        samples_length = None
+        if training_conf.sort_by_length:
+            samples_length = list(
                 map(
                     lambda x: train_collate_fn.process_one(x, return_length=True),
                     tqdm(train, desc="Calculating lengths per sample"),
                 )
             )
-            if training_conf.sort_by_length
-            else None,
+
+        sampler = PerDatasetSampler.build_sampler_from_config(
+            training_conf,
+            train.datasets,
+            rank=training_conf.local_rank,
+            world_size=training_conf.world_size,
+            samples_length=samples_length,
+            verbose=show_dataset_stats,
         )
     else:
         sampler = None
@@ -563,12 +589,12 @@ if __name__ == "__main__":
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
 
-        os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
+        wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
             project="supervised-finetuning",
             entity="jordanclive", #open-assistant jordanclive
             resume=training_conf.resume_from_checkpoint,
-            name=f"LORA_{training_conf.model_name}_{training_conf.max_length}",
+            name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length

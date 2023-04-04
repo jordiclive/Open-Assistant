@@ -48,6 +48,8 @@ def _patched_gpt_neox_attn(
     flash_attn.train(self.training)
     out_dtype = value.dtype
     q, k, v = query.transpose(1, 2), key.transpose(1, 2), value.transpose(1, 2)
+    if attention_mask is not None:
+        attention_mask = attention_mask[:, 0, 0, :]
     out = compute_flash_attention(flash_attn, q, k, v, attention_mask)
     out = out.transpose(1, 2).to(out_dtype)
     return out, None
@@ -74,7 +76,6 @@ def add_flash_attn(module: nn.Module, causal: bool = True):
     flash_attn = FlashSelfAttention(causal=causal)
     if isinstance(module, transformers.models.llama.modeling_llama.LlamaAttention):
         module.old_forward = module.forward
-        warnings.warn("FLASH activated for LlamaAttention!!!")
         module.forward = partial(llama_forward_with_flash_attn, module, flash_attn)
     elif isinstance(module, transformers.models.gpt_neox.modeling_gpt_neox.GPTNeoXAttention):
         if not hasattr(module, "_attn"):
@@ -155,10 +156,7 @@ or run with:
 
     for layer in model.layers:
         if flash_attention:
-            if isinstance(model, LlamaModel):
-                warnings.warn("Flash attention is not supported for LLaMA models.")
-            else:
-                add_flash_attn(layer.attention, causal=True)
+            add_flash_attn(getattr(layer, attention_key), causal=True)
 
         if resid_pdrop is not None and resid_pdrop > 0:
             add_dropout(getattr(layer, attention_key), _patched_attn_forward, resid_pdrop)
