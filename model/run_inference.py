@@ -6,7 +6,7 @@ from transformers import GenerationConfig
 device  = 'cuda'
 
 tokenizer = transformers.AutoTokenizer.from_pretrained("jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b")
-model = transformers.AutoModelForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",dtype=torch.float16)
+model = transformers.AutoModelForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",torch_dtype=torch.float16)
 model.resize_token_embeddings(32016)
 lora_weights = "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b"
 model = PeftModel.from_pretrained(
@@ -15,7 +15,7 @@ model = PeftModel.from_pretrained(
     torch_dtype=torch.float16,
 )
 model.base_model.model.model.embed_tokens.weight[32000:, :] = torch.load(
-    "/fsx/home-jordiclive/adapter/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(
+    "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(
     device)
 model = model.half().to(device)
 
