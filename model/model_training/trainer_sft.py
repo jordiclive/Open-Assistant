@@ -500,7 +500,7 @@ if __name__ == "__main__":
 
     if training_conf.fuse_gelu:
         model = fuse_gelu(model)
-        
+
     model = get_llama_model(model)
 
     for _, param in model.named_parameters():
@@ -518,14 +518,10 @@ if __name__ == "__main__":
         system_prefix=training_conf.system_prefix,
     )
 
-    if training_conf.val_max_length is not None:
-        val_max_len = training_conf.val_max_length
-    else:
-        val_max_len = training_conf.max_length
 
     eval_collate_fn = DialogueDataCollator(
         tokenizer,
-        max_length=val_max_len,
+        max_length=training_conf.max_length,
         random_offset_probability=training_conf.random_offset_probability,
         label_masking=training_conf.label_masking,
         samples_mixing=False,
@@ -601,7 +597,6 @@ if __name__ == "__main__":
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
-        wandb.config["val_max_length"] = val_max_len
 
     trainer = SFTTrainer(
         model=model,
