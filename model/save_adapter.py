@@ -390,7 +390,7 @@ TOKENIZER_CONFIGS = {
 
 
 def save_adapter(torch_path,llama_path,adapter_save_path,dtype=torch.float16):
-    tokenizer = get_tokenizer(llama_path)
+    tokenizer = get_tokenizer("/admin/home-jordiclive/llama/7B")
     model, n_embs, new_embs = get_model(tokenizer,llama_path,dtype=dtype)
     model = get_llama_model(model)
     model.load_state_dict(torch.load(torch_path))
@@ -400,7 +400,7 @@ def save_adapter(torch_path,llama_path,adapter_save_path,dtype=torch.float16):
     torch.save(new_embs,  Path(adapter_save_path).joinpath("extra_embeddings.pt"))
 
 
-# save_adapter(torch_path="/fsx/home-jordiclive/output_dir20230401_110057/checkpoint-1000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
+save_adapter(torch_path="/fsx/home-jordiclive/output_dir_20230404_204017_decapoda-research/llama-13b-hf_2048/checkpoint-20/pytorch_model.bin",llama_path="decapoda-research/llama-13b-hf",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
 
 import os
 
