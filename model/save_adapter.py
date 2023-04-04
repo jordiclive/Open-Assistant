@@ -400,87 +400,87 @@ def save_adapter(torch_path,llama_path,adapter_save_path,dtype=torch.float16):
     torch.save(new_embs,  Path(adapter_save_path).joinpath("extra_embeddings.pt"))
 
 
-save_adapter(torch_path="/fsx/home-jordiclive/output_dir_20230403_114334_decapoda-research/llama-7b-hf_1600/checkpoint-33000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
+# save_adapter(torch_path="/fsx/home-jordiclive/output_dir_20230403_114334_decapoda-research/llama-7b-hf_1600/checkpoint-33000/pytorch_model.bin",llama_path="/admin/home-jordiclive/llama/7B",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
 
-# import os
-#
-# import torch
-# import transformers
-# from peft import PeftModel
-#
-#
-# if torch.cuda.is_available():
-#     device = "cuda"
-#
-#
-#
-# def main(
-#     load_8bit: bool = False,
-#     base_model: str = "",
-#     lora_weights: str = "/fsx/home-jordiclive/adapter",
-# ):
-#     tokenizer = transformers.AutoTokenizer.from_pretrained("/fsx/home-jordiclive/adapter")
-#     if device == "cuda":
-#         model, n_embs, new_embs = get_model(tokenizer,"/admin/home-jordiclive/llama/7B",dtype=torch.float16)
-#         model = PeftModel.from_pretrained(
-#             model,
-#             lora_weights,
-#             torch_dtype=torch.float16,
-#         )
-#         p = 16
-#         target_size = len(tokenizer) if not p else math.ceil(len(tokenizer) / p) * p
-#         model.resize_token_embeddings(32016)
-#         model.base_model.model.model.embed_tokens.weight[32000:, :] = torch.load("/fsx/home-jordiclive/adapter/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(device)
-#
-#         model = model.half().to("cuda")
-#         while True:
-#             text = input("\n\nInput text to prompt the model: ")
-#             text = str(text)
-#             if len(text) == 0:
-#                 continue
-#             input_ids = tokenizer(text, return_tensors="pt").input_ids.to("cuda")
-#             from transformers import GenerationConfig
-#             temperature = 0.1
-#             top_p = 0.75
-#             top_k = 40
-#             num_beams = 4
-#             max_new_tokens = 128
-#             generation_config = GenerationConfig(
-#                 temperature=temperature,
-#                 top_p=top_p,
-#                 top_k=top_k,
-#                 num_beams=num_beams,
-#
-#             )
-#             with torch.no_grad():
-#                 generation_output = model.generate(
-#                     input_ids=input_ids,
-#                     generation_config=generation_config,
-#                     return_dict_in_generate=True,
-#                     output_scores=True,
-#                     max_new_tokens=max_new_tokens,
-#                 )
-#             s = generation_output.sequences[0]
-#             output = tokenizer.decode(s)
-#             print("Text generated:")
-#             print(output)
-#
-#             # # add the length of the prompt tokens to match with the mesh-tf generation
-#             # max_length = 400 + ids.shape[1]
-#             #
-#             # gen_tokens = model.generate(
-#             #     ids,
-#             #     do_sample=True,
-#             #     min_length=max_length,
-#             #     max_length=max_length,
-#             #     temperature=0.9,
-#             #     use_cache=True
-#             # )
-#             # gen_text = tokenizer.batch_decode(gen_tokens)[0]
-#             print("Text generated:")
-#             # print(gen_text)
-#
-#
-#
-#
-# main()
+import os
+
+import torch
+import transformers
+from peft import PeftModel
+
+
+if torch.cuda.is_available():
+    device = "cuda"
+
+
+
+def main(
+    load_8bit: bool = False,
+    base_model: str = "",
+    lora_weights: str = "/fsx/home-jordiclive/adapter",
+):
+    tokenizer = transformers.AutoTokenizer.from_pretrained("/fsx/home-jordiclive/adapter")
+    if device == "cuda":
+        model, n_embs, new_embs = get_model(tokenizer,"/admin/home-jordiclive/llama/7B",dtype=torch.float16)
+        model = PeftModel.from_pretrained(
+            model,
+            lora_weights,
+            torch_dtype=torch.float16,
+        )
+        p = 16
+        target_size = len(tokenizer) if not p else math.ceil(len(tokenizer) / p) * p
+        model.resize_token_embeddings(32016)
+        model.base_model.model.model.embed_tokens.weight[32000:, :] = torch.load("/fsx/home-jordiclive/adapter/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(device)
+
+        model = model.half().to("cuda")
+        while True:
+            text = input("\n\nInput text to prompt the model: ")
+            text = str(text)
+            if len(text) == 0:
+                continue
+            input_ids = tokenizer(text, return_tensors="pt").input_ids.to("cuda")
+            from transformers import GenerationConfig
+            temperature = 0.1
+            top_p = 0.75
+            top_k = 40
+            num_beams = 4
+            max_new_tokens = 128
+            generation_config = GenerationConfig(
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                num_beams=num_beams,
+
+            )
+            with torch.no_grad():
+                generation_output = model.generate(
+                    input_ids=input_ids,
+                    generation_config=generation_config,
+                    return_dict_in_generate=True,
+                    output_scores=True,
+                    max_new_tokens=max_new_tokens,
+                )
+            s = generation_output.sequences[0]
+            output = tokenizer.decode(s)
+            print("Text generated:")
+            print(output)
+
+            # # add the length of the prompt tokens to match with the mesh-tf generation
+            # max_length = 400 + ids.shape[1]
+            #
+            # gen_tokens = model.generate(
+            #     ids,
+            #     do_sample=True,
+            #     min_length=max_length,
+            #     max_length=max_length,
+            #     temperature=0.9,
+            #     use_cache=True
+            # )
+            # gen_text = tokenizer.batch_decode(gen_tokens)[0]
+            print("Text generated:")
+            # print(gen_text)
+
+
+
+
+main()
