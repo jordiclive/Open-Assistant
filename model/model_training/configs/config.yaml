@@ -249,8 +249,8 @@ llama-13b:
   gradient_accumulation_steps: 2
   per_device_train_batch_size: 4
   per_device_eval_batch_size: 8
-  eval_steps: 100
-  save_steps: 100
+  eval_steps: 10
+  save_steps: 10
   num_train_epochs: 4
   save_total_limit: 1
   use_flash_attention: True

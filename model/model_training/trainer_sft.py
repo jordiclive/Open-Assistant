@@ -352,9 +352,16 @@ class SFTTrainer(Trainer):
         output_dir = os.path.join(run_dir, checkpoint_folder)
 
         new_embs = self.model.state_dict()['base_model.model.model.embed_tokens.weight'][3200:, :]
+        # iterate through the model's parameters and add those that contain 'lora' in their name
+        lora_params = {}
+        for name, param in model.named_parameters():
+            if 'lora' in name:
+                lora_params[name] = param
+        # save the dictionary to a file
+        torch.save(lora_params, 'lora_params.pth')
         self.model.save_pretrained(output_dir)
         self.tokenizer.save_pretrained(output_dir)
-        torch.save(new_embs, output_dir.joinpath("extra_embeddings.pt"))
+        torch.save(new_embs, os.path.join(output_dir,"extra_embeddings.pt"))
 
 
         # Good practice: save your training arguments together with the trained model
