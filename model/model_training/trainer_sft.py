@@ -311,31 +311,31 @@ class SFTTrainer(Trainer):
         )
         return dataloader
 
-    # def create_optimizer(self):
-    #     opt_model = self.model
-    #     if self.optimizer is None:
-    #         decay_parameters = get_parameter_names(opt_model, ALL_LAYERNORM_LAYERS)
-    #         decay_parameters = [name for name in decay_parameters if "bias" not in name]
-    #         optimizer_grouped_parameters = [
-    #             {
-    #                 "params": [
-    #                     p for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad)
-    #                 ],
-    #                 "weight_decay": self.args.weight_decay,
-    #             },
-    #             {
-    #                 "params": [
-    #                     p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad)
-    #                 ],
-    #                 "weight_decay": 0.0,
-    #             },
-    #         ]
-    #
-    #         optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
-    #
-    #         self.optimizer = CustomAdamW(optimizer_grouped_parameters, **optimizer_kwargs)
-    #
-    #     return self.optimizer
+    def create_optimizer(self):
+        opt_model = self.model
+        if self.optimizer is None:
+            decay_parameters = get_parameter_names(opt_model, ALL_LAYERNORM_LAYERS)
+            decay_parameters = [name for name in decay_parameters if "bias" not in name]
+            optimizer_grouped_parameters = [
+                {
+                    "params": [
+                        p for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad)
+                    ],
+                    "weight_decay": self.args.weight_decay,
+                },
+                {
+                    "params": [
+                        p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad)
+                    ],
+                    "weight_decay": 0.0,
+                },
+            ]
+
+            optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
+
+            self.optimizer = CustomAdamW(optimizer_grouped_parameters, **optimizer_kwargs)
+
+        return self.optimizer
 
 
 def argument_parsing(notebook=False, notebook_args=None):
@@ -565,7 +565,7 @@ if __name__ == "__main__":
             rank=training_conf.local_rank,
             world_size=training_conf.world_size,
             samples_length=samples_length,
-            verbose=show_dataset_stats,
+            verbose=False,
         )
     else:
         sampler = None
