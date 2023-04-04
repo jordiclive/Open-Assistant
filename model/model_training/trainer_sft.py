@@ -498,6 +498,9 @@ if __name__ == "__main__":
 
     model = get_model(training_conf, tokenizer)
 
+    if training_conf.fuse_gelu:
+        model = fuse_gelu(model)
+        
     model = get_llama_model(model)
 
     for _, param in model.named_parameters():
@@ -580,8 +583,7 @@ if __name__ == "__main__":
                     module, "weight", {"optim_bits": 32}
                 )
 
-    # if training_conf.fuse_gelu:
-    #     model = fuse_gelu(model)
+
 
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
@@ -589,6 +591,7 @@ if __name__ == "__main__":
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
 
+        os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
             project="supervised-finetuning",
