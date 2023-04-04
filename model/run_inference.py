@@ -2,9 +2,17 @@ import transformers
 from peft import PeftModel
 import torch
 from transformers import GenerationConfig
+from huggingface_hub import hf_hub_download
+
+filename = hf_hub_download("jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b", "extra_embeddings.pt")
+embed_weights = torch.load(
+    filename, map_location=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+)
 
 device  = 'cuda'
-
+x = torch.load(
+    "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b/extra_embeddings.pt",).to(device).to(
+    device) # Add special token embeddings
 tokenizer = transformers.AutoTokenizer.from_pretrained("jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b")
 model = transformers.AutoModelForCausalLM.from_pretrained("decapoda-research/llama-7b-hf",torch_dtype=torch.float16) # Load Base Model
 model.resize_token_embeddings(32016) # This model repo also contains several embeddings for special tokens that need to be loaded.
@@ -14,8 +22,7 @@ model = PeftModel.from_pretrained(
     lora_weights,
     torch_dtype=torch.float16,
 ) # Load Lora model
-model.base_model.model.model.embed_tokens.weight[32000:, :] = torch.load(
-    "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b/extra_embeddings.pt").to(model.base_model.model.model.embed_tokens.weight.dtype).to(
+model.base_model.model.model.embed_tokens.weight[32000:, :] = embed_weights.to(model.base_model.model.model.embed_tokens.weight.dtype).to(
     device) # Add special token embeddings
 model = model.half().to(device)
 
