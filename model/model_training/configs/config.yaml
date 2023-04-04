@@ -140,7 +140,6 @@ reference-data:
   use_custom_sampler: false
 
 oasst_export_eu:
-#  save_strategy: epoch
   datasets:
     - oasst_export:
         lang: "en,es,de,fr"
