@@ -47,9 +47,15 @@ generation_config = GenerationConfig(
     num_beams=4,
 )
 
+def format_system_prompt(prompt, eos_token='</s>'):
+    return "{}{}{}".format(
+        '<|prompter|>',
+        prompt,
+        eos_token,
+    )
 
 def generate(prompt, generation_config=generation_config, max_new_tokens=1024, device="cuda"):
-    prompt = f"<|prompter|>{prompt}</s><|assistant|>"  # OpenAssistant Prompt Format expected
+    prompt = format_system_prompt(prompt)  # OpenAssistant Prompt Format expected
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
     with torch.no_grad():
         generation_output = model.generate(
