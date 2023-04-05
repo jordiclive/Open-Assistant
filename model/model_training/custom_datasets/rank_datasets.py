@@ -5,7 +5,7 @@ import numpy as np
 from datasets import load_dataset
 from torch.utils.data import Dataset
 
-SEED = 2020
+SEED = 2021
 
 
 class SHPDataset(Dataset):

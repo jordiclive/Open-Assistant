@@ -28,7 +28,7 @@ def format_params(p: dict) -> str:
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("input_files", nargs="*", type=argparse.FileType("r", encoding="UTF-8"))
-    parser.add_argument("--seed", default=219837, type=int)
+    parser.add_argument("--seed", default=229837, type=int)
     parser.add_argument("--num-replies", default=5, type=int)
     parser.add_argument("--output", type=argparse.FileType("w", encoding="UTF-8"), default=sys.stdout)
     parser.add_argument("--max-count", type=int)

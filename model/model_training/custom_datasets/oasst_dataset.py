@@ -23,7 +23,7 @@ def load_oasst_export(
     val_split: float = 0.2,
     lang: str = "en",
     top_k: Optional[int] = None,
-    manual_seed: int = 287631038922,
+    manual_seed: int = 297631038922,
     data_path: str | Path = None,
     mode: Literal["sft", "rm"] = "sft",
 ) -> tuple[ListDataset, ListDataset]:
