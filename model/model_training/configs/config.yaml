@@ -239,7 +239,7 @@ llama-7b:
 llama-13b:
   dtype: fp16
   log_dir: "llama_log_7b"
-  learning_rate: 8e-6
+  learning_rate: 1e-5
   model_name: "decapoda-research/llama-13b-hf"
   output_dir: llama_model
   weight_decay: 0.0
@@ -249,8 +249,8 @@ llama-13b:
   gradient_accumulation_steps: 2
   per_device_train_batch_size: 4
   per_device_eval_batch_size: 8
-  eval_steps: 1000
-  save_steps: 1000
+  eval_steps: 1010
+  save_steps: 1010
   num_train_epochs: 4
   save_total_limit: 1
   use_flash_attention: True
