@@ -400,7 +400,7 @@ def save_adapter(torch_path,llama_path,adapter_save_path,dtype=torch.float16):
     torch.save(new_embs,  Path(adapter_save_path).joinpath("extra_embeddings.pt"))
 
 
-save_adapter(torch_path="/fsx/home-jordiclive/output_dir_20230404_204017_decapoda-research/llama-13b-hf_2048/checkpoint-20/pytorch_model.bin",llama_path="decapoda-research/llama-13b-hf",adapter_save_path="/fsx/home-jordiclive/adapter",dtype=torch.float16)
+save_adapter(torch_path="/fsx/home-jordiclive/output_dir_20230405_143621_decapoda-research/llama-13b-hf_2048/checkpoint-7070/pytorch_model.bin",llama_path="decapoda-research/llama-13b-hf",adapter_save_path="/fsx/home-jordiclive/adapter_7070",dtype=torch.float16)
 
 # import os
 #
