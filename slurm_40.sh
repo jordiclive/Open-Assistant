@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account laion
-#SBATCH --partition="g80"
+#SBATCH --partition="g40"
 #SBATCH --job-name=OA
 #SBATCH --gres=gpu:8
 #SBATCH --ntasks-per-node=8
