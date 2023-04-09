@@ -142,23 +142,23 @@ reference-data:
 
 oasst_export_eu:
   datasets:
-    - oasst_export:
-        lang: "en,es,de,fr"
-        input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
-    - gpt4all:
-        val_split: 0.01
+#    - oasst_export:
+#        lang: "en,es,de,fr"
+#        input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
+#    - gpt4all:
+#        val_split: 0.01
     - alpaca:
         val_split: 0.025
-    - code_alpaca
-    - oig_file:
-        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
-        max_count: 20000
-        min_length: 100
-        val_split: 0.01
-    - oig_file:
-        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
-        val_split: 0.05
-        min_length: 100
+#    - code_alpaca
+#    - oig_file:
+#        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
+#        max_count: 20000
+#        min_length: 100
+#        val_split: 0.01
+#    - oig_file:
+#        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
+#        val_split: 0.05
+#        min_length: 100
   use_custom_sampler: false
 
 oasst_export_latin_cyrillic:
