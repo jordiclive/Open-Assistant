@@ -14,7 +14,7 @@ defaults:
   save_strategy: steps
   save_steps: 1000
   max_length: 512
-  val_max_length:
+  val_max_length: 1024
   num_train_epochs: 3
   logging_steps: 10
   max_grad_norm: 2.0
