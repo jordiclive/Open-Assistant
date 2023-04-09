@@ -545,6 +545,9 @@ if __name__ == "__main__":
         param.requires_grad = True
 
     train, evals = get_dataset(training_conf)
+    if training_conf.val_max_length is None:
+        training_conf.val_max_length = training_conf.max_length
+
     train_collate_fn = DialogueDataCollator(
         tokenizer,
         max_length=training_conf.max_length,
@@ -559,7 +562,7 @@ if __name__ == "__main__":
 
     eval_collate_fn = DialogueDataCollator(
         tokenizer,
-        max_length=training_conf.max_length,
+        max_length=training_conf.val_max_length,
         random_offset_probability=training_conf.random_offset_probability,
         label_masking=training_conf.label_masking,
         samples_mixing=False,
@@ -635,6 +638,7 @@ if __name__ == "__main__":
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
+        wandb.config["_val_max_length"] = training_conf.val_max_length
 
 
     # HACK restart without optimizer
