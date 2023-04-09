@@ -641,12 +641,12 @@ if __name__ == "__main__":
         wandb.config["_val_max_length"] = training_conf.val_max_length
 
 
-    # HACK restart without optimizer
-    torch_path = "/fsx/home-jordiclive/output_dir_20230404_213013_decapoda-research/llama-13b-hf_2048/checkpoint-6000/pytorch_model.bin"
-
-    #25G	/fsx/home-jordiclive/output_dir_20230405_143621_decapoda-research/llama-13b-hf_2048/checkpoint-7070
-    model.load_state_dict(torch.load(torch_path,map_location='cpu'))
-    model = model.half().to('cuda')
+    # # HACK restart without optimizer
+    # torch_path = "/fsx/home-jordiclive/output_dir_20230404_213013_decapoda-research/llama-13b-hf_2048/checkpoint-6000/pytorch_model.bin"
+    # 
+    # #25G	/fsx/home-jordiclive/output_dir_20230405_143621_decapoda-research/llama-13b-hf_2048/checkpoint-7070
+    # model.load_state_dict(torch.load(torch_path,map_location='cpu'))
+    # model = model.half().to('cuda')
 
     trainer = SFTTrainer(
         model=model,
