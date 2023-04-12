@@ -29,11 +29,10 @@ export COUNT_NODE=`scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l`
 
 echo go $COUNT_NODE
 echo $HOSTNAMES
-
 hostfile="hostfile.txt"
 rm -f $hostfile
 for node in $HOSTNAMES; do
-  echo $node max_slots=8 >> $hostfile
+  echo $node >> $hostfile
 done
 
 
