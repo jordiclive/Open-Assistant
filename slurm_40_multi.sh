@@ -32,7 +32,7 @@ echo $HOSTNAMES
 hostfile="hostfile.txt"
 rm -f $hostfile
 for node in $HOSTNAMES; do
-  echo $node >> $hostfile
+  echo $node slots=8 >> $hostfile
 done
 
 
