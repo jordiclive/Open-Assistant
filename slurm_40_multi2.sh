@@ -43,7 +43,6 @@ export FI_EFA_USE_DEVICE_RDMA=1 # use for p4dn
 export FI_EFA_ENABLE_SHM_TRANSFER=0
 export FI_PROVIDER=efa
 export FI_EFA_TX_MIN_CREDITS=64
-export OMPI_MCA_btl="^openib"
 
 echo go $COUNT_NODE
 echo $HOSTNAMES
