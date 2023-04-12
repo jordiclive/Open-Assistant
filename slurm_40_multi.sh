@@ -28,8 +28,9 @@ echo "MASTER_ADDR="$MASTER_ADDR
 #master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 #export MASTER_ADDR=$master_addr
 #echo "MASTER_ADDR="$MASTER_ADDR
-#echo "$MASTER_ADDR slots=8" > /tmp/loopback_hostfile
-#export DEEPSPEED_HOSTFILE="/tmp/loopback_hostfile"
+echo "machine1 slots=8
+machine2 slots=8" > /tmp/loopback_hostfile
+export DEEPSPEED_HOSTFILE="/tmp/loopback_hostfile"
 #export ADDR="$(hostname -f):29500"
 #export MASTER_PORT=$(python -c 'import socket; s = socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()')
 cd /admin/home-jordiclive/Open-Assistant/model/model_training/
