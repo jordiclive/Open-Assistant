@@ -11,7 +11,7 @@
 
 module load openmpi
 module load cuda/11.7
-
+module purge
 
 
 
