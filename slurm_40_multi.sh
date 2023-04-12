@@ -6,6 +6,8 @@
 #SBATCH --gres=gpu:8
 #SBATCH --ntasks-per-node=8
 #SBATCH --output=%x_%j.out
+#SBATCH --open-mode=append
+#SBATCH --exclusive
 
 module load openmpi
 module load cuda/11.7
