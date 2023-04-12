@@ -10,7 +10,7 @@
 #SBATCH --exclusive
 
 module load openmpi
-module load cuda/11.7
+#module load cuda/11.7
 module purge
 module pdsh
 
