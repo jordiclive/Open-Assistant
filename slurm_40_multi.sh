@@ -16,6 +16,14 @@ export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
 
+export MASTER_PORT=12802
+### get the first node name as master address - customized for vgg slurm
+### e.g. master(gnodee[2-5],gnoded1) == gnodee2
+master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
+export MASTER_ADDR=$master_addr"i"
+echo "MASTER_ADDR="$MASTER_ADDR
+
+
 #export MASTER_PORT="12802"
 #master_addr=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 #export MASTER_ADDR=$master_addr
