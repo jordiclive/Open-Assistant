@@ -12,6 +12,8 @@
 module load openmpi
 module load cuda/11.7
 ml OpenMPI
+module load intelmpi
+source /opt/intel/mpi/latest/env/vars.sh
 
 
 
