@@ -11,6 +11,7 @@
 source /admin/home-jordiclive/miniconda3/bin/activate open_assistant
 cd /admin/home-jordiclive/Open-Assistant
 export TRANSFORMERS_CACHE=/admin/home-jordiclive/transformers_cache
+
 #export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
