@@ -4,9 +4,10 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
+from typing import Union
 
 class LabelAvgValue(BaseModel):
-    value: float | None
+    value: Union[float,None]
     count: int
 
 
@@ -15,7 +16,7 @@ LabelValues = dict[str, LabelAvgValue]
 
 class ExportMessageEvent(BaseModel):
     type: str
-    user_id: str | None
+    user_id: Union[str, None]
 
 
 class ExportMessageEventEmoji(ExportMessageEvent):
@@ -39,21 +40,21 @@ class ExportMessageEventRanking(ExportMessageEvent):
 
 class ExportMessageNode(BaseModel):
     message_id: str
-    parent_id: str | None
-    user_id: str | None
+    parent_id: Union[str, None]
+    user_id: Union[str, None]
     text: str
     role: str
-    lang: str | None
-    review_count: int | None
-    review_result: bool | None
-    deleted: bool | None
-    rank: int | None
-    synthetic: bool | None
-    model_name: str | None
-    emojis: dict[str, int] | None
-    replies: list[ExportMessageNode] | None
-    labels: LabelValues | None
-    events: dict[str, list[ExportMessageEvent]] | None
+    lang: Union[str, None]
+    review_count: Union[str, None]
+    review_result: Union[bool, None]
+    deleted: Union[bool, None]
+    rank: Union[int, None]
+    synthetic: Union[bool, None]
+    model_name: Union[str, None]
+    emojis: Union[dict[str, int], None]
+    replies: Union[list[ExportMessageNode],None]
+    labels: Union[LabelValues,None]
+    events: Union[dict[str, list[ExportMessageEvent]],None]
 
 
 class ExportMessageTree(BaseModel):

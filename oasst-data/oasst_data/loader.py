@@ -6,9 +6,9 @@ from typing import Callable, Iterable, Optional
 import pydantic
 
 from .schemas import ExportMessageTree
+from typing import Union
 
-
-def load_trees(input_file_path: str | Path) -> Iterable[ExportMessageTree]:
+def load_trees(input_file_path: Union[str,Path]) -> Iterable[ExportMessageTree]:
     if not isinstance(input_file_path, Path):
         input_file_path = Path(input_file_path)
     if input_file_path.suffix == ".gz":
@@ -26,6 +26,6 @@ def load_trees(input_file_path: str | Path) -> Iterable[ExportMessageTree]:
 
 
 def load_tree_list(
-    input_file_path: str | Path, filter: Optional[Callable[[ExportMessageTree], bool]] = None
+    input_file_path: Union[str,Path], filter: Optional[Callable[[ExportMessageTree], bool]] = None
 ) -> list[ExportMessageTree]:
     return [t for t in load_trees(input_file_path) if not filter or filter(t)]

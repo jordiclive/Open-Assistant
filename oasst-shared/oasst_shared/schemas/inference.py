@@ -30,7 +30,7 @@ class WorkerHardwareInfo(pydantic.BaseModel):
     cpu_freq_min: float
     mem_total: int
     swap_total: int
-    nvidia_driver_version: str | None = None
+    nvidia_driver_version: Union[str,None] = None
     gpus: list[WorkerGpuInfo]
 
     def __init__(self, **data):
@@ -83,7 +83,7 @@ class WorkerMetricsInfo(pydantic.BaseModel):
     cpu_usage: float
     mem_usage: float
     swap_usage: float
-    gpus: list[GpuMetricsInfo] | None = None
+    gpus: Union[list[GpuMetricsInfo],None] = None
 
     def __init__(self, **data):
         data["created_at"] = datetime.utcnow()
