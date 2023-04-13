@@ -114,6 +114,6 @@ export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
 export DLTS_HOSTFILE=$hostfile
 
 
-deepspeed --num_nodes -1 --launcher openmpi --hostfile=$hostfile --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
+deepspeed --num_nodes -1 --launcher slurm --hostfile=$hostfile --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
 
 
