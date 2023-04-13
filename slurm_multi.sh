@@ -14,9 +14,9 @@ module load openmpi
 module load cuda/11.7
 
 
-mkdir -p /mnt/nvme/home/$(whoami)/hostfiles
-hostfile=/mnt/nvme/home/$(whoami)/hostfiles/hosts_$SLURM_JOBID
-rm $hostfile &> /dev/null # for consecutive calls to this script in interactive jobs
+#mkdir -p /mnt/nvme/home/$(whoami)/hostfiles
+hostfile='/admin/home-jordiclive/Open-Assistant/hostfile.txt'
+#rm $hostfile &> /dev/null # for consecutive calls to this script in interactive jobs
 
 for i in `scontrol show hostnames $SLURM_NODELIST`
 do
@@ -103,6 +103,6 @@ export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
 export DLTS_HOSTFILE=$hostfile
 
 
-deepspeed --launcher openmpi --hostfile $hostfile --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
+deepspeed --launcher openmpi --hostfile '/admin/home-jordiclive/Open-Assistant/hostfile.txt' --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
 
 
