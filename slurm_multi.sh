@@ -14,9 +14,7 @@ module load openmpi
 module load cuda/11.7
 
 
-#mkdir -p /mnt/nvme/home/$(whoami)/hostfiles
-rm $machinefile  # for consecutive calls to this script in interactive jobs
-#
+#mkdir -p /mnt/nvme/home/$(whoami)/hostfiles#
 #for i in `scontrol show hostnames $SLURM_NODELIST`
 #do
 #    echo $i:8 >>$machinefile
@@ -24,7 +22,7 @@ rm $machinefile  # for consecutive calls to this script in interactive jobs
 
 
 hostfile='/admin/home-jordiclive/Open-Assistant/hostfile.txt'
-machinefile='/admin/home-jordiclive/Open-Assistant/machinefile.txt'
+#machinefile='/admin/home-jordiclive/Open-Assistant/machinefile.txt'
 rm $hostfile  for consecutive calls to this script in interactive jobs
 #
 
