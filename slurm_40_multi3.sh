@@ -11,7 +11,8 @@
 
 module purge
 module load openmpi
-module load cuda/11.4
+module load cuda/11.7
+
 
 mkdir -p /mnt/nvme/home/$(whoami)/hostfiles
 hostfile=/mnt/nvme/home/$(whoami)/hostfiles/hosts_$SLURM_JOBID
