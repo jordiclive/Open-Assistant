@@ -25,7 +25,6 @@ export COUNT_NODE=`scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l`
 
 cd /admin/home-jordiclive/Open-Assistant/model/model_training/
 
-source /fsx/home-jordiclive/miniconda3/bin/activate open
 export OMPI_MCA_mtl_base_verbose=1
 export LD_LIBRARY_PATH=/opt/aws-ofi-nccl/lib:/opt/amazon/efa/lib64:/usr/local/cuda-11.0/efa/lib:/usr/local/cuda-11.0/lib:/usr/local/cuda-11.0/lib64:/usr/local/cuda-11.0:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib:/opt/aws-ofi-nccl/lib:$LD_LIBRARY_PATH:/usr/lib64/compat-openmpi16/lib
 export PATH=/opt/amazon/efa/bin:/opt/amazon/openmpi/bin:$PATH
@@ -57,6 +56,7 @@ for node in $HOSTNAMES; do
   echo $node slots=8 >> $hostfile
 done
 
+source /fsx/home-jordiclive/miniconda3/bin/activate open
 
 cd /admin/home-jordiclive/Open-Assistant/model/model_training/
 export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
