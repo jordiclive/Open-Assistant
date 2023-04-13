@@ -18,6 +18,7 @@ mkdir -p /mnt/nvme/home/$(whoami)/hostfiles
 hostfile=/mnt/nvme/home/$(whoami)/hostfiles/hosts_$SLURM_JOBID
 rm $hostfile &> /dev/null # for consecutive calls to this script in interactive jobs
 
+hostfile = "/fsx/home-jordiclive/hostfile.txt"
 for i in `scontrol show hostnames $SLURM_NODELIST`
 do
     echo $i slots=8 >>$hostfile
