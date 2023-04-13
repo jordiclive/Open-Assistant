@@ -29,7 +29,7 @@ module load cuda/11.7
 hostfile="/fsx/home-jordiclive/hostfile.txt"
 rm -f $hostfile
 for node in $HOSTNAMES; do
-  echo $node slots=8 >> hostfile
+  echo $node slots=8 >> "/fsx/home-jordiclive/hostfile.txt"
 done
 
 export HOSTNAMES=`scontrol show hostnames "$SLURM_JOB_NODELIST"`
