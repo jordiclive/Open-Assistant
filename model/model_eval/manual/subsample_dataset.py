@@ -10,7 +10,7 @@ from oasst_data import ExportMessageTree
 
 
 def load_message_trees(
-    input_file_path: str | Path,
+    input_file_path: Union[str,Path],
     lang_codes: list[str],
     tree_state: str,
     max_length: Optional[int] = None,

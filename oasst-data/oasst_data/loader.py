@@ -1,7 +1,7 @@
 import gzip
 import json
 from pathlib import Path
-from typing import Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional, List
 
 import pydantic
 
@@ -27,5 +27,5 @@ def load_trees(input_file_path: Union[str,Path]) -> Iterable[ExportMessageTree]:
 
 def load_tree_list(
     input_file_path: Union[str,Path], filter: Optional[Callable[[ExportMessageTree], bool]] = None
-) -> list[ExportMessageTree]:
+) -> List[ExportMessageTree]:
     return [t for t in load_trees(input_file_path) if not filter or filter(t)]

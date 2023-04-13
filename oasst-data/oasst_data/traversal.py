@@ -1,13 +1,13 @@
 from typing import Callable, Optional
 
 from .schemas import ExportMessageNode
-
+from typing import List
 
 def visit_threads_depth_first(
     node: ExportMessageNode,
-    visitor: Callable[[list[ExportMessageNode]], None],
-    predicate: Optional[Callable[[list[ExportMessageNode]], bool]] = None,
-    parents: list[ExportMessageNode] = None,
+    visitor: Callable[[List[ExportMessageNode]], None],
+    predicate: Optional[Callable[[List[ExportMessageNode]], bool]] = None,
+    parents: List[ExportMessageNode] = None,
 ):
     parents = parents or []
     if not node:

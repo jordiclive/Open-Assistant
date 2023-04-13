@@ -56,7 +56,7 @@ class SamplingReport(pydantic.BaseModel):
     prompts: list[PromptResults]
 
 
-def load_jsonl(input_file_path: Union[str,Path]) -> list[dict | str]:
+def load_jsonl(input_file_path: Union[str,Path]) -> list[Union[dict,str]]:
     if not isinstance(input_file_path, Path):
         input_file_path = Path(input_file_path)
 
@@ -127,7 +127,7 @@ def sample(
 
 
 def merge_configs(*configs: tuple[Optional[SamplingConfig]]) -> Optional[SamplingConfig]:
-    merged: SamplingConfig | None = None
+    merged: Union[SamplingConfig, None] = None
     for c in configs:
         if not merged:
             if c:

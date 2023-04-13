@@ -4,7 +4,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
-from typing import Union, Dict
+from typing import Union, Dict, List
 
 class LabelAvgValue(BaseModel):
     value: Union[float,None]
@@ -31,8 +31,8 @@ class ExportMessageEventRating(ExportMessageEvent):
 
 class ExportMessageEventRanking(ExportMessageEvent):
     type: Literal["ranking"] = "ranking"
-    ranking: list[int]
-    ranked_message_ids: list[str]
+    ranking: List[int]
+    ranked_message_ids: List[str]
     ranking_parent_id: Optional[str]
     message_tree_id: Optional[str]
     not_rankable: Optional[bool]  # all options flawed, factually incorrect or unacceptable
@@ -52,9 +52,9 @@ class ExportMessageNode(BaseModel):
     synthetic: Union[bool, None]
     model_name: Union[str, None]
     emojis: Union[Dict[str, int], None]
-    replies: Union[list[ExportMessageNode],None]
+    replies: Union[List[ExportMessageNode],None]
     labels: Union[LabelValues,None]
-    events: Union[Dict[str, list[ExportMessageEvent]],None]
+    events: Union[Dict[str, List[ExportMessageEvent]],None]
 
 
 class ExportMessageTree(BaseModel):
