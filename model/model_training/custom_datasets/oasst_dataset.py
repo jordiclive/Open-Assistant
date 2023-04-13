@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from oasst_data import ExportMessageNode, load_trees, visit_threads_depth_first
 from torch import Generator
@@ -19,12 +19,12 @@ class ListDataset(Dataset):
 
 
 def load_oasst_export(
-    input_file_path: str | Path,
+    input_file_path: Union[str,Path],
     val_split: float = 0.2,
     lang: str = "en",
     top_k: Optional[int] = None,
     manual_seed: int = 297631038922,
-    data_path: str | Path = None,
+    data_path: Union[str,Path] = None,
     mode: Literal["sft", "rm"] = "sft",
 ) -> tuple[ListDataset, ListDataset]:
     if mode not in ("sft", "rm"):
