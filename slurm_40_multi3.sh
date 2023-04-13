@@ -74,11 +74,11 @@ export OMPI_MCA_mtl_base_verbose=1
 
 
 export OMPI_MCA_mtl_base_verbose=1
-export LD_LIBRARY_PATH=/opt/aws-ofi-nccl/lib:/opt/amazon/efa/lib64:/usr/local/cuda-11.0/efa/lib:/usr/local/cuda-11.0/lib:/usr/local/cuda-11.0/lib64:/usr/local/cuda-11.0:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib:/opt/aws-ofi-nccl/lib:$LD_LIBRARY_PATH:/usr/lib64/compat-openmpi16/lib
-export PATH=/opt/amazon/efa/bin:/opt/amazon/openmpi/bin:$PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
-
-export LD_PRELOAD="/opt/nccl/build/lib/libnccl.so"
+#export LD_LIBRARY_PATH=/opt/aws-ofi-nccl/lib:/opt/amazon/efa/lib64:/usr/local/cuda-11.0/efa/lib:/usr/local/cuda-11.0/lib:/usr/local/cuda-11.0/lib64:/usr/local/cuda-11.0:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib:/opt/aws-ofi-nccl/lib:$LD_LIBRARY_PATH:/usr/lib64/compat-openmpi16/lib
+#export PATH=/opt/amazon/efa/bin:/opt/amazon/openmpi/bin:$PATH
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
+#
+#export LD_PRELOAD="/opt/nccl/build/lib/libnccl.so"
 
 export NCCL_DEBUG=INFO
 export NCCL_TREE_THRESHOLD=0
