@@ -621,7 +621,7 @@ if __name__ == "__main__":
                 )
 
 
-
+    #working
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
 
