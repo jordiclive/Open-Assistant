@@ -6,9 +6,20 @@ from typing import Optional
 
 import requests
 from datasets import load_dataset
-from model_training.custom_datasets.oasst_dataset import ListDataset
+# from model_training.custom_datasets.oasst_dataset import ListDataset
 from torch import Generator, randperm
 from torch.utils.data import Dataset, random_split
+
+class ListDataset(Dataset):
+    def __init__(self, data: list):
+        super().__init__()
+        self.data = data
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, index):
+        return self.data[index]
 
 
 def load_oig_file(
