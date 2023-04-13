@@ -124,7 +124,7 @@ class PerDatasetSampler(DistributedSampler):
         return iter(epoch_idx)
 
     @classmethod
-    def build_sampler_from_config(cls, training_conf, datasets: list[Dataset], verbose: bool = False, *args, **kwargs):
+    def build_sampler_from_config(cls, training_conf, datasets, verbose: bool = False, *args, **kwargs):
         dataset_sizes = [len(x) for x in datasets]
         fractions = get_dataset_fractions(training_conf.datasets, dataset_sizes, verbose)
         dataset_size_per_epoch = [int(size * frac) for size, frac in zip(dataset_sizes, fractions)]
