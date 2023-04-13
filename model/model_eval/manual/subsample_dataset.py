@@ -3,7 +3,7 @@ import gzip
 import json
 import random
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import pydantic
 from oasst_data import ExportMessageTree
@@ -47,7 +47,7 @@ def load_message_trees(
     return trees
 
 
-def write_file(output_file_path: str | Path, items: list) -> None:
+def write_file(output_file_path: Union[str, Path], items: list) -> None:
     if not isinstance(output_file_path, Path):
         output_file_path = Path(output_file_path)
 

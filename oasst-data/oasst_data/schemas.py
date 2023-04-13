@@ -4,14 +4,14 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
-from typing import Union
+from typing import Union, Dict
 
 class LabelAvgValue(BaseModel):
     value: Union[float,None]
     count: int
 
 
-LabelValues = dict[str, LabelAvgValue]
+LabelValues = Dict[str, LabelAvgValue]
 
 
 class ExportMessageEvent(BaseModel):
@@ -51,10 +51,10 @@ class ExportMessageNode(BaseModel):
     rank: Union[int, None]
     synthetic: Union[bool, None]
     model_name: Union[str, None]
-    emojis: Union[dict[str, int], None]
+    emojis: Union[Dict[str, int], None]
     replies: Union[list[ExportMessageNode],None]
     labels: Union[LabelValues,None]
-    events: Union[dict[str, list[ExportMessageEvent]],None]
+    events: Union[Dict[str, list[ExportMessageEvent]],None]
 
 
 class ExportMessageTree(BaseModel):

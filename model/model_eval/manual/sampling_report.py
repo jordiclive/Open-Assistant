@@ -5,7 +5,7 @@ import random
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import pydantic
 import torch
@@ -56,7 +56,7 @@ class SamplingReport(pydantic.BaseModel):
     prompts: list[PromptResults]
 
 
-def load_jsonl(input_file_path: str | Path) -> list[dict | str]:
+def load_jsonl(input_file_path: Union[str,Path]) -> list[dict | str]:
     if not isinstance(input_file_path, Path):
         input_file_path = Path(input_file_path)
 
