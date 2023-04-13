@@ -1,7 +1,7 @@
 """
     High level functions for model training
 """
-from typing import Union
+from typing import Union, Tuple
 
 from model_training.custom_datasets.extra_rm_datasets import load_anthropic_rlhf, load_open_ai_summarize_from_feedback
 from model_training.custom_datasets.instruction import INSTRUCTION_DATASETS, InstructionDataset
@@ -41,7 +41,7 @@ RL_DATASETS = ["webgpt", "private_tuning", "alpaca"]
 RM_DATASETS = ["oasst_export", "anthropic_rlhf", "open_ai_summarize_from_feedback"]
 
 
-def train_val_dataset(dataset, val_split=0.2) -> tuple[Dataset, Union[Dataset, None]]:
+def train_val_dataset(dataset, val_split=0.2) -> Tuple[Dataset, Union[Dataset, None]]:
     if val_split == 0:
         return dataset, None
 
@@ -53,7 +53,7 @@ def train_val_dataset(dataset, val_split=0.2) -> tuple[Dataset, Union[Dataset, N
 
 def get_one_dataset(
     conf, dataset_name, val_split=0.2, data_path=None, mode="sft", **kwargs
-) -> tuple[Dataset, Union[Dataset, None]]:
+) -> Tuple[Dataset, Union[Dataset, None]]:
     if mode == "rl":
         assert dataset_name in RL_DATASETS, f"Dataset {dataset_name} not supported for RL"
 

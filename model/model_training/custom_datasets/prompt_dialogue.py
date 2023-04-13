@@ -19,7 +19,7 @@ def load_oig_file(
     max_count: Optional[int] = None,
     min_length: Optional[int] = 1000,
     manual_seed: int = 297631038922,
-) -> tuple[ListDataset, ListDataset]:
+) -> Tuple[ListDataset, ListDataset]:
     generator = Generator()
     generator.manual_seed(manual_seed)
 
