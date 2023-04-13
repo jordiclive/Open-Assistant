@@ -58,7 +58,7 @@ for node in $HOSTNAMES; do
 done
 
 
-cd /admin/home-jordiclive/Open-Assistant
+cd /admin/home-jordiclive/Open-Assistant/model/model_training/
 export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
