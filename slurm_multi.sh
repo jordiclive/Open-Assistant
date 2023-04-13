@@ -93,11 +93,13 @@ export NCCL_PROTO=simple
 # Network issues without these set; See https://github.com/NVIDIA/nccl/issues/676
 # export NCCL_P2P_DISABLE=1
 export NCCL_IBEXT_DISABLE=1
-export NCCL_SOCKET_IFNAME="eth0"
+#export NCCL_SOCKET_IFNAME="eth0"
 export NCCL_IB_HCA=ibp
 export NCCL_SOCKET_IFNAME=eth0
 export NCCL_IB_HCA=ibp
 export NCCL_COLLNET_ENABLE=1
+export NCCL_SOCKET_IFNAME="^lo,docker0"
+export OMPI_MCA_btl="^openib"
 #export TORCH_EXTENSIONS_DIR=extensions
 
 
