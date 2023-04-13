@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 
 class LabelAvgValue(BaseModel):
-    value: float | None
+    value: float
     count: int
 
 
@@ -15,7 +15,7 @@ LabelValues = dict[str, LabelAvgValue]
 
 class ExportMessageEvent(BaseModel):
     type: str
-    user_id: str | None
+    user_id: str
 
 
 class ExportMessageEventEmoji(ExportMessageEvent):
@@ -39,21 +39,21 @@ class ExportMessageEventRanking(ExportMessageEvent):
 
 class ExportMessageNode(BaseModel):
     message_id: str
-    parent_id: str | None
-    user_id: str | None
+    parent_id: str
+    user_id: str
     text: str
     role: str
-    lang: str | None
-    review_count: int | None
-    review_result: bool | None
-    deleted: bool | None
-    rank: int | None
-    synthetic: bool | None
-    model_name: str | None
-    emojis: dict[str, int] | None
-    replies: list[ExportMessageNode] | None
-    labels: LabelValues | None
-    events: dict[str, list[ExportMessageEvent]] | None
+    lang: str
+    review_count: int
+    review_result: bool
+    deleted: bool
+    rank: int
+    synthetic: bool
+    model_name: str
+    emojis: dict[str, int]
+    replies: list[ExportMessageNode]
+    labels: LabelValues
+    events: dict[str, list[ExportMessageEvent]]
 
 
 class ExportMessageTree(BaseModel):
