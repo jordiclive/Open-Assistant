@@ -9,7 +9,7 @@
 #SBATCH --open-mode=append
 #SBATCH --exclusive
 
-module load openmpi
+#module load openmpi
 #module load cuda/11.7
 module purge
 module pdsh
@@ -31,7 +31,7 @@ export LD_LIBRARY_PATH=/opt/aws-ofi-nccl/lib:/opt/amazon/efa/lib64:/usr/local/cu
 export PATH=/opt/amazon/efa/bin:/opt/amazon/openmpi/bin:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 
-#export LD_PRELOAD="/opt/nccl/build/lib/libnccl.so"
+export LD_PRELOAD="/opt/nccl/build/lib/libnccl.so"
 
 export NCCL_DEBUG=WARN
 export NCCL_TREE_THRESHOLD=0
@@ -65,5 +65,5 @@ export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
 
 
 
-deepspeed --num_nodes -1 --launcher openmpi --master_addr $MASTER_ADDR --hostfile=$hostfile /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
+deepspeed --launcher openmpi --master_addr $MASTER_ADDR --hostfile=$hostfile /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
 
