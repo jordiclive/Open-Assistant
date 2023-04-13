@@ -14,30 +14,32 @@ module load openmpi
 module load cuda/11.7
 
 
-#mkdir -p /mnt/nvme/home/$(whoami)/hostfiles
-#hostfile=/mnt/nvme/home/$(whoami)/hostfiles/hosts_$SLURM_JOBID
-#rm $hostfile &> /dev/null # for consecutive calls to this script in interactive jobs
-#
-#
-#
-#hostfile = "/fsx/home-jordiclive/hostfile.txt"
-#for i in `scontrol show hostnames $SLURM_NODELIST`
-#do
-#    echo $i slots=8 >>$hostfile
-#done
+mkdir -p /fsx/home-$(whoami)/hostfiles
+hostfile=/fsx/home-$(whoami)/hostfiles/hosts_$SLURM_JOBID
+rm $hostfile &> /dev/null # for consecutive calls to this script in interactive jobs
 
+for i in `scontrol show hostnames $SLURM_NODELIST`
+do
+    echo $i slots=8 >>$hostfile
+done
 
-
-export HOSTNAMES=`scontrol show hostnames "$SLURM_NODELIST"`
+export HOSTNAMES=`scontrol show hostnames "$SLURM_JOB_NODELIST"`
 export MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_PORT=12802
 export COUNT_NODE=`scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l`
 
-hostfile="/admin/home-jordiclive/Open-Assistant/hostfile.txt"
-rm -f $hostfile
-for node in $HOSTNAMES; do
-  echo $node slots=8 >> $hostfile
-done
+
+
+#export HOSTNAMES=`scontrol show hostnames "$SLURM_NODELIST"`
+#export MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
+#export MASTER_PORT=12802
+#export COUNT_NODE=`scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l`
+
+#hostfile="/admin/home-jordiclive/Open-Assistant/hostfile.txt"
+#rm -f $hostfile
+#for node in $HOSTNAMES; do
+#  echo $node slots=8 >> $hostfile
+#done
 
 #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib
 #export NCCL_PROTO=simple
