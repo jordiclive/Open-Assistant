@@ -101,7 +101,7 @@ export NCCL_COLLNET_ENABLE=1
 #export TORCH_EXTENSIONS_DIR=extensions
 
 
-source /admin/home-jordiclive/miniconda3/bin/activate open_assistant
+source /admin/home-jordiclive/jordan_no/bin/activate 
 
 cd /admin/home-jordiclive/Open-Assistant/model/model_training/
 export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
@@ -111,5 +111,4 @@ export DLTS_HOSTFILE=$hostfile
 
 
 deepspeed --launcher openmpi --hostfile '/admin/home-jordiclive/Open-Assistant/hostfile.txt' --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
-
 
