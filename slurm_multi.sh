@@ -101,7 +101,7 @@ export NCCL_COLLNET_ENABLE=1
 #export TORCH_EXTENSIONS_DIR=extensions
 
 
-source /admin/home-jordiclive/miniconda3/bin/activate open_assistant
+source /admin/home-jordiclive/jordan_no/bin/activate open_assistant
 
 cd /admin/home-jordiclive/Open-Assistant/model/model_training/
 export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
