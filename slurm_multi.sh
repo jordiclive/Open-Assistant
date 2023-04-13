@@ -15,8 +15,9 @@ module load cuda/11.7
 
 
 #mkdir -p /mnt/nvme/home/$(whoami)/hostfiles
+
 hostfile='/admin/home-jordiclive/Open-Assistant/hostfile.txt'
-#rm $hostfile &> /dev/null # for consecutive calls to this script in interactive jobs
+rm $hostfile &> /dev/null # for consecutive calls to this script in interactive jobs
 
 for i in `scontrol show hostnames $SLURM_NODELIST`
 do
