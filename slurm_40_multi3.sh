@@ -88,6 +88,9 @@ export NCCL_PROTO=simple
 export NCCL_IBEXT_DISABLE=1
 export NCCL_SOCKET_IFNAME="eth0"
 export NCCL_IB_HCA=ibp
+export NCCL_SOCKET_IFNAME=eth0
+export NCCL_IB_HCA=ibp
+export NCCL_COLLNET_ENABLE=1
 #export TORCH_EXTENSIONS_DIR=extensions
 
 
