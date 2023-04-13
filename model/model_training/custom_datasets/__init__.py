@@ -39,7 +39,7 @@ RL_DATASETS = ["webgpt", "private_tuning", "alpaca"]
 RM_DATASETS = ["oasst_export", "anthropic_rlhf", "open_ai_summarize_from_feedback"]
 
 
-def train_val_dataset(dataset, val_split=0.2) -> tuple[Dataset, Dataset | None]:
+def train_val_dataset(dataset, val_split=0.2):
     if val_split == 0:
         return dataset, None
 
@@ -51,7 +51,7 @@ def train_val_dataset(dataset, val_split=0.2) -> tuple[Dataset, Dataset | None]:
 
 def get_one_dataset(
     conf, dataset_name, val_split=0.2, data_path=None, mode="sft", **kwargs
-) -> tuple[Dataset, Dataset | None]:
+):
     if mode == "rl":
         assert dataset_name in RL_DATASETS, f"Dataset {dataset_name} not supported for RL"
 
