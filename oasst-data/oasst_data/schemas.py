@@ -53,7 +53,7 @@ class ExportMessageNode(BaseModel):
     emojis: dict[str, int]
     replies: list[ExportMessageNode]
     labels: LabelValues
-    events: dict[str, list[ExportMessageEvent]]
+    events: dict[str, list[ExportMessageEvent]] 
 
 
 class ExportMessageTree(BaseModel):
