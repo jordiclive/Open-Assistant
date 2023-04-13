@@ -20,7 +20,7 @@ hostfile='/admin/home-jordiclive/Open-Assistant/hostfile.txt'
 
 for i in `scontrol show hostnames $SLURM_NODELIST`
 do
-    echo $i slots=8 >>$hostfile
+    echo $i:8 >>$hostfile
 done
 
 export HOSTNAMES=`scontrol show hostnames "$SLURM_JOB_NODELIST"`
@@ -73,7 +73,6 @@ export OMPI_MCA_mtl_base_verbose=1
 
 
 
-export OMPI_MCA_mtl_base_verbose=1
 #export LD_LIBRARY_PATH=/opt/aws-ofi-nccl/lib:/opt/amazon/efa/lib64:/usr/local/cuda-11.0/efa/lib:/usr/local/cuda-11.0/lib:/usr/local/cuda-11.0/lib64:/usr/local/cuda-11.0:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib:/opt/aws-ofi-nccl/lib:$LD_LIBRARY_PATH:/usr/lib64/compat-openmpi16/lib
 #export PATH=/opt/amazon/efa/bin:/opt/amazon/openmpi/bin:$PATH
 #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
