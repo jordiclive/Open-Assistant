@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --account laion
-#SBATCH --partition="g40"
+#SBATCH --partition="g80"
 #SBATCH --job-name=OA
 #SBATCH --nodes=2
 #SBATCH --gres=gpu:8
@@ -94,7 +94,7 @@ export NCCL_COLLNET_ENABLE=1
 #export TORCH_EXTENSIONS_DIR=extensions
 
 
-source /fsx/home-jordiclive/miniconda3/bin/activate open
+source /admin/home-jordiclive/miniconda3/bin/activate open_assistant
 
 cd /admin/home-jordiclive/Open-Assistant/model/model_training/
 export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
