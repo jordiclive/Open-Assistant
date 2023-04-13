@@ -625,6 +625,8 @@ if __name__ == "__main__":
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
 
+    os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
+
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
 
