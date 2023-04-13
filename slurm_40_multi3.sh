@@ -26,10 +26,10 @@ module load cuda/11.7
 #    echo $i slots=8 >>$hostfile
 #done
 
-hostfile="/fsx/home-jordiclive/hostfile.txt"
+hostfile="/admin/home-jordiclive/Open-Assistant/hostfile.txt"
 rm -f $hostfile
 for node in $HOSTNAMES; do
-  echo $node slots=8 >> "/fsx/home-jordiclive/hostfile.txt"
+  echo $node slots=8 >> $hostfile
 done
 
 export HOSTNAMES=`scontrol show hostnames "$SLURM_JOB_NODELIST"`
@@ -112,6 +112,6 @@ export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
 export DLTS_HOSTFILE=$hostfile
 
 
-deepspeed --num_nodes 2 --launcher openmpi --hostfile "/fsx/home-jordiclive/hostfile.txt" --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
+deepspeed --num_nodes 2 --launcher openmpi --hostfile=$hostfile --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
 
 
