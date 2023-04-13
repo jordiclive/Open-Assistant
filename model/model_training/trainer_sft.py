@@ -627,10 +627,11 @@ if __name__ == "__main__":
 
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
+
+        os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
+        wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
+        wandb.login(key='d8216641d549f9bb3d0c5074baa39e15dfd55030')
         if int(os.environ['RANK']) == 0:
-            os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
-            wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
-            # wandb.login(key='d8216641d549f9bb3d0c5074baa39e15dfd55030')
             wandb.init(
 
                 project="supervised-finetuning",
