@@ -10,7 +10,7 @@ class LabelAvgValue(BaseModel):
     count: int
 
 
-LabelValues = dict[str, LabelAvgValue]
+# LabelValues = dict[str, LabelAvgValue]
 
 
 class ExportMessageEvent(BaseModel):
@@ -52,8 +52,8 @@ class ExportMessageNode(BaseModel):
     model_name: str
     emojis: dict[str, int]
     replies: list[ExportMessageNode]
-    labels: LabelValues
-    events: dict[str, list[ExportMessageEvent]] 
+    labels: None
+    events: dict[str, list[ExportMessageEvent]]
 
 
 class ExportMessageTree(BaseModel):
