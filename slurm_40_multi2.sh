@@ -32,7 +32,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/
 
 export LD_PRELOAD="/opt/nccl/build/lib/libnccl.so"
 
-export NCCL_DEBUG=WARN
+export NCCL_DEBUG=INFO
 export NCCL_TREE_THRESHOLD=0
 export NCCL_PROTO=simple
 # Network issues without these set; See https://github.com/NVIDIA/nccl/issues/676
