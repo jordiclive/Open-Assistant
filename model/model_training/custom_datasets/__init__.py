@@ -3,7 +3,7 @@
 """
 from model_training.custom_datasets.extra_rm_datasets import load_anthropic_rlhf, load_open_ai_summarize_from_feedback
 from model_training.custom_datasets.instruction import INSTRUCTION_DATASETS, InstructionDataset
-from model_training.custom_datasets.oasst_dataset import load_oasst_export
+# from model_training.custom_datasets.oasst_dataset import load_oasst_export
 from model_training.custom_datasets.prompt_dialogue import Gpt4All, load_oig_file
 from model_training.custom_datasets.qa_datasets import (
     SODA,
@@ -105,8 +105,8 @@ def get_one_dataset(
     elif dataset_name == "oa_translated":
         # TODO make val_split lower..? by saganos
         dataset = TranslatedQA(data_path)
-    elif dataset_name == "oasst_export":
-        train, eval = load_oasst_export(data_path=data_path, val_split=val_split, mode=mode, **kwargs)
+    # elif dataset_name == "oasst_export":
+    #     train, eval = load_oasst_export(data_path=data_path, val_split=val_split, mode=mode, **kwargs)
     elif dataset_name == "oig_file":
         train, eval = load_oig_file(val_split=val_split, **kwargs)
     elif dataset_name == "open_ai_summarize_from_feedback":
