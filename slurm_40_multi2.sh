@@ -6,8 +6,7 @@
 #SBATCH --gres=gpu:8
 #SBATCH --ntasks-per-node=8
 #SBATCH --output=%x_%j.out
-#SBATCH --open-mode=append
-#SBATCH --exclusive
+
 
 module load openmpi
 #module load cuda/11.7
@@ -65,5 +64,5 @@ export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model:$PYTHONPATH"
 export DLTS_HOSTFILE=$hostfile
 
 
-srun deepspeed --launcher OpenMPI --master_port $MASTER_PORT --master_addr $MASTER_ADDR --hostfile=$hostfile /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
+deepspeed --launcher OpenMPI --master_addr $MASTER_ADDR --hostfile=$hostfile /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-7b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention False
 
