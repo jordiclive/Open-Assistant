@@ -26,16 +26,18 @@ module load cuda/11.7
 #    echo $i slots=8 >>$hostfile
 #done
 
-hostfile="/admin/home-jordiclive/Open-Assistant/hostfile.txt"
-rm -f $hostfile
-for node in $HOSTNAMES; do
-  echo $node slots=8 >> $hostfile
-done
+
 
 export HOSTNAMES=`scontrol show hostnames "$SLURM_JOB_NODELIST"`
 export MASTER_ADDR=$(scontrol show hostnames "$SLURM_JOB_NODELIST" | head -n 1)
 export MASTER_PORT=12802
 export COUNT_NODE=`scontrol show hostnames "$SLURM_JOB_NODELIST" | wc -l`
+
+hostfile="/admin/home-jordiclive/Open-Assistant/hostfile.txt"
+rm -f $hostfile
+for node in $HOSTNAMES; do
+  echo $node slots=8 >> $hostfile
+done
 
 #export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/nccl/build/lib:/opt/aws-ofi-nccl-install/lib
 #export NCCL_PROTO=simple
