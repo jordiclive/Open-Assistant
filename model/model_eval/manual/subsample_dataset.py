@@ -11,10 +11,10 @@ from oasst_data import ExportMessageTree
 
 def load_message_trees(
     input_file_path: Union[str,Path],
-    lang_codes: list[str],
+    lang_codes: List[str],
     tree_state: str,
     max_length: Optional[int] = None,
-) -> list[ExportMessageTree]:
+) -> List[ExportMessageTree]:
     if not isinstance(input_file_path, Path):
         input_file_path = Path(input_file_path)
 
