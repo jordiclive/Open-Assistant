@@ -2,7 +2,7 @@ import gzip
 import json
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import requests
 from datasets import load_dataset
