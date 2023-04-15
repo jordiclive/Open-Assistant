@@ -145,8 +145,8 @@ oasst_export_eu:
 #    - oasst_export:
 #        lang: "en,es,de,fr"
 #        input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
-#    - gpt4all:
-#        val_split: 0.01
+    - gpt4all:
+        val_split: 0.01
     - alpaca:
         val_split: 0.025
 #    - code_alpaca
@@ -267,9 +267,9 @@ llama-66b:
   max_length: 2048
   warmup_steps: 1000
   gradient_checkpointing: True
-  gradient_accumulation_steps: 4
-  per_device_train_batch_size: 1
-  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 1
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
   eval_steps: 1010
   save_steps: 1010
   num_train_epochs: 4
