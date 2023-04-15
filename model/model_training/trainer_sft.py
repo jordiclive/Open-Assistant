@@ -634,9 +634,9 @@ if __name__ == "__main__":
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
             project="supervised-finetuning",
-            entity="jordanclive", #open-assistant jordanclive
+            entity="open-assistant", #open-assistant jordanclive
             resume=training_conf.resume_from_checkpoint,
-            name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
+            name=f"66B-Llama-2048-alpaca-gpt4all-finetuned",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
