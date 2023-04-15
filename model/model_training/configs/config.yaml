@@ -276,6 +276,8 @@ llama-66b:
   save_total_limit: 1
   use_flash_attention: True
   sort_by_length: true
+  deepspeed_config: configs/zero3_config.json
+
 
 llama-30b:
   dtype: fp16
