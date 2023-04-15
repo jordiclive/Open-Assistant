@@ -264,12 +264,12 @@ llama-66b:
   model_name: "decapoda-research/llama-65b-hf"
   output_dir: llama_model
   weight_decay: 0.0
-  max_length: 512
+  max_length: 2048
   warmup_steps: 1000
   gradient_checkpointing: True
-  gradient_accumulation_steps: 2
-  per_device_train_batch_size: 4
-  per_device_eval_batch_size: 8
+  gradient_accumulation_steps: 4
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
   eval_steps: 1010
   save_steps: 1010
   num_train_epochs: 4
