@@ -354,7 +354,7 @@ llama-66b:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
         input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
-        max_count: 5000
+#        max_count: 5000
         val_split: 0.05
     - vicuna:
         val_split: 0.02
