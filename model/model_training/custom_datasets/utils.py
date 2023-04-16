@@ -1,7 +1,9 @@
+from typing import List, Union
+
 FILTER_BY_WORDS = ["openai"]
 
 
-def _filter_by_words(text: str, filter_words: list[str] | None = None) -> None | str:
+def _filter_by_words(text: str, filter_words: Union[List[str] , None] = None) -> Union[None, str]:
     """Used to filter text that contains one of the `FILTER_BY_WORDS`. If so we return `None`
        otherwise we return the string
 

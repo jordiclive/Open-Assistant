@@ -68,7 +68,7 @@ RM_DATASETS = [
 ]
 
 
-def train_val_dataset(dataset, val_split=0.2) -> tuple[Dataset, Union[Dataset,None]]:
+def train_val_dataset(dataset, val_split=0.2) -> Tuple[Dataset, Union[Dataset,None]]:
     if val_split == 0:
         return dataset, None
 
@@ -86,7 +86,7 @@ def get_one_dataset(
     mode: str = "sft",
     max_val_set: Optional[int] = None,
     **kwargs,
-) -> tuple[Dataset, Union[Dataset, None]]:
+) -> Tuple[Dataset, Union[Dataset, None]]:
     if mode == "rl":
         assert dataset_name in RL_DATASETS, f"Dataset {dataset_name} not supported for RL"
 

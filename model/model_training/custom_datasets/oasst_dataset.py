@@ -26,7 +26,7 @@ def load_oasst_export(
     manual_seed: int = 287631038922,
     data_path: Union[str, Path] = None,
     mode: Literal["sft", "rm"] = "sft",
-) -> tuple[ListDataset, ListDataset]:
+) -> Tuple[ListDataset, ListDataset]:
     if mode not in ("sft", "rm"):
         raise ValueError(f"Unknown dataset mode: {mode}")
 

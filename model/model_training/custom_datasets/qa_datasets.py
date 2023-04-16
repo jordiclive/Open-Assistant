@@ -549,7 +549,7 @@ class Vicuna(Dataset):
         return len(self.pairs)
 
     def __getitem__(self, index: int) -> Union[List[str] , Tuple[str]]:
-        dialogue: list[str] = self.pairs[index]
+        dialogue: List[str] = self.pairs[index]
         if self.mode == "sft":
             return dialogue
         elif self.mode == "rl":
@@ -569,7 +569,7 @@ class DatabricksDolly15k(Dataset):
             if (conv := self._process_instruction(line, input_max_length)) is not None:
                 self.rows.append(conv)
 
-    def _process_instruction(self, row: Dict[str, str], input_max_length: int) -> Union[list[str] , None]:
+    def _process_instruction(self, row: Dict[str, str], input_max_length: int) -> Union[List[str] , None]:
         if context := re_reference_remove.sub("", row["METADATA"]["CONTEXT"]):
             # further remove references
             context = context.replace("[citation needed]", "")
@@ -581,8 +581,8 @@ class DatabricksDolly15k(Dataset):
     def __len__(self) -> int:
         return len(self.rows)
 
-    def __getitem__(self, index: int) -> Union[list[str] , Tuple[str]]:
-        dialogue: list[str] = self.rows[index]
+    def __getitem__(self, index: int) -> Union[List[str] , Tuple[str]]:
+        dialogue: List[str] = self.rows[index]
         if self.mode == "sft":
             return dialogue
         elif self.mode == "rl":
@@ -622,7 +622,7 @@ class AlpacaGpt4(Dataset):
         return len(self.rows)
 
     def __getitem__(self, index: int) -> Union[List[str] , Tuple[str]]:
-        dialogue: list[str] = self.rows[index]
+        dialogue: List[str] = self.rows[index]
         if self.mode == "sft":
             return dialogue
         elif self.mode == "rl":

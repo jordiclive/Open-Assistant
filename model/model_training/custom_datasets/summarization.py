@@ -2,6 +2,7 @@
     Summarize different spectrum of documents
 """
 import random
+from typing import Union
 
 import numpy as np
 from datasets import load_dataset
@@ -141,7 +142,7 @@ class HFSummaryPairs(Dataset):
     def __len__(self) -> int:
         return len(self.posts)
 
-    def __getitem__(self, index: int) -> tuple | list:
+    def __getitem__(self, index: int) -> Union[tuple, list]:
         if index < 0 or index >= len(self.posts):
             raise IndexError()
 
@@ -244,7 +245,7 @@ class HFSummary(Dataset):
     def __len__(self) -> int:
         return len(self.index2summary)
 
-    def __getitem__(self, index) -> tuple | list:
+    def __getitem__(self, index) -> Union[tuple, list]:
         if index < 0 or index >= len(self.index2summary):
             raise IndexError()
 

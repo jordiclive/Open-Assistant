@@ -32,7 +32,7 @@ class Mode(Enum):
                 return "defaults_rlhf"
 
 
-def read_yaml(dir: Union[str,Path], config_file: str) -> dict[str, Any]:
+def read_yaml(dir: Union[str,Path], config_file: str) -> Dict[str, Any]:
     with open(Path(dir) / config_file, "r") as f:
         return yaml.safe_load(f)
 

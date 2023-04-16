@@ -156,7 +156,7 @@ class Gpt4All(Dataset):
     def __len__(self):
         return len(self.rows)
 
-    def __getitem__(self, index: int) -> Union[List[str] , tuple[str]]:
+    def __getitem__(self, index: int) -> Union[List[str] , Tuple[str]]:
         dialogue: list = self.rows[index]
         if self.mode == "sft":
             return dialogue

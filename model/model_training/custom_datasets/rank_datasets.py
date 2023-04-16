@@ -1,6 +1,6 @@
 import random
 from collections import defaultdict
-from typing import List
+from typing import List, Tuple, Union
 
 import numpy as np
 from datasets import load_dataset
@@ -16,7 +16,7 @@ class SHPDataset(Dataset):
 
     name = "SHP"
 
-    def __init__(self, split: str | list[str] | None, max_answers: int = 5):
+    def __init__(self, split: Union[str, List[str], None], max_answers: int = 5):
         super().__init__()
 
         self.questions = []
@@ -61,7 +61,7 @@ class HellaSwagDataset(Dataset):
 
     name = "hellaswag"
 
-    def __init__(self, split: str | list[str] | None, seed: int = SEED) -> None:
+    def __init__(self, split: Union[str, List[str], None], seed: int = SEED) -> None:
         super().__init__()
 
         np.random.seed(seed)
@@ -80,7 +80,7 @@ class HellaSwagDataset(Dataset):
     def __len__(self) -> int:
         return len(self.dataset_list)
 
-    def __getitem__(self, idx) -> tuple[str | None, list[list]]:
+    def __getitem__(self, idx) -> Tuple[Union[str, None], List[list]]:
         context, completions = self.dataset_list[idx].values()
         return None, [context + c for c in completions]
 
@@ -93,7 +93,7 @@ class HFDataset(Dataset):
 
     name = "open_ai_summarize_from_feedback"
 
-    def __init__(self, split: str | list[str] | None = None, subset: str = "axis") -> None:
+    def __init__(self, split: Union[str, List[str], None] = None, subset: str = "axis") -> None:
         super().__init__()
         # axis subset contains splits 'test' and 'validation'
         # comparisons subset contains splits 'train' and 'validation'
@@ -183,10 +183,10 @@ class AnthropicRLHF(Dataset):
     name = "anthropic_rlhf"
 
     @staticmethod
-    def _split_dialogue(text: str) -> list[tuple[str, str]]:
+    def _split_dialogue(text: str) -> List[Tuple[str, str]]:
         lines = text.split("\n\n")
 
-        dialogue: list[tuple[str, str]] = []
+        dialogue: List[Tuple[str, str]] = []
 
         # go over messages and combine consecutive messages from the
         # same speaker (OA v1 expects alternating roles)
@@ -241,5 +241,5 @@ class AnthropicRLHF(Dataset):
     def __len__(self) -> int:
         return len(self.data)
 
-    def __getitem__(self, index: int) -> tuple[str, list[str]]:
+    def __getitem__(self, index: int) -> Tuple[str, List[str]]:
         return self.data[index]
