@@ -1,7 +1,7 @@
 import gzip
 import json
 from pathlib import Path
-from typing import Callable, Iterable, Optional, TextIO, Union
+from typing import Callable, Iterable, Optional, TextIO, Union, List
 
 import pydantic
 
@@ -43,7 +43,7 @@ def read_message_trees(input_file_path: Union[str, Path]) -> Iterable[ExportMess
 
 def read_message_tree_list(
     input_file_path: Union[str,Path], filter: Optional[Callable[[ExportMessageTree], bool]] = None
-) -> list[ExportMessageTree]:
+) -> List[ExportMessageTree]:
     return [t for t in read_message_trees(input_file_path) if not filter or filter(t)]
 
 
@@ -55,5 +55,5 @@ def read_messages(input_file_path: Union[str, Path]) -> Iterable[ExportMessageNo
 
 def read_message_list(
     input_file_path: Union[str, Path], filter: Optional[Callable[[ExportMessageNode], bool]] = None
-) -> list[ExportMessageNode]:
+) -> List[ExportMessageNode]:
     return [t for t in read_messages(input_file_path) if not filter or filter(t)]
