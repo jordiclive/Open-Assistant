@@ -1,7 +1,7 @@
 """
     High level functions for model training
 """
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 import numpy as np
 from model_training.custom_datasets.extra_rm_datasets import load_anthropic_rlhf, load_hellaswag, load_shp
