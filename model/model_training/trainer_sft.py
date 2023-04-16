@@ -2,7 +2,7 @@
 import argparse
 import logging
 import os
-from datetime import time
+from time import time
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
