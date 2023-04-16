@@ -186,6 +186,7 @@ def argument_parsing(notebook=False, notebook_args=None):
     parser.add_argument("--resume_from_checkpoint", action="store_true", help="Resume from last saved checkpoint")
     parser.add_argument("--rng_seed", type=int, help="rng seed")
     parser.add_argument("--show_dataset_stats", action="store_true", help="Show dataset stats", default=False)
+    parser.add_argument("--peft", action="store_true", help="Use PEFT for training", default=False)
     parser.set_defaults(deepspeed=False)
 
     if notebook:
@@ -349,6 +350,15 @@ def main():
     )
 
     train, evals = get_dataset(training_conf)
+
+    if training_conf.peft:
+        from peft import (
+            LoraConfig,
+            get_peft_model,
+            get_peft_model_state_dict,
+            prepare_model_for_int8_training,
+            set_peft_model_state_dict,
+        )
 
     # show_dataset_stats = (training_conf.verbose or training_conf.show_dataset_stats) and (
     #     not training_conf.deepspeed or training_conf.local_rank == 0
