@@ -1,6 +1,6 @@
 import os
 import fnmatch
-
+import time
 
 def delete_unwanted_files(directory, keep_files):
     for root, _, filenames in os.walk(directory):
@@ -12,7 +12,6 @@ def delete_unwanted_files(directory, keep_files):
                     print(f"Deleted: {file_path}")
                 except Exception as e:
                     print(f"Error deleting {file_path}: {e}")
-
 
 if __name__ == "__main__":
     search_directory = "/fsx/home-jordiclive/66B_checkpoints"
@@ -28,4 +27,8 @@ if __name__ == "__main__":
         "tokenizer.model"
     ]
 
-    delete_unwanted_files(search_directory, keep_files)
+    while True:
+        print("Running delete_unwanted_files...")
+        delete_unwanted_files(search_directory, keep_files)
+        print("Waiting for 2 hours before the next run...")
+        time.sleep(60 * 60)
