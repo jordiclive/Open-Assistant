@@ -345,7 +345,7 @@ llama-66b:
   per_device_eval_batch_size: 8
   eval_steps: 200
   save_steps: 300
-  num_train_epochs: 1
+  num_train_epochs: 3
   save_total_limit: 1
   use_custom_sampler: true
   sort_by_length: False
