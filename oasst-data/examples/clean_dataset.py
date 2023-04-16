@@ -32,8 +32,8 @@ def main():
     instructions_df = pandas.read_excel(args.instructions, na_filter=False)
 
     # load dataset and index messages by id
-    tree_by_id: dict[str, ExportMessageTree] = OrderedDict()
-    message_by_id: dict[str, ExportMessageNode] = {}
+    tree_by_id: Dict[str, ExportMessageTree] = OrderedDict()
+    message_by_id: Dict[str, ExportMessageNode] = {}
 
     print(f"Reading: {args.input_file_name}")
     for message_tree in read_message_trees(args.input_file_name):

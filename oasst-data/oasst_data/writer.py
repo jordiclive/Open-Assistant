@@ -2,7 +2,7 @@ import gzip
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable, TextIO
+from typing import Iterable, TextIO, Union
 
 from oasst_data.schemas import ExportMessageNode, ExportMessageTree
 
@@ -14,7 +14,7 @@ def default_serializer(obj):
     raise TypeError("Type %s not serializable" % type(obj))
 
 
-def open_jsonl_write(file_name: str | Path) -> TextIO:
+def open_jsonl_write(file_name: Union[str,Path]) -> TextIO:
     file_name = Path(file_name)
     if file_name.suffix == ".gz":
         return gzip.open(str(file_name), mode="wt", encoding="UTF-8")
@@ -32,7 +32,7 @@ def write_tree(
 
 
 def write_message_trees(
-    output_file_name: str | Path,
+    output_file_name: Union[str, Path],
     trees: Iterable[ExportMessageTree],
     exclude_none: bool,
 ) -> None:
@@ -57,7 +57,7 @@ def write_message(
 
 
 def write_messages(
-    output_file_name: str | Path,
+    output_file_name: Union[str,Path],
     messages: Iterable[ExportMessageNode],
     exclude_none: bool,
 ) -> None:

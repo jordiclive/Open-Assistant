@@ -25,7 +25,7 @@ def main():
     args = parse_args()
 
     # read all messages of input file into a list
-    messages: list[ExportMessageNode] = []
+    messages: List[ExportMessageNode] = []
     print(f"reading: {args.input_file_name}")
     tree_count = 0
     for message_tree in read_message_trees(args.input_file_name):

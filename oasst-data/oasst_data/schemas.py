@@ -30,8 +30,8 @@ class ExportMessageEventRating(ExportMessageEvent):
 
 class ExportMessageEventRanking(ExportMessageEvent):
     type: Literal["ranking"] = "ranking"
-    ranking: list[int]
-    ranked_message_ids: list[str]
+    ranking: List[int]
+    ranked_message_ids: List[str]
     ranking_parent_id: Optional[str]
     message_tree_id: Optional[str]
     not_rankable: Optional[bool]  # flawed, factually incorrect or unacceptable

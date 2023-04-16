@@ -1,5 +1,6 @@
 import argparse
 import json
+from typing import List, Union
 
 from oasst_data import read_message_list, write_messages
 from oasst_data.schemas import ExportMessageNode
@@ -87,11 +88,11 @@ def parse_args():
 def main():
     args = parse_args()
 
-    deleted: bool | None = False
-    spam: bool | None = False
-    synthetic: bool | None = False
-    langs: list[str] | None = None
-    states: list[str] | None = None
+    deleted: Union[bool, None] = False
+    spam: Union[bool, None] = False
+    synthetic: Union[bool,None] = False
+    langs: Union[List[str], None] = None
+    states: Union[List[str], None] = None
     prompts_only: bool = args.prompts_only
     exclude_normal: bool = args.exclude_normal
 

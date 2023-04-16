@@ -33,7 +33,7 @@ def main():
     args = parse_args()
 
     # load dataset and index messages by id
-    trees: list[ExportMessageTree] = []
+    trees: List[ExportMessageTree] = []
 
     states = args.states.split(",")
     allow_synth = args.allow_synth
