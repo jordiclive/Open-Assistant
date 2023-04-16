@@ -180,6 +180,10 @@ def get_one_dataset(
         subset_indices = np.random.choice(len(train), 10000)
         train = Subset(train, subset_indices)
 
+    # if 'oasst_export' in dataset_name:
+    #     train = OASSTExportDataset(train)
+    #     eval = OASSTExportDataset(eval)
+
     # print(dataset_name)
     # print(len(train), len(eval))
 
