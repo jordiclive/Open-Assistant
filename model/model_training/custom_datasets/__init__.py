@@ -176,4 +176,11 @@ def get_one_dataset(
         subset_indices = np.random.choice(len(eval), max_val_set)
         eval = Subset(eval, subset_indices)
 
+    if "vicuna" in dataset_name:
+        subset_indices = np.random.choice(len(train), 10000)
+        train = Subset(train, subset_indices)
+
+    print(dataset_name)
+    print(len(train), len(eval))
+
     return train, eval
