@@ -351,14 +351,14 @@ def main():
 
     train, evals = get_dataset(training_conf)
 
-    if training_conf.peft:
-        from peft import (
-            LoraConfig,
-            get_peft_model,
-            get_peft_model_state_dict,
-            prepare_model_for_int8_training,
-            set_peft_model_state_dict,
-        )
+    # if training_conf.peft:
+    #     from peft import (
+    #         LoraConfig,
+    #         get_peft_model,
+    #         get_peft_model_state_dict,
+    #         prepare_model_for_int8_training,
+    #         set_peft_model_state_dict,
+    #     )
 
     # show_dataset_stats = (training_conf.verbose or training_conf.show_dataset_stats) and (
     #     not training_conf.deepspeed or training_conf.local_rank == 0
