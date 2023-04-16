@@ -3,7 +3,7 @@ import platform
 import random
 import uuid
 from datetime import datetime
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Union, List
 
 import psutil
 import pydantic
@@ -30,8 +30,8 @@ class WorkerHardwareInfo(pydantic.BaseModel):
     cpu_freq_min: float
     mem_total: int
     swap_total: int
-    nvidia_driver_version: str | None = None
-    gpus: list[WorkerGpuInfo]
+    nvidia_driver_version: Union[str,None] = None
+    gpus: List[WorkerGpuInfo]
 
     def __init__(self, **data):
         data["uname_sysname"] = platform.uname().system
@@ -83,7 +83,7 @@ class WorkerMetricsInfo(pydantic.BaseModel):
     cpu_usage: float
     mem_usage: float
     swap_usage: float
-    gpus: list[GpuMetricsInfo] | None = None
+    gpus: Union[List[GpuMetricsInfo] , None] = None
 
     def __init__(self, **data):
         data["created_at"] = datetime.utcnow()
@@ -109,11 +109,11 @@ class WorkerMetricsInfo(pydantic.BaseModel):
 
 
 class SamplingParameters(pydantic.BaseModel):
-    top_k: int | None = None
-    top_p: float | None = None
-    typical_p: float | None = None
-    temperature: float | None = None
-    repetition_penalty: float | None = None
+    top_k: Union[int,None] = None
+    top_p: Union[float , None] = None
+    typical_p: Union[float , None] = None
+    temperature: Union[float , None] = None
+    repetition_penalty: Union[float , None] = None
     max_new_tokens: int = 1024
 
 
@@ -159,16 +159,16 @@ class MessageState(str, enum.Enum):
 
 class MessageRead(pydantic.BaseModel):
     id: str
-    parent_id: str | None
-    content: str | None
+    parent_id: Union[str , None]
+    content: Union[str , None]
     chat_id: str
     created_at: datetime
     role: Literal["prompter", "assistant"]
     state: MessageState
     score: int
-    reports: list[Report] = []
+    reports: List[Report] = []
     # work parameters will be None on user prompts
-    work_parameters: WorkParameters | None
+    work_parameters: Union[WorkParameters , None]
 
     @property
     def is_assistant(self) -> bool:
@@ -176,7 +176,7 @@ class MessageRead(pydantic.BaseModel):
 
 
 class Thread(pydantic.BaseModel):
-    messages: list[MessageRead]
+    messages: List[MessageRead]
 
 
 class SafetyParameters(pydantic.BaseModel):
@@ -232,18 +232,18 @@ class TerminateRequest(WorkerRequestBase):
 
 
 class WorkerResponseBase(pydantic.BaseModel):
-    request_id: str | None = None
+    request_id: Union[str , None] = None
 
 
 class PongResponse(WorkerResponseBase):
     response_type: Literal["pong"] = "pong"
-    metrics: WorkerMetricsInfo | None = None
+    metrics: Union[WorkerMetricsInfo , None] = None
 
 
 class TokenResponse(WorkerResponseBase):
     response_type: Literal["token"] = "token"
     text: str
-    log_prob: float | None
+    log_prob: Union[float , None]
     token_id: int
 
 
@@ -251,7 +251,7 @@ class GeneratedTextResponse(WorkerResponseBase):
     response_type: Literal["generated_text"] = "generated_text"
     text: str
     finish_reason: Literal["length", "eos_token", "stop_sequence"]
-    metrics: WorkerMetricsInfo | None = None
+    metrics: Union[WorkerMetricsInfo , None] = None
 
 
 class InternalFinishedMessageResponse(WorkerResponseBase):
@@ -267,13 +267,13 @@ class InternalErrorResponse(WorkerResponseBase):
 
 class ErrorResponse(WorkerResponseBase):
     response_type: Literal["error"] = "error"
-    metrics: WorkerMetricsInfo | None = None
+    metrics: Union[WorkerMetricsInfo , None]= None
     error: str
 
 
 class GeneralErrorResponse(WorkerResponseBase):
     response_type: Literal["general_error"] = "general_error"
-    metrics: WorkerMetricsInfo | None = None
+    metrics: Union[WorkerMetricsInfo , None] = None
     error: str
 
 

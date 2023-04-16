@@ -1,4 +1,5 @@
 import time
+from typing import Union
 from datetime import datetime, timezone
 from functools import wraps
 
@@ -13,7 +14,7 @@ def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
-def unaware_to_utc(d: datetime | None) -> datetime:
+def unaware_to_utc(d: Union[datetime, None]) -> datetime:
     """Set timezeno to UTC if datetime is unaware (tzinfo == None)."""
     if d and d.tzinfo is None:
         return d.replace(tzinfo=timezone.utc)
@@ -47,7 +48,7 @@ class ScopeTimer:
         self.stop()
 
 
-def log_timing(func=None, *, log_kwargs: bool = False, level: int | str = "DEBUG") -> None:
+def log_timing(func=None, *, log_kwargs: bool = False, level: Union[int, str] = "DEBUG") -> None:
     def decorator(func):
         @wraps(func)
         def wrapped(*args, **kwargs):

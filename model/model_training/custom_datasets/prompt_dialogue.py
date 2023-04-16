@@ -2,7 +2,7 @@ import gzip
 import json
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import requests
 from datasets import load_dataset
@@ -20,7 +20,7 @@ def load_oig_file(
     max_count: Optional[int] = None,
     min_length: Optional[int] = 1000,
     manual_seed: int = 287631038922,
-) -> tuple[ListDataset, ListDataset]:
+) -> Tuple[ListDataset, ListDataset]:
     generator = Generator()
     generator.manual_seed(manual_seed)
 

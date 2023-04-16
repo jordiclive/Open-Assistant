@@ -1,7 +1,7 @@
 """
     High level functions for model training
 """
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from model_training.custom_datasets.extra_rm_datasets import load_anthropic_rlhf, load_hellaswag, load_shp
@@ -68,7 +68,7 @@ RM_DATASETS = [
 ]
 
 
-def train_val_dataset(dataset, val_split=0.2) -> tuple[Dataset, Dataset | None]:
+def train_val_dataset(dataset, val_split=0.2) -> tuple[Dataset, Union[Dataset,None]]:
     if val_split == 0:
         return dataset, None
 
@@ -86,7 +86,7 @@ def get_one_dataset(
     mode: str = "sft",
     max_val_set: Optional[int] = None,
     **kwargs,
-) -> tuple[Dataset, Dataset | None]:
+) -> tuple[Dataset, Union[Dataset, None]]:
     if mode == "rl":
         assert dataset_name in RL_DATASETS, f"Dataset {dataset_name} not supported for RL"
 

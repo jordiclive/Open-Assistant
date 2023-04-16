@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal, Optional, Union, Tuple, List
 
 from oasst_data import ExportMessageNode, read_message_trees, visit_threads_depth_first
 from torch import Generator
@@ -19,12 +19,12 @@ class ListDataset(Dataset):
 
 
 def load_oasst_export(
-    input_file_path: str | Path,
+    input_file_path: Union[str, Path],
     val_split: float = 0.2,
     lang: str = "en",
     top_k: Optional[int] = None,
     manual_seed: int = 287631038922,
-    data_path: str | Path = None,
+    data_path: Union[str, Path] = None,
     mode: Literal["sft", "rm"] = "sft",
 ) -> tuple[ListDataset, ListDataset]:
     if mode not in ("sft", "rm"):
@@ -48,9 +48,9 @@ def load_oasst_export(
             continue
 
         # extract all threads up to last asssitant reply
-        threads: list[list[ExportMessageNode]] = []
+        threads: List[List[ExportMessageNode]] = []
 
-        def thread_filter(thread: list[ExportMessageNode]) -> bool:
+        def thread_filter(thread: List[ExportMessageNode]) -> bool:
             if any(m.deleted or m.synthetic for m in thread):
                 return False
 
@@ -64,7 +64,7 @@ def load_oasst_export(
                             return False
             return True
 
-        def leaf_filter(thread: list[ExportMessageNode]) -> bool:
+        def leaf_filter(thread: List[ExportMessageNode]) -> bool:
             if mode == "sft":
                 # in SFT mode `not thread[-1].replies` finds nodes without children (leaves).
                 # We are interested in those which are role='assistant' but some trees don't end on assistant nodes

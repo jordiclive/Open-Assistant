@@ -1,22 +1,21 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
-
+from typing import Union, Dict, List, Literal, Optional
 from pydantic import BaseModel
 
 
 class LabelAvgValue(BaseModel):
-    value: float | None
+    value: Union[float, None]
     count: int
 
 
-LabelValues = dict[str, LabelAvgValue]
+LabelValues = Dict[str, LabelAvgValue]
 
 
 class ExportMessageEvent(BaseModel):
     type: str
-    user_id: str | None
+    user_id: Union[str,None]
 
 
 class ExportMessageEventEmoji(ExportMessageEvent):
@@ -50,26 +49,26 @@ class DetoxifyRating(BaseModel):
 
 class ExportMessageNode(BaseModel):
     message_id: str
-    parent_id: str | None
-    user_id: str | None
-    created_date: datetime | None
+    parent_id: Union[str ,None]
+    user_id: Union[str ,None]
+    created_date: Union[datetime, None]
     text: str
     role: str
-    lang: str | None
-    review_count: int | None
-    review_result: bool | None
-    deleted: bool | None
-    rank: int | None
-    synthetic: bool | None
-    model_name: str | None
-    emojis: dict[str, int] | None
-    replies: list[ExportMessageNode] | None
-    labels: LabelValues | None
-    events: dict[str, list[ExportMessageEvent]] | None
-    detoxify: DetoxifyRating | None
+    lang: Union[str ,None]
+    review_count: Union[int,None]
+    review_result: Union[bool,None]
+    deleted:  Union[bool,None]
+    rank: Union[int,None]
+    synthetic: Union[bool,None]
+    model_name: Union[str ,None]
+    emojis: Union[Dict[str, int], None]
+    replies: Union[List[ExportMessageNode], None]
+    labels: Union[LabelValues,None]
+    events: Union[Dict[str, List[ExportMessageEvent]], None]
+    detoxify: Union[DetoxifyRating, None]
     # the following fields are always None in message tree exports (see outer tree there)
-    message_tree_id: str | None
-    tree_state: str | None
+    message_tree_id: Union[str ,None]
+    tree_state: Union[str ,None]
 
 
 class ExportMessageTree(BaseModel):

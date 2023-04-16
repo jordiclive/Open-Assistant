@@ -4,7 +4,7 @@ import math
 import random
 from distutils.util import strtobool
 from pathlib import Path
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Dict
 
 import evaluate
 import torch
@@ -359,7 +359,7 @@ def get_dataset_name_and_kwargs_from_data_config(data_config):
 def get_dataset(
     conf,
     mode: str = "sft",
-) -> tuple[ConcatDataset, dict[str, Subset]]:
+) -> tuple[ConcatDataset, Dict[str, Subset]]:
     train_datasets, evals = [], {}
 
     for data_config in conf.datasets + conf.datasets_extra:

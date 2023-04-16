@@ -4,7 +4,7 @@ import random
 import re
 import sys
 from uuid import uuid4
-
+from typing import Dict, List
 import pydantic
 from oasst_data import ExportMessageNode, ExportMessageTree
 from sampling_report import SamplingReport
@@ -39,7 +39,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    input_reports: list[SamplingReport] = []
+    input_reports: List[SamplingReport] = []
     for f in args.input_files:
         json_raw = json.load(f)
         report = pydantic.parse_obj_as(SamplingReport, json_raw)
@@ -48,7 +48,7 @@ def main():
     print(f"Read {len(input_reports)} reports")
 
     # index by prompt
-    reply_by_prompt: dict[str, list[ExportMessageNode]] = {}
+    reply_by_prompt: Dict[str, List[ExportMessageNode]] = {}
     for r in input_reports:
         for p in r.prompts:
             for res in p.results:
@@ -71,7 +71,7 @@ def main():
                         reply_by_prompt[p.prompt] = [m]
 
     random.seed(args.seed)
-    trees: list[ExportMessageTree] = []
+    trees: List[ExportMessageTree] = []
     for k, v in reply_by_prompt.items():
         # remove exact duplicates
         reply_texts = set()
