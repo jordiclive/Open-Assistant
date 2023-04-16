@@ -1,7 +1,7 @@
 import argparse
 from enum import Enum
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Union, Dict
 
 import pandas as pd
 import yaml
