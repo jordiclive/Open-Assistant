@@ -333,7 +333,7 @@ my-llama-7b:
   #model_name: /home/ubuntu/Open-Assistant/model/model_training/.saved/llama-30b-super-pretrain/checkpoint-3500
   model_name: "decapoda-research/llama-7b-hf"
   output_dir: llama_model_30b
-  deepspeed_config: configs/zero3_config.json
+  deepspeed_config: /admin/home-jordiclive/Open-Assistant/model/model_training/configs/zero3_config.json
   weight_decay: 0.0
   residual_dropout: 0.0
   max_length: 2048
