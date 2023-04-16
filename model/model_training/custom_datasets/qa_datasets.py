@@ -7,7 +7,7 @@ import os
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, List, Dict, Tuple
 from urllib.request import urlopen
 
 import numpy as np
@@ -209,7 +209,7 @@ class WebGPT(Dataset):
     def __len__(self) -> int:
         return len(self.questions)
 
-    def __getitem__(self, index) -> list[str] | tuple[list[str], list[str]]:
+    def __getitem__(self, index) -> Union[List[str], Tuple[List[str]], List[str]]:
         question = self.questions[index]
         answers = self.answers[index]
         if self.mode == "sft":
@@ -223,7 +223,7 @@ class WebGPT(Dataset):
 class SODA(Dataset):
     name = "soda"
 
-    def process_soda_convo(self, data: dict[str, Any], input_max_length: int) -> list[list[str]] | None:
+    def process_soda_convo(self, data: Dict[str, Any], input_max_length: int) -> Union[List[List[str]], None]:
         play_as = data["speakers"][1]
         dialogue_bg = "{}{}".format(
             # QA_SPECIAL_TOKENS["StartPrefix"],
@@ -266,7 +266,7 @@ class SODA(Dataset):
     def __len__(self) -> int:
         return len(self.pairs)
 
-    def __getitem__(self, index) -> list[str] | tuple[str]:
+    def __getitem__(self, index) -> Union[List[str], Tuple[str]]:
         # special token added during preprocess
         if self.mode == "sft":
             return self.pairs[index]
@@ -450,13 +450,13 @@ def load_alpaca_dataset(
     manual_seed: int = 287631038922,
     reverse_augmentation: bool = False,
     keep_unreversed: bool = True,
-) -> tuple[AlpacaBaseDataset, AlpacaBaseDataset]:
+) -> Tuple[AlpacaBaseDataset, AlpacaBaseDataset]:
     generator = Generator()
     generator.manual_seed(manual_seed)
 
     def process_split(
         dataset: Subset, reverse_augmentation: bool = False, keep_unreversed: bool = True
-    ) -> list[tuple[str, str]]:
+    ) -> List[Tuple[str, str]]:
         data = []
         for row in dataset:
             question = row["instruction"]
@@ -496,7 +496,7 @@ class Vicuna(Dataset):
     name = "vicuna"
 
     @staticmethod
-    def process_vicuna_conversations(data: list[dict[str, None | str]], input_max_length: int) -> list[str] | None:
+    def process_vicuna_conversations(data: List[Dict[str, Union[None , str]]], input_max_length: int) -> Union[List[str] , None]:
         dialogue = []
         role = None
         messages = []
@@ -526,7 +526,7 @@ class Vicuna(Dataset):
         dialogue_truncated = [k[:input_max_length] for k in dialogue]
         return dialogue_truncated
 
-    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 2048) -> None:
+    def __init__(self, cache_dir: Union[str , Path], mode: str = "sft", input_max_length: int = 2048) -> None:
         super().__init__()
 
         self.pairs = []
@@ -548,7 +548,7 @@ class Vicuna(Dataset):
     def __len__(self) -> int:
         return len(self.pairs)
 
-    def __getitem__(self, index: int) -> list[str] | tuple[str]:
+    def __getitem__(self, index: int) -> Union[List[str] , Tuple[str]]:
         dialogue: list[str] = self.pairs[index]
         if self.mode == "sft":
             return dialogue
@@ -557,7 +557,7 @@ class Vicuna(Dataset):
 
 
 class DatabricksDolly15k(Dataset):
-    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 2048) -> None:
+    def __init__(self, cache_dir: Union[str , Path], mode: str = "sft", input_max_length: int = 2048) -> None:
         super().__init__()
         self.rows = []
         self.citation_regex = re.compile(r"\[[a-zA-Z]\]")  # removes citations in the form of e.g. [a] or [A]
@@ -569,7 +569,7 @@ class DatabricksDolly15k(Dataset):
             if (conv := self._process_instruction(line, input_max_length)) is not None:
                 self.rows.append(conv)
 
-    def _process_instruction(self, row: dict[str, str], input_max_length: int) -> list[str] | None:
+    def _process_instruction(self, row: Dict[str, str], input_max_length: int) -> Union[list[str] , None]:
         if context := re_reference_remove.sub("", row["METADATA"]["CONTEXT"]):
             # further remove references
             context = context.replace("[citation needed]", "")
@@ -581,7 +581,7 @@ class DatabricksDolly15k(Dataset):
     def __len__(self) -> int:
         return len(self.rows)
 
-    def __getitem__(self, index: int) -> list[str] | tuple[str]:
+    def __getitem__(self, index: int) -> Union[list[str] , Tuple[str]]:
         dialogue: list[str] = self.rows[index]
         if self.mode == "sft":
             return dialogue
@@ -590,7 +590,7 @@ class DatabricksDolly15k(Dataset):
 
 
 class AlpacaGpt4(Dataset):
-    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 2048) -> None:
+    def __init__(self, cache_dir: Union[str , Path], mode: str = "sft", input_max_length: int = 2048) -> None:
         super().__init__()
         self.rows = []
         if mode not in ("sft", "rl"):
@@ -601,7 +601,7 @@ class AlpacaGpt4(Dataset):
             if (conv := self._process_instruction(line, input_max_length)) is not None:
                 self.rows.append(conv)
 
-    def _process_instruction(self, row: dict[str, str], input_max_length: int) -> list[str] | None:
+    def _process_instruction(self, row: Dict[str, str], input_max_length: int) -> Union[List[str] , None]:
         # discard items that are too long: when checked on 2023-04-17 this was just one item in the whole dataset with length above 2048.
         # And 12 above 1024.
         if len(row["input"]) + len(row["instruction"]) > input_max_length:
@@ -621,7 +621,7 @@ class AlpacaGpt4(Dataset):
     def __len__(self) -> int:
         return len(self.rows)
 
-    def __getitem__(self, index: int) -> list[str] | tuple[str]:
+    def __getitem__(self, index: int) -> Union[List[str] , Tuple[str]]:
         dialogue: list[str] = self.rows[index]
         if self.mode == "sft":
             return dialogue

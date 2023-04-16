@@ -2,7 +2,7 @@ import gzip
 import json
 import re
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union, List, Dict
 
 import requests
 from datasets import load_dataset
@@ -124,7 +124,7 @@ class Gpt4All(Dataset):
                 self.rows.append(processed_conversation)
 
     @staticmethod
-    def process_conversation(conv: list[dict[str, None | str]]) -> list[str] | None:
+    def process_conversation(conv: List[Dict[str, Union[None, str]]]) -> Union[List[str], None]:
         dialogue = []
         role = None
         messages = []
@@ -156,7 +156,7 @@ class Gpt4All(Dataset):
     def __len__(self):
         return len(self.rows)
 
-    def __getitem__(self, index: int) -> list[str] | tuple[str]:
+    def __getitem__(self, index: int) -> Union[List[str] , tuple[str]]:
         dialogue: list = self.rows[index]
         if self.mode == "sft":
             return dialogue

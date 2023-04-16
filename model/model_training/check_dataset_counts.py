@@ -1,7 +1,7 @@
 import argparse
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import pandas as pd
 import yaml
@@ -32,7 +32,7 @@ class Mode(Enum):
                 return "defaults_rlhf"
 
 
-def read_yaml(dir: str | Path, config_file: str) -> dict[str, Any]:
+def read_yaml(dir: Union[str,Path], config_file: str) -> dict[str, Any]:
     with open(Path(dir) / config_file, "r") as f:
         return yaml.safe_load(f)
 
