@@ -113,5 +113,5 @@ export DLTS_HOSTFILE=$hostfile
 export WANDB_API_KEY= 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
 
 
-deepspeed --launcher openmpi --hostfile '/admin/home-jordiclive/Open-Assistant/hostfile.txt' --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-66b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention True
+deepspeed --launcher openmpi --hostfile '/admin/home-jordiclive/Open-Assistant/hostfile.txt' --master_addr $MASTER_ADDR  /admin/home-jordiclive/Open-Assistant/model/model_training/trainer_sft.py --configs defaults oasst_export_eu llama-66b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/66B_checkpoints/output_dir --deepspeed --residual_dropout 0.0 --learning_rate 4e-6 --use_flash_attention True
 
