@@ -356,6 +356,7 @@ llama-66b:
         input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
 #        max_count: 5000
         val_split: 0.05
+        max_val_set: 250
     - vicuna:
         val_split: 0.02
         max_val_set: 250
