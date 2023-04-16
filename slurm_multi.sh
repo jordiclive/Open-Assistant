@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                                         #!/bin/bash
+#!/bin/bash
 #SBATCH --account laion
 #SBATCH --partition="g80"
 #SBATCH --job-name=OA
