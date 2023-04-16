@@ -1,5 +1,6 @@
 from model_training.custom_datasets.rank_datasets import AnthropicRLHF, HellaSwagDataset, SHPDataset
 from torch.utils.data import Dataset
+from typing import Tuple
 
 
 def load_anthropic_rlhf() -> Tuple[Dataset, Dataset]:
