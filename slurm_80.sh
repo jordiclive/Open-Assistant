@@ -8,7 +8,7 @@
 
 
 
-source /fsx/home-jordiclive/miniconda3/bin/activate open
+source /fsx/home-jordiclive/miniconda3/bin/activate open_assistant
 cd /admin/home-jordiclive/Open-Assistant
 export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
 export PYTHONPATH="/admin/home-jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
