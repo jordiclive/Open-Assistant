@@ -358,7 +358,7 @@ llama-66b:
         val_split: 0.05
     - vicuna:
         val_split: 0.02
-        max_count: 5000
+        max_count: 10000
         max_val_set: 250
 #        fraction: 0.8
     - dolly15k:
