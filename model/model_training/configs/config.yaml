@@ -345,20 +345,20 @@ llama-66b:
   per_device_eval_batch_size: 12
   eval_steps: 10
   save_steps: 10
-  num_train_epochs: 16
+  num_train_epochs: 3
   save_total_limit: 1
   use_custom_sampler: true
   sort_by_length: False
   save_strategy: steps
   datasets:
-    - oasst_export:
-        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
-        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
-        val_split: 0.05
-    - vicuna:
-        val_split: 0.02
-        max_val_set: 800
-        fraction: 0.8
+#    - oasst_export:
+#        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
+#        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+#        val_split: 0.05
+#    - vicuna:
+#        val_split: 0.02
+#        max_val_set: 800
+#        fraction: 0.8
     - dolly15k:
         val_split: 0.02
         max_val_set: 300
