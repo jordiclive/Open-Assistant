@@ -341,8 +341,8 @@ llama-66b:
   warmup_steps: 50
   gradient_checkpointing: true
   gradient_accumulation_steps: 1
-  per_device_train_batch_size: 12
-  per_device_eval_batch_size: 12
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
   eval_steps: 10
   save_steps: 10
   num_train_epochs: 3
