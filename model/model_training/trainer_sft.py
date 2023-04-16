@@ -2,6 +2,7 @@
 import argparse
 import logging
 import os
+from datetime import time
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
@@ -279,7 +280,8 @@ def main():
         if training_conf.output_dir
         else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
     )
-
+    output_dir += f"_{time.strftime('%Y%m%d_%H%M')}"
+    output_dir += f"_{training_conf.model_name}_{training_conf.max_length}"
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
 
     # needs to happen before model loading in case of stage 3 training
@@ -314,6 +316,8 @@ def main():
     )
 
     init_rng(training_conf)
+    model_name = training_conf.model_name
+    training_conf.model_name = "/admin/home-jordiclive/llama/7B"
 
     tokenizer = get_tokenizer(training_conf)
 
@@ -346,23 +350,23 @@ def main():
 
     train, evals = get_dataset(training_conf)
 
-    show_dataset_stats = (training_conf.verbose or training_conf.show_dataset_stats) and (
-        not training_conf.deepspeed or training_conf.local_rank == 0
-    )
-    if show_dataset_stats:
-        print("Dataset stats before sampling:")
-        total = len(train)
-        for d in train.datasets:
-            if isinstance(d, Subset):
-                name = f"Subset of {type(d.dataset).__name__}"
-                if hasattr(d.dataset, "name"):
-                    name += f" ({d.dataset.name})"
-            else:
-                name = type(d).__name__
-                if hasattr(d, "name"):
-                    name += f" ({d.name})"
-            print(f"{name}: {len(d)} ({len(d) / total:%})")
-        print(f"Total train: {total}")
+    # show_dataset_stats = (training_conf.verbose or training_conf.show_dataset_stats) and (
+    #     not training_conf.deepspeed or training_conf.local_rank == 0
+    # )
+    # if show_dataset_stats:
+    #     print("Dataset stats before sampling:")
+    #     total = len(train)
+    #     for d in train.datasets:
+    #         if isinstance(d, Subset):
+    #             name = f"Subset of {type(d.dataset).__name__}"
+    #             if hasattr(d.dataset, "name"):
+    #                 name += f" ({d.dataset.name})"
+    #         else:
+    #             name = type(d).__name__
+    #             if hasattr(d, "name"):
+    #                 name += f" ({d.name})"
+    #         print(f"{name}: {len(d)} ({len(d) / total:%})")
+    #     print(f"Total train: {total}")
 
     if training_conf.use_custom_sampler:
         samples_length = None
@@ -380,13 +384,13 @@ def main():
             rank=training_conf.local_rank,
             world_size=training_conf.world_size,
             samples_length=samples_length,
-            verbose=show_dataset_stats,
+            verbose=False,
         )
     else:
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
-
+    training_conf.model_name = model_name
     model = get_model(training_conf, tokenizer)
 
     if training_conf.quantization:
@@ -404,15 +408,17 @@ def main():
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
 
+    os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
+
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
-
+        os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
             project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
-            name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
+            name=f"66B-Llama-2048-alpaca-gpt4all-finetuned",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
