@@ -176,9 +176,9 @@ def get_one_dataset(
         subset_indices = np.random.choice(len(eval), max_val_set)
         eval = Subset(eval, subset_indices)
 
-    if "vicuna" in dataset_name:
-        subset_indices = np.random.choice(len(train), 20000)
-        train = Subset(train, subset_indices)
+    # if "vicuna" in dataset_name:
+    #     subset_indices = np.random.choice(len(train), 20000)
+    #     train = Subset(train, subset_indices)
 
     # if 'oasst_export' in dataset_name:
     #     train = OASSTExportDataset(train)
