@@ -10,7 +10,7 @@ from typing import Any, Optional
 import pydantic
 import torch
 from tqdm import tqdm
-from transformers import AutoTokenizer, PreTrainedTokenizer
+from transformers import AutoTokenizer, PreTrainedTokenizer, GenerationConfig
 from model_training.models.peft_modeling import load_peft_model
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
@@ -115,13 +115,12 @@ def sample(
         truncation=True,
     ).to(device)
     input_ids = inputs.input_ids
-    print('sampling_params', sampling_params)
-    import torch
-    torch.save(input_ids, 'input_ids.pt')
+
+
     outputs = model.generate(
-        input_ids,
-        **sampling_params,
+        input_ids=input_ids,
         pad_token_id=tokenizer.eos_token_id,
+        **sampling_params,
     )
     if skip_input_tokens:
         output_tokens = outputs[0, input_ids.size(1) :]

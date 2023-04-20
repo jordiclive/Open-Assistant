@@ -1,24 +1,6 @@
 from peft import PeftModel
 import torch
 from huggingface_hub import hf_hub_download
-from transformers import GenerationConfig
-
-
-class OAPeftModel(PeftModel):
-    def generate(self,input_ids,pad_token_id,**kwargs):
-        generation_config = GenerationConfig(**kwargs)
-        print(generation_config)
-        output = super().generate(input_ids=input_ids,eos_token_id=self.eos_token_id, no_repeat_ngram_size=3,
-        generation_config=generation_config)
-        return output
-
-
-            #no_repeat_ngram_size=3,
-
-        # input_ids,
-        # ** sampling_params,
-        # pad_token_id = tokenizer.eos_token_id,
-
 
 
 def load_peft_model(model, peft_model_path,tokenizer):
@@ -28,7 +10,7 @@ def load_peft_model(model, peft_model_path,tokenizer):
     model.config.eos_token_id = tokenizer.eos_token_id
     model.config.bos_token_id = tokenizer.bos_token_id
     model.config.pad_token_id = tokenizer.pad_token_id
-    model = OAPeftModel.from_pretrained(
+    model = PeftModel.from_pretrained(
         model,
         peft_model_path,
         torch_dtype=model.dtype,
@@ -42,3 +24,5 @@ def load_peft_model(model, peft_model_path,tokenizer):
         model.base_model.model.model.embed_tokens.weight.dtype
     )
     return model
+
+
