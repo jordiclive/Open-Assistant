@@ -116,6 +116,8 @@ def sample(
     ).to(device)
     input_ids = inputs.input_ids
     print('sampling_params', sampling_params)
+    import torch
+    torch.save(input_ids, 'input_ids.pt')
     outputs = model.generate(
         input_ids,
         **sampling_params,
