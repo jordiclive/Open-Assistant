@@ -13,7 +13,7 @@ def load_peft_model(model, peft_model_path,tokenizer):
     model = PeftModel.from_pretrained(
         model,
         peft_model_path,
-        torch_dtype=torch.float16,
+        torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
     extra_embeds = hf_hub_download(peft_model_path, "extra_embeddings.pt")
