@@ -20,7 +20,7 @@ def load_peft_model(model, peft_model_path,tokenizer):
     embed_weights = torch.load(
         extra_embeds, map_location=model.device
     )
-    model.base_model.model.model.embed_tokens.weight[len(tokenizer) - embed_weights:, :] = embed_weights.to(
+    model.base_model.model.model.embed_tokens.weight[len(tokenizer) - embed_weights.shape[1]:, :] = embed_weights.to(
         model.base_model.model.model.embed_tokens.weight.dtype
     )
     return model
