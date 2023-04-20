@@ -115,6 +115,7 @@ def sample(
         truncation=True,
     ).to(device)
     input_ids = inputs.input_ids
+    print('sampling_params', sampling_params)
     outputs = model.generate(
         input_ids,
         **sampling_params,
