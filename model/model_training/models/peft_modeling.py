@@ -7,7 +7,8 @@ from transformers import GenerationConfig
 class OAPeftModel(PeftModel):
     def generate(self,input_ids,pad_token_id,**kwargs):
         generation_config = GenerationConfig(**kwargs)
-        output = super().generate(input_ids=input_ids,pad_token_id=pad_token_id,eos_token_id=self.eos_token_id, no_repeat_ngram_size=3,
+        print(generation_config)
+        output = super().generate(input_ids=input_ids,eos_token_id=self.eos_token_id, no_repeat_ngram_size=3,
         generation_config=generation_config)
         return output
 
