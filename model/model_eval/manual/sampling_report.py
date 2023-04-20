@@ -11,7 +11,7 @@ import pydantic
 import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
-from model.model_training.models import load_peft_model
+from model_training.models import load_peft_model
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
 QA_SPECIAL_TOKENS_V2_5 = {
