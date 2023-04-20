@@ -11,6 +11,7 @@ import pydantic
 import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
+from model_training.models import load_peft_model
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
 QA_SPECIAL_TOKENS_V2_5 = {
@@ -231,6 +232,7 @@ def parse_args():
     parser.add_argument("--max-input-len", type=int, help="max token counts for input")
     parser.add_argument("--auth-token", type=str)
     parser.add_argument("--num-threads", type=int, default=8)
+    parser.add_argument("--peft_model",type=str,default=None)
 
     return parser.parse_args()
 
@@ -279,6 +281,11 @@ def main():
         skip_input_tokens = False
     else:
         raise RuntimeError("Invalid model_type specified")
+
+    if args.peft_model is not None:
+        tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+        load_peft_model(model, args.peft_model,tokenizer)
+
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
