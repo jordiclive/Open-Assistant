@@ -329,7 +329,7 @@ llama-30b-sft-6:
 llama-66b:
   dtype: fp16
   log_dir: "llama_log_30b"
-  learning_rate: 5e-6
+  learning_rate: 4e-6
   #model_name: /home/ubuntu/Open-Assistant/model/model_training/.saved/llama-30b-super-pretrain/checkpoint-3500
   model_name: "decapoda-research/llama-65b-hf"
   output_dir: llama_model_30b
