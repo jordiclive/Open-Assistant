@@ -3,8 +3,8 @@
 #SBATCH --partition="g80"
 #SBATCH --job-name=OA
 #SBATCH --gres=gpu:8
-#SBATCH --ntasks-per-node=10
-#SBATCH --cpus-per-task=16
+#SBATCH --ntasks-per-node=6
+#SBATCH --cpus-per-task=32
 #SBATCH --output=%x_%j.out
 
 
