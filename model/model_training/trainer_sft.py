@@ -274,12 +274,14 @@ def main():
     training_conf = argument_parsing()
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         print(f"trainig_conf = {training_conf}")
-
+    import time
     output_dir = (
         training_conf.output_dir
         if training_conf.output_dir
         else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
     )
+    output_dir += f"_{time.strftime('%Y%m%d_%H%M')}"
+    output_dir += f"_{training_conf.model_name}_{training_conf.max_length}"
 
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
 
