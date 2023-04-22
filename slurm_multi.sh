@@ -2,7 +2,7 @@
 #SBATCH --account laion
 #SBATCH --partition="g80"
 #SBATCH --job-name=OA
-#SBATCH --nodes=8
+#SBATCH --nodes=1
 #SBATCH --gres=gpu:8
 #SBATCH --ntasks-per-node=8
 #SBATCH --output=%x_%j.out
