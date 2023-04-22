@@ -81,6 +81,7 @@ defaults:
   per_digit_tokens: false
   is_reward_model: false
   deepspeed_config: configs/zero_config.json
+  peft_model: false
 
 webgpt_dataset_only:
   datasets:

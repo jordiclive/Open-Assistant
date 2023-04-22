@@ -9,6 +9,7 @@ import datasets
 import torch
 from model_training.custom_datasets.dialogue_collator import DialogueDataCollator
 from model_training.efficiency_utils import fuse_gelu
+from model_training.models.peft_modeling import peft_model, PeftFlashTrainer
 from model_training.utils import (
     PerDatasetSampler,
     _strtobool,
@@ -389,6 +390,10 @@ def main():
 
     model = get_model(training_conf, tokenizer)
 
+    if training_conf.peft_model:
+        print('Using PEFT model')
+        model = peft_model(model,peft_type='prefix-tuning')
+
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
 
@@ -418,7 +423,16 @@ def main():
         wandb.config["_max_length"] = training_conf.max_length
         wandb.config["_val_max_length"] = training_conf.val_max_length
 
-    trainer = SFTTrainer(
+
+    if training_conf.peft_model and training_conf.gradient_checkpointing is True:
+        trainer_cls = PeftFlashTrainer
+        for _, param in model.named_parameters():
+            param.requires_grad = True
+
+    else:
+        trainer_cls = SFTTrainer
+
+    trainer = trainer_cls(
         model=model,
         args=args,
         sampler=sampler,
