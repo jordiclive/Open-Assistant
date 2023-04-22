@@ -28,7 +28,7 @@ from transformers.trainer_pt_utils import IterableDatasetShard
 from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
-
+from model_training.models.peft_modeling import peft_model
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
     out = {}
@@ -388,6 +388,9 @@ def main():
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
     model = get_model(training_conf, tokenizer)
+
+    if training_conf.peft_model:
+        model = peft_model(model)
 
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
