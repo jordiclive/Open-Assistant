@@ -10,6 +10,37 @@ from peft import (
     PrefixTuningConfig
 )
 
+from transformers import AdamW
+import math
+from transformers.trainer_pt_utils import get_parameter_names
+from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
+
+#!/usr/bin/env python3
+import argparse
+import logging
+import os
+from functools import partial
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+import datasets
+import torch
+from model_training.utils import (
+    PerDatasetSampler,
+    _strtobool,
+    get_dataset,
+    get_loss,
+    get_metrics,
+    get_model,
+    get_tokenizer,
+    init_rng,
+    read_yamls,
+)
+from torch import nn
+from torch.utils.data import DataLoader, Subset
+from transformers import PreTrainedModel, Trainer, TrainingArguments
+from transformers.trainer_pt_utils import IterableDatasetShard
+from transformers.trainer_utils import seed_worker
+from transformers.utils import is_datasets_available
+
 def load_peft_model(model, peft_model_path,tokenizer):
     model.resize_token_embeddings(
         len(tokenizer)
@@ -54,10 +85,7 @@ def peft_model(model,peft_type='lora',int8_training=False):
     return model
 
 
-from transformers import AdamW
-import math
-from transformers.trainer_pt_utils import get_parameter_names
-from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
+
 
 class CustomAdamW(AdamW):
     def step(self, closure: Callable = None):
@@ -123,7 +151,73 @@ class CustomAdamW(AdamW):
         return loss
 
 
-class PeftFlashTrainer(SFTTrainer):
+class PeftFlashTrainer(Trainer):
+    def __init__(
+        self,
+        model: Union[PreTrainedModel, nn.Module] = None,
+        args: TrainingArguments = None,
+        sampler: torch.utils.data.sampler.Sampler = None,
+        loss_function: str = "CrossEntropyLoss",
+        poly_eps: float = 1.0,
+        train_collate_fn: Callable = None,
+        **kwargs,
+    ):
+        super().__init__(model, args, **kwargs)
+        self.train_collate_fn = train_collate_fn
+        # By default CrossEntropyLoss ignores padding_index -100, but just in case use our own loss_fct
+        self.loss_fct = get_loss(loss_function, poly_eps)
+        self.sampler = sampler
+
+    def compute_loss(self, model, inputs, return_outputs=False):
+        labels_mask = inputs.pop("label_masks")
+        targets = inputs.pop("targets")
+
+        outputs = model(
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs.get("attention_mask", None),
+            use_cache=False,
+        )
+
+        loss = self.loss_fct(outputs.get("logits"), targets, mask=labels_mask)
+
+        return (loss, outputs) if return_outputs else loss
+
+    def _compute_loss(self, model, inputs):
+        inputs = self._prepare_inputs(inputs)
+
+        labels_mask = inputs.pop("label_masks")
+        targets = inputs.pop("targets")
+
+        outputs = model(
+            input_ids=inputs["input_ids"],
+            attention_mask=inputs.get("attention_mask", None),
+            use_cache=False,
+        )
+
+        logits = outputs.get("logits")
+
+        loss = self.loss_fct(outputs.get("logits"), targets, mask=labels_mask)
+
+        return loss, logits, targets, labels_mask
+
+    def prediction_step(
+        self,
+        model: nn.Module,
+        inputs: Dict[str, Union[torch.Tensor, Any]],
+        prediction_loss_only: bool,
+        ignore_keys: Optional[List[str]] = None,
+    ) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
+        with torch.no_grad():
+            loss, logits, labels, labels_mask = self._compute_loss(model, inputs)
+            labels[~labels_mask.bool()] = -100  # padding_index
+
+        loss = loss.mean().detach()
+
+        if self.args.prediction_loss_only:
+            return (loss, None, None)
+
+        return (loss, logits, labels)
+
     def create_optimizer(self):
         opt_model = self.model
         if self.optimizer is None:
@@ -144,8 +238,60 @@ class PeftFlashTrainer(SFTTrainer):
                 },
             ]
 
-            optimizer_cls, optimizer_kwargs = SFTTrainer.get_optimizer_cls_and_kwargs(self.args)
+            optimizer_cls, optimizer_kwargs = self.get_optimizer_cls_and_kwargs(self.args)
 
             self.optimizer = CustomAdamW(optimizer_grouped_parameters, **optimizer_kwargs)
 
         return self.optimizer
+
+    def get_train_dataloader(self):
+        """
+        Inject custom data sampling behaviour into training loop
+        and use custom task mixing collate function : train_collate_fn
+
+        rewrite from:
+        https://github.com/huggingface/transformers/blob/67d074874d285e616393c65a0e670088e1b6b74a/src/transformers/trainer.py#L846
+        """
+        data_collator = self.train_collate_fn
+        train_dataset = self.train_dataset
+        if is_datasets_available() and isinstance(train_dataset, datasets.Dataset):
+            train_dataset = self._remove_unused_columns(train_dataset, description="training")
+
+        if isinstance(train_dataset, torch.utils.data.IterableDataset):
+            # if we are using iterable dataset it means no weight sampling
+            # added for backward compat
+            if self.args.world_size > 1:
+                train_dataset = IterableDatasetShard(
+                    train_dataset,
+                    batch_size=self._train_batch_size,
+                    drop_last=self.args.dataloader_drop_last,
+                    num_processes=self.args.world_size,
+                    process_index=self.args.process_index,
+                )
+            return DataLoader(
+                train_dataset,
+                batch_size=self.args.per_device_train_batch_size,
+                collate_fn=data_collator,
+                num_workers=self.args.dataloader_num_workers,
+                pin_memory=self.args.dataloader_pin_memory,
+            )
+
+        if self.sampler is None:
+            train_sampler = self._get_train_sampler()
+        else:
+            train_sampler = self.sampler
+            logging.warning("Custom sampler found!")
+
+        dataloader = DataLoader(
+            train_dataset,
+            batch_size=self._train_batch_size,
+            sampler=train_sampler,
+            collate_fn=data_collator,
+            drop_last=self.args.dataloader_drop_last,
+            num_workers=self.args.dataloader_num_workers,
+            pin_memory=self.args.dataloader_pin_memory,
+            worker_init_fn=seed_worker,
+        )
+        return dataloader
+
+

@@ -28,7 +28,8 @@ from transformers.trainer_pt_utils import IterableDatasetShard
 from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
-from model_training.models.peft_modeling import peft_model
+from model_training.models.peft_modeling import peft_model, PeftFlashTrainer
+
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
     out = {}
@@ -185,6 +186,7 @@ def argument_parsing(notebook=False, notebook_args=None):
     parser.add_argument("--resume_from_checkpoint", action="store_true", help="Resume from last saved checkpoint")
     parser.add_argument("--rng_seed", type=int, help="rng seed")
     parser.add_argument("--show_dataset_stats", action="store_true", help="Show dataset stats", default=False)
+    parser.add_argument("--peft_model",action="store_true", help="Use PEFT model", default=False)
     parser.set_defaults(deepspeed=False)
 
     if notebook:
@@ -409,19 +411,26 @@ def main():
 
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
-
+        os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
             project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
         wandb.config["_val_max_length"] = training_conf.val_max_length
+    if training_conf.peft_model and training_conf.gradient_checkpointing is True:
+        trainer_cls = PeftFlashTrainer
+        for _, param in model.named_parameters():
+            param.requires_grad = True
 
-    trainer = SFTTrainer(
+    else:
+        trainer_cls = SFTTrainer
+
+    trainer = trainer_cls(
         model=model,
         args=args,
         sampler=sampler,
