@@ -9,9 +9,9 @@ from typing import Any, Optional
 
 import pydantic
 import torch
-from tqdm import tqdm
-from transformers import AutoTokenizer, PreTrainedTokenizer, GenerationConfig
 from model_training.models.peft_modeling import load_peft_model
+from tqdm import tqdm
+from transformers import AutoTokenizer, GenerationConfig, PreTrainedTokenizer
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
 QA_SPECIAL_TOKENS_V2_5 = {
@@ -115,7 +115,6 @@ def sample(
         truncation=True,
     ).to(device)
     input_ids = inputs.input_ids
-
 
     outputs = model.generate(
         input_ids=input_ids,
@@ -234,7 +233,7 @@ def parse_args():
     parser.add_argument("--max-input-len", type=int, help="max token counts for input")
     parser.add_argument("--auth-token", type=str)
     parser.add_argument("--num-threads", type=int, default=8)
-    parser.add_argument("--peft_model",type=str,default=None)
+    parser.add_argument("--peft_model", type=str, default=None)
 
     return parser.parse_args()
 
@@ -286,8 +285,7 @@ def main():
 
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
-        model = load_peft_model(model, args.peft_model,tokenizer)
-
+        model = load_peft_model(model, args.peft_model, tokenizer)
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
