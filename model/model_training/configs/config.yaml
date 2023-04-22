@@ -334,10 +334,11 @@ oasst-mix:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
         input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+        val_split: 0.05
     - vicuna:
         val_split: 0.05
         max_val_set: 800
-        fraction: 1.0
+        fraction: 0.8
     - dolly15k:
         val_split: 0.05
         max_val_set: 300
@@ -346,6 +347,10 @@ oasst-mix:
     - code_alpaca:
         val_split: 0.05
         max_val_set: 250
+    - alpaca_gpt4:
+        val_split: 0.02
+        max_val_set: 250
+
 
 llama-65b:
   dtype: fp16
