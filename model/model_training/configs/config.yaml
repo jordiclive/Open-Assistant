@@ -178,17 +178,17 @@ oasst_export_eu:
     - gpt4all
     - alpaca
     - code_alpaca
-    - oig_file:
-        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
-        max_count: 10000
-        min_length: 100
-        val_split: 0.1
-    - oig_file:
-        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
-        val_split: 0.1
-        min_length: 100
-  sort_by_length: false
-  use_custom_sampler: false
+#    - oig_file:
+#        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
+#        max_count: 10000
+#        min_length: 100
+#        val_split: 0.1
+#    - oig_file:
+#        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
+#        val_split: 0.1
+#        min_length: 100
+#  sort_by_length: false
+#  use_custom_sampler: false
 
 oasst_export_latin_cyrillic:
   save_strategy: epoch
