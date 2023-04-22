@@ -43,11 +43,8 @@
     "offload_param": {
       "device": "cpu",
       "pin_memory": true
-    },
-    "offload_optimizer": {
-      "device": "cpu",
-      "pin_memory": true
     }
+
   },
   "gradient_accumulation_steps": "auto",
   "gradient_clipping": "auto",
