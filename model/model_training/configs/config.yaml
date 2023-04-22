@@ -351,9 +351,9 @@ llama-65b:
   dtype: fp16
   log_dir: "llama_log_65b"
   learning_rate: 5e-6
-  deepspeed_config: configs/zero3_config_sft.json
-  model_name: /home/ubuntu/llama_hf/65B
-  output_dir: llama_model_65b
+  deepspeed_config: /admin/home-jordiclive/Open-Assistant/model/model_training/configs/zero3_config_sft.json
+  model_name: "decapoda-research/llama-65b-hf"
+  output_dir: llama_model_30b
   weight_decay: 0.0
   max_length: 2048
   warmup_steps: 100
