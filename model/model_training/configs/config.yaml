@@ -436,7 +436,7 @@ llama-65b:
   log_dir: "llama_log_65b"
   learning_rate: 5e-6
   deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero3_config_sft.json"
-  model_name: "decapoda-research/llama-13b-hf"
+  model_name: "decapoda-research/llama-65b-hf"
   weight_decay: 0.0
   max_length: 2048
   warmup_steps: 100
