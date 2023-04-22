@@ -281,7 +281,7 @@ def main():
         else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
     )
     output_dir += f"_{time.strftime('%Y%m%d_%H%M')}"
-    output_dir += f"_{training_conf.model_name}_{training_conf.max_length}"
+    output_dir += f"_{training_conf.model_name.replace('/','_')}_{training_conf.max_length}"
 
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
 
