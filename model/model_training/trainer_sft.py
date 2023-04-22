@@ -424,6 +424,13 @@ def main():
         wandb.config["_val_max_length"] = training_conf.val_max_length
     if training_conf.peft_model and training_conf.gradient_checkpointing is True:
         trainer_cls = PeftFlashTrainer
+        from collections import Counter
+        x = [param.requires_grad for  _, param in model.named_parameters()]
+        element_counts = Counter(x)
+
+        # Print the results
+        for element, count in element_counts.items():
+            print(f"{element}: {count}")
         for _, param in model.named_parameters():
             param.requires_grad = True
 
