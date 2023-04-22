@@ -4,7 +4,7 @@
 #SBATCH --job-name=OA
 #SBATCH --gres=gpu:8
 #SBATCH --ntasks-per-node=6
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=36
 #SBATCH --output=%x_%j.out
 
 
