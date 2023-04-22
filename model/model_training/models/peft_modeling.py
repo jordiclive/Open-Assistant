@@ -47,7 +47,7 @@ def peft_model(model, peft_type="lora", int8_training=False):
             task_type="CAUSAL_LM",
         )
     elif peft_type == "prefix-tuning":
-        config = PrefixTuningConfig(num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024)
+        config = PrefixTuningConfig(num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024,task_type="CAUSAL_LM")
     else:
         raise ValueError("peft_method config is lora or prefix-tuning")
     model = get_peft_model(model, config)
