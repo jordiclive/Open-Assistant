@@ -81,7 +81,7 @@ defaults:
   per_digit_tokens: false
   is_reward_model: false
   deepspeed_config: configs/zero_config.json
-  peft_model: False
+
 webgpt_dataset_only:
   datasets:
     - webgpt
@@ -174,21 +174,21 @@ oasst_export_eu:
   datasets:
     - oasst_export:
         lang: "en,es,de,fr"
-        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+        input_file_path: 2023-03-27_oasst_research_ready_synth.jsonl.gz
     - gpt4all
     - alpaca
     - code_alpaca
-#    - oig_file:
-#        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
-#        max_count: 10000
-#        min_length: 100
-#        val_split: 0.1
-#    - oig_file:
-#        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
-#        val_split: 0.1
-#        min_length: 100
-#  sort_by_length: false
-#  use_custom_sampler: false
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/resolve/main/unified_chip2.jsonl
+        max_count: 10000
+        min_length: 100
+        val_split: 0.1
+    - oig_file:
+        source_url: https://huggingface.co/datasets/laion/OIG/raw/main/unified_grade_school_math_instructions.jsonl
+        val_split: 0.1
+        min_length: 100
+  sort_by_length: false
+  use_custom_sampler: false
 
 oasst_export_latin_cyrillic:
   save_strategy: epoch
@@ -209,6 +209,27 @@ oasst_export_latin_cyrillic:
   sort_by_length: false
   use_custom_sampler: false
 
+oasst-mix:
+  save_strategy: epoch
+  sort_by_length: false
+  use_custom_sampler: false
+  datasets:
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
+        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+    - vicuna:
+        val_split: 0.05
+        max_val_set: 800
+        fraction: 1.0
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+    - grade_school_math_instructions:
+        val_split: 0.05
+    - code_alpaca:
+        val_split: 0.05
+        max_val_set: 250
+
 reference-pythia-12b:
   dtype: fp16
   log_dir: "pythia_log_12b"
@@ -227,82 +248,29 @@ reference-pythia-12b:
   num_train_epochs: 8
   save_total_limit: 4
 
-my-llama-7b:
+stablelm-7b:
   dtype: fp16
-  log_dir: "llama_log_7b"
-  learning_rate: 1e-5
-  model_name: "/admin/home-jordiclive/llama/7B" #"decapoda-research/llama-7b-hf"  #/admin/home-jordiclive/llama/7B" #"https://huggingface.co/decapoda-research/llama-7b-hf" #/admin/home-jordiclive/llama/7B
-  output_dir: llama_model
-  weight_decay: 0.0
-  max_length: 2048
+  log_dir: stablelm_log_7b
+  model_name: stabilityai/stablelm-base-alpha-7b
+  output_dir: stablelm_7b
+  max_length: 4096
   warmup_steps: 100
   gradient_checkpointing: true
   gradient_accumulation_steps: 2
-  per_device_train_batch_size: 12
-  per_device_eval_batch_size: 12
-  eval_steps: 500
-  save_steps: 1000
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  eval_steps: 100
+  save_steps: 500
   num_train_epochs: 4
-  save_total_limit: 1
-  use_flash_attention: True
-#  sort_by_length: true
-  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
-  datasets:
-    - oasst_export:
-        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
-        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
-        val_split: 0.05
-    - vicuna:
-        val_split: 0.05
-        max_val_set: 800
-        fraction: 0.8
-    - dolly15k:
-        val_split: 0.05
-        max_val_set: 300
-    - grade_school_math_instructions:
-        val_split: 0.05
-    - code_alpaca:
-        val_split: 0.05
-        max_val_set: 250
-    - alpaca_gpt4:
-        val_split: 0.02
-        max_val_set: 250
-
-
-llama-66b:
-  dtype: fp16
-  log_dir: "llama_log_30b"
-  learning_rate: 4e-6
-  #model_name: /home/ubuntu/Open-Assistant/model/model_training/.saved/llama-30b-super-pretrain/checkpoint-3500
-  model_name: "decapoda-research/llama-65b-hf"
-  output_dir: llama_model_30b
-  deepspeed_config: /admin/home-jordiclive/Open-Assistant/model/model_training/configs/zero3_config_sft.json
-  weight_decay: 0.0
-  residual_dropout: 0.0
-  max_length: 2048
+  save_total_limit: 4
   use_flash_attention: true
-  warmup_steps: 1000
-  gradient_checkpointing: true
-  gradient_accumulation_steps: 1
-  per_device_train_batch_size: 8
-  per_device_eval_batch_size: 1
-  eval_steps: 500
-  save_steps: 600
-  num_train_epochs: 4
-  save_total_limit: 1
-  use_custom_sampler: true
-  sort_by_length: False
-  save_strategy: steps
-
-
-
 
 llama-7b:
   dtype: fp16
-  log_dir: "llama_log_13b"
+  log_dir: "llama_log_7b"
   learning_rate: 1e-5
-  model_name: /home/ubuntu/llama_hf/13B
-  output_dir: llama_model_13b
+  model_name: /home/ubuntu/llama_hf/7B
+  output_dir: llama_model_7b
   weight_decay: 0.0
   max_length: 2048
   warmup_steps: 100
@@ -310,8 +278,8 @@ llama-7b:
   gradient_accumulation_steps: 2
   per_device_train_batch_size: 4
   per_device_eval_batch_size: 4
-  eval_steps: 500
-  save_steps: 1000
+  eval_steps: 100
+  save_steps: 500
   num_train_epochs: 8
   save_total_limit: 4
   use_flash_attention: true
@@ -335,6 +303,45 @@ llama-13b:
   save_total_limit: 4
   use_flash_attention: true
 
+
+llama-13b-sft:
+  dtype: fp16
+  log_dir: "llama_log_13b"
+  learning_rate: 1e-5
+  model_name: /home/ubuntu/Open-Assistant/model/model_training/.saved/llama-13b-pretrain-sft/checkpoint-2300
+  output_dir: llama_model_13b
+  deepspeed_config: configs/zero3_config_sft.json
+  weight_decay: 0.0
+  max_length: 3280
+  warmup_steps: 200
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 16
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 3
+  eval_steps: 500
+  save_steps: 1000
+  num_train_epochs: 4
+  save_total_limit: 2
+  use_flash_attention: true
+  save_strategy: epoch
+  datasets:
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
+        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+        val_split: 0.05
+    - vicuna:
+        val_split: 0.05
+        max_val_set: 800
+        fraction: 1.0
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+    - grade_school_math_instructions:
+        val_split: 0.05
+    - code_alpaca:
+        val_split: 0.05
+        max_val_set: 250
+
 llama-30b:
   dtype: fp16
   log_dir: "llama_log_30b"
@@ -354,12 +361,12 @@ llama-30b:
   save_total_limit: 4
   use_flash_attention: true
 
-llama-30b-sft-6:
+llama-30b-sft-7:
   dtype: fp16
   log_dir: "llama_log_30b"
   learning_rate: 1e-5
-  #model_name: /home/ubuntu/Open-Assistant/model/model_training/.saved/llama-30b-super-pretrain/checkpoint-3500
-  model_name: OpenAssistant/llama-30b-super-pretrain
+  model_name: /home/ubuntu/Open-Assistant/model/model_training/.saved/llama-30b-super-pretrain/checkpoint-3500
+  #model_name: OpenAssistant/llama-30b-super-pretrain
   output_dir: llama_model_30b
   deepspeed_config: configs/zero3_config_sft.json
   weight_decay: 0.0
@@ -368,16 +375,79 @@ llama-30b-sft-6:
   use_flash_attention: true
   warmup_steps: 20
   gradient_checkpointing: true
-  gradient_accumulation_steps: 8
+  gradient_accumulation_steps: 12
   per_device_train_batch_size: 2
   per_device_eval_batch_size: 3
   eval_steps: 101
   save_steps: 485
-  num_train_epochs: 8
+  num_train_epochs: 4
   save_total_limit: 3
   use_custom_sampler: true
   sort_by_length: false
-  save_strategy: steps
+  #save_strategy: steps
+  save_strategy: epoch
+  datasets:
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
+        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+        val_split: 0.05
+    - vicuna:
+        val_split: 0.05
+        max_val_set: 800
+        fraction: 1.0
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+    - grade_school_math_instructions:
+        val_split: 0.05
+    - code_alpaca:
+        val_split: 0.05
+        max_val_set: 250
+# Dataset Mix:
+# oasst_export: 100.00% (37605)
+# vicuna: 100.00% (55744)
+# dolly15k: 100.00% (14264)
+# grade_school_math_instructions: 100.00% (8352)
+# code_alpaca: 100.00% (19020)
+
+llama-30b-pretrain:
+  dtype: fp16
+  log_dir: "llama_log_30b"
+  learning_rate: 1e-5
+  model_name: /home/ubuntu/llama_hf/30B
+  output_dir: llama_model_30b
+  weight_decay: 0.0
+  residual_dropout: 0.0
+  max_length: 2048
+  use_flash_attention: true
+  warmup_steps: 100
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 8
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 3
+  eval_steps: 251
+  save_steps: 500
+  num_train_epochs: 1
+  save_total_limit: 2
+
+llama-65b:
+  dtype: fp16
+  log_dir: "llama_log_65b"
+  learning_rate: 5e-6
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero3_config_sft.json"
+  model_name: "decapoda-research/llama-65b-hf"
+  weight_decay: 0.0
+  max_length: 2048
+  warmup_steps: 100
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 1
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
+  eval_steps: 200
+  save_steps: 500
+  num_train_epochs: 16
+  save_total_limit: 1
+  use_flash_attention: true
   datasets:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
@@ -395,27 +465,10 @@ llama-30b-sft-6:
     - code_alpaca:
         val_split: 0.05
         max_val_set: 250
+    - alpaca_gpt4:
+        val_split: 0.02
+        max_val_set: 250
 
-llama-30b-pretrain:
-  dtype: fp16
-  log_dir: "llama_log_30b"
-  learning_rate: 1e-5
-  model_name: /home/ubuntu/llama_hf/30B
-  output_dir: llama_model_30b
-  deepspeed_config: configs/zero3_config_pretrain.json
-  weight_decay: 0.0
-  residual_dropout: 0.0
-  max_length: 2048
-  use_flash_attention: true
-  warmup_steps: 100
-  gradient_checkpointing: true
-  gradient_accumulation_steps: 8
-  per_device_train_batch_size: 2
-  per_device_eval_batch_size: 3
-  eval_steps: 251
-  save_steps: 500
-  num_train_epochs: 1
-  save_total_limit: 2
 
 pythia-70m-deduped:
   learning_rate: 8e-6
@@ -429,6 +482,9 @@ pythia-70m-deduped:
   per_device_train_batch_size: 2
   per_device_eval_batch_size: 4
   output_dir: pythia_model
+  datasets:
+    - vicuna
+    - soda
 
 pythia-1B:
   learning_rate: 8e-6

@@ -318,11 +318,14 @@ def main():
 
     init_rng(training_conf)
 
+    model_name = training_conf.model_name
+    training_conf.model_name = "/admin/home-jordiclive/llama/7B"
+
     tokenizer = get_tokenizer(training_conf)
 
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
-
+    training_conf.model_name = model_name
     train_collate_fn = DialogueDataCollator(
         tokenizer,
         max_length=training_conf.max_length,
