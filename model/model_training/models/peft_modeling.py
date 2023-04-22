@@ -67,7 +67,7 @@ def peft_model(model,peft_type='lora',int8_training=False):
 
     if peft_type=='lora':
         config = LoraConfig(
-        r=8,
+        r=16,
         lora_alpha=32,
         target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj'],
         lora_dropout=0.05,
