@@ -186,7 +186,6 @@ def argument_parsing(notebook=False, notebook_args=None):
     parser.add_argument("--resume_from_checkpoint", action="store_true", help="Resume from last saved checkpoint")
     parser.add_argument("--rng_seed", type=int, help="rng seed")
     parser.add_argument("--show_dataset_stats", action="store_true", help="Show dataset stats", default=False)
-    parser.add_argument("--peft_model",action="store_true", help="Use PEFT model", default=False)
     parser.set_defaults(deepspeed=False)
 
     if notebook:
@@ -392,6 +391,7 @@ def main():
     model = get_model(training_conf, tokenizer)
 
     if training_conf.peft_model:
+        print('Using PEFT model')
         model = peft_model(model)
 
     if training_conf.quantization:
