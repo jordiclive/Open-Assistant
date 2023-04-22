@@ -8,7 +8,7 @@ from huggingface_hub import hf_hub_download
 from model_training.utils import get_loss
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 from torch import nn
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 from transformers import AdamW, PreTrainedModel, Trainer, TrainingArguments
 from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
 from transformers.trainer_pt_utils import IterableDatasetShard, get_parameter_names
@@ -47,7 +47,9 @@ def peft_model(model, peft_type="lora", int8_training=False):
             task_type="CAUSAL_LM",
         )
     elif peft_type == "prefix-tuning":
-        config = PrefixTuningConfig(num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024,task_type="CAUSAL_LM")
+        config = PrefixTuningConfig(
+            num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024, task_type="CAUSAL_LM"
+        )
     else:
         raise ValueError("peft_method config is lora or prefix-tuning")
     model = get_peft_model(model, config)
@@ -55,6 +57,7 @@ def peft_model(model, peft_type="lora", int8_training=False):
         model = prepare_model_for_int8_training(model)
     model.print_trainable_parameters()
     return model
+
 
 # This is a hack to get gradient checkpointing to work but there must be a better way to do this than wastefully calculating all the gradients.
 class CustomAdamW(AdamW):
