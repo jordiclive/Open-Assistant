@@ -7,7 +7,7 @@
 #SBATCH --ntasks-per-node=8
 #SBATCH --output=%x_%j.out
 #SBATCH --exclusive
-#SBATCH --exclude=ip-26-0-158-154,ip-26-0-158-166,ip-26-0-158-174,ip-26-0-158-195,ip-26-0-158-229
+#SBATCH --exclude=ip-26-0-158-154,ip-26-0-158-166,ip-26-0-158-174,ip-26-0-158-195,ip-26-0-158-229, ip-26-0-151-43
 
 module purge
 module load openmpi
