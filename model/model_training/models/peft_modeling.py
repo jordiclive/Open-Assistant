@@ -36,7 +36,6 @@ def load_peft_model(model, peft_model_path, tokenizer):
 
 
 def peft_model(model, peft_type="lora", int8_training=False):
-
     if peft_type == "lora":
         config = LoraConfig(
             r=16,
