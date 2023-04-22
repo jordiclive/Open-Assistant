@@ -246,6 +246,7 @@ my-llama-7b:
   save_total_limit: 1
   use_flash_attention: True
   sort_by_length: true
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
 
 llama-7b:
   dtype: fp16
