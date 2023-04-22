@@ -1,50 +1,23 @@
-from typing import Callable
-
-from peft import PeftModel
-import torch
-from huggingface_hub import hf_hub_download
-from peft import (
-    LoraConfig,
-    get_peft_model,
-    prepare_model_for_int8_training,
-    PrefixTuningConfig
-)
-
-from transformers import AdamW
-import math
-from transformers.trainer_pt_utils import get_parameter_names
-from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
-
-#!/usr/bin/env python3
-import argparse
 import logging
-import os
-from functools import partial
+import math
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
 import datasets
 import torch
-from model_training.utils import (
-    PerDatasetSampler,
-    _strtobool,
-    get_dataset,
-    get_loss,
-    get_metrics,
-    get_model,
-    get_tokenizer,
-    init_rng,
-    read_yamls,
-)
+from huggingface_hub import hf_hub_download
+from model_training.utils import get_loss
+from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 from torch import nn
 from torch.utils.data import DataLoader, Subset
-from transformers import PreTrainedModel, Trainer, TrainingArguments
-from transformers.trainer_pt_utils import IterableDatasetShard
+from transformers import AdamW, PreTrainedModel, Trainer, TrainingArguments
+from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
+from transformers.trainer_pt_utils import IterableDatasetShard, get_parameter_names
 from transformers.trainer_utils import seed_worker
 from transformers.utils import is_datasets_available
 
-def load_peft_model(model, peft_model_path,tokenizer):
-    model.resize_token_embeddings(
-        len(tokenizer)
-    )
+
+def load_peft_model(model, peft_model_path, tokenizer):
+    model.resize_token_embeddings(len(tokenizer))
     model.config.eos_token_id = tokenizer.eos_token_id
     model.config.bos_token_id = tokenizer.bos_token_id
     model.config.pad_token_id = tokenizer.pad_token_id
@@ -55,36 +28,33 @@ def load_peft_model(model, peft_model_path,tokenizer):
     )
     model.eos_token_id = tokenizer.eos_token_id
     extra_embeds = hf_hub_download(peft_model_path, "extra_embeddings.pt")
-    embed_weights = torch.load(
-        extra_embeds, map_location=model.device
-    )
-    model.base_model.model.model.embed_tokens.weight[len(tokenizer) - embed_weights.shape[0]:, :] = embed_weights.to(
+    embed_weights = torch.load(extra_embeds, map_location=model.device)
+    model.base_model.model.model.embed_tokens.weight[len(tokenizer) - embed_weights.shape[0] :, :] = embed_weights.to(
         model.base_model.model.model.embed_tokens.weight.dtype
     )
     return model
 
-def peft_model(model,peft_type='lora',int8_training=False):
 
-    if peft_type=='lora':
+def peft_model(model, peft_type="lora", int8_training=False):
+
+    if peft_type == "lora":
         config = LoraConfig(
-        r=16,
-        lora_alpha=32,
-        target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj'],
-        lora_dropout=0.05,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
-    elif peft_type=='prefix-tuning':
-        config = PrefixTuningConfig(num_virtual_tokens=30,prefix_projection=True,encoder_hidden_size=1024)
+            r=16,
+            lora_alpha=32,
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            lora_dropout=0.05,
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+    elif peft_type == "prefix-tuning":
+        config = PrefixTuningConfig(num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024)
     else:
-        raise ValueError('peft_method config is lora or prefix-tuning')
+        raise ValueError("peft_method config is lora or prefix-tuning")
     model = get_peft_model(model, config)
     if int8_training:
         model = prepare_model_for_int8_training(model)
     model.print_trainable_parameters()
     return model
-
-
 
 
 class CustomAdamW(AdamW):
@@ -102,7 +72,7 @@ class CustomAdamW(AdamW):
             for p in group["params"]:
                 if p.grad is None:
                     continue
-                if 'lora' or 'prefix' not in p.grad_fn.variable.name:
+                if "lora" or "prefix" not in p.grad_fn.variable.name:
                     continue
                 grad = p.grad.data
                 if grad.is_sparse:
@@ -110,7 +80,6 @@ class CustomAdamW(AdamW):
 
                 state = self.state[p]
 
-                # State initialization
                 if len(state) == 0:
                     state["step"] = 0
                     # Exponential moving average of gradient values
@@ -137,14 +106,6 @@ class CustomAdamW(AdamW):
 
                 p.data.addcdiv_(exp_avg, denom, value=-step_size)
 
-                # Just adding the square of the weights to the loss function is *not*
-                # the correct way of using L2 regularization/weight decay with Adam,
-                # since that will interact with the m and v parameters in strange ways.
-                #
-                # Instead we want to decay the weights in a manner that doesn't interact
-                # with the m/v parameters. This is equivalent to adding the square
-                # of the weights to the loss with plain (non-momentum) SGD.
-                # Add weight decay at the end (fixed version)
                 if group["weight_decay"] > 0.0:
                     p.data.add_(p.data, alpha=(-group["lr"] * group["weight_decay"]))
 
@@ -293,5 +254,3 @@ class PeftFlashTrainer(Trainer):
             worker_init_fn=seed_worker,
         )
         return dataloader
-
-
