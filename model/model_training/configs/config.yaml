@@ -241,9 +241,9 @@ my-llama-7b:
   per_device_train_batch_size: 12
   per_device_eval_batch_size: 12
   eval_steps: 500
-  save_steps: 1000
   num_train_epochs: 4
-  save_total_limit: 1
+  save_total_limit: 4
+  save_strategy: epoch
   use_flash_attention: True
 #  sort_by_length: true
   deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
@@ -264,9 +264,9 @@ my-llama-7b:
     - code_alpaca:
         val_split: 0.05
         max_val_set: 250
-    - alpaca_gpt4:
-        val_split: 0.02
-        max_val_set: 250
+#    - alpaca_gpt4:
+#        val_split: 0.02
+#        max_val_set: 250
 
 
 llama-66b:

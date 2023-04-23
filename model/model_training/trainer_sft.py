@@ -414,10 +414,16 @@ def main():
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
         os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
-        wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
+        # wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
+        import re
+        wandb_name = "llama" + [int(num) for num in re.findall(r'\d+', training_conf.model_name)][0] +'B'
+        if training_conf.peft_model:
+            wandb_name = wandb_name + '_peft'
+        wandb_name = f"{wandb_name}-{training_conf.log_dir}-finetuned"
+
         wandb.init(
-            project="peft_comparison_OA",
-            entity="jordanclive",
+            project="peft-comparison",
+            entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
