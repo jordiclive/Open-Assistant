@@ -416,7 +416,7 @@ def main():
         os.environ['WANDB_API_KEY'] = 'd8216641d549f9bb3d0c5074baa39e15dfd55030'
         # wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         import re
-        wandb_name = "llama" + [int(num) for num in re.findall(r'\d+', training_conf.model_name)][0] +'B'
+        wandb_name = "llama" + str([int(num) for num in re.findall(r'\d+', training_conf.model_name)][0]) +'B'
         if training_conf.peft_model:
             wandb_name = wandb_name + '_peft'
         wandb_name = f"{wandb_name}-{training_conf.log_dir}-finetuned"
