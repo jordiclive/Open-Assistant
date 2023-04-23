@@ -15,6 +15,9 @@ from transformers.trainer_pt_utils import IterableDatasetShard, get_parameter_na
 from transformers.trainer_utils import seed_worker
 from transformers.utils import is_datasets_available
 import os
+from dataclasses import dataclass
+import torch
+from pathlib import Path
 
 def load_peft_model(model, peft_model_path, tokenizer):
     model.resize_token_embeddings(len(tokenizer))
@@ -33,6 +36,7 @@ def load_peft_model(model, peft_model_path, tokenizer):
         model.base_model.model.model.embed_tokens.weight.dtype
     )
     return model
+
 
 
 def peft_model(model, peft_type="lora", int8_training=False):
@@ -57,6 +61,8 @@ def peft_model(model, peft_type="lora", int8_training=False):
     return model
 
 
+
+
 class CustomAdamW(AdamW):
     def step(self, closure: Callable = None):
         """
@@ -72,7 +78,7 @@ class CustomAdamW(AdamW):
             for p in group["params"]:
                 if p.grad is None:
                     continue
-                if "lora" or "prefix" not in p.grad_fn.variable.name:
+                if "lora" not in p.grad_fn.variable.name:
                     continue
                 grad = p.grad.data
                 if grad.is_sparse:
