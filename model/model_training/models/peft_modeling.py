@@ -78,7 +78,7 @@ class CustomAdamW(AdamW):
             for p in group["params"]:
                 if p.grad is None:
                     continue
-                if "lora" not in p.grad_fn.variable.name:
+                if all(name not in p.grad_fn.variable.name for name in ["lora", "prompt_encoder"]):
                     continue
                 grad = p.grad.data
                 if grad.is_sparse:
