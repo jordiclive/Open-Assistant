@@ -78,7 +78,7 @@ class CustomAdamW(AdamW):
             for p in group["params"]:
                 if p.grad is None:
                     continue
-                if all(name not in p.grad_fn.variable.name for name in ["lora", "prompt_encoder"]):
+                if 'lora' not in p.grad_fn.variable.name:
                     continue
                 grad = p.grad.data
                 if grad.is_sparse:
@@ -86,6 +86,7 @@ class CustomAdamW(AdamW):
 
                 state = self.state[p]
 
+                # State initialization
                 if len(state) == 0:
                     state["step"] = 0
                     # Exponential moving average of gradient values
@@ -112,48 +113,18 @@ class CustomAdamW(AdamW):
 
                 p.data.addcdiv_(exp_avg, denom, value=-step_size)
 
+                # Just adding the square of the weights to the loss function is *not*
+                # the correct way of using L2 regularization/weight decay with Adam,
+                # since that will interact with the m and v parameters in strange ways.
+                #
+                # Instead we want to decay the weights in a manner that doesn't interact
+                # with the m/v parameters. This is equivalent to adding the square
+                # of the weights to the loss with plain (non-momentum) SGD.
+                # Add weight decay at the end (fixed version)
                 if group["weight_decay"] > 0.0:
                     p.data.add_(p.data, alpha=(-group["lr"] * group["weight_decay"]))
 
         return loss
-
-
-    def _save_checkpoint(self, model, trial, metrics=None):
-        # In all cases, including ddp/dp/deepspeed, self.model is always a reference to the model we
-        # want to save except FullyShardedDDP.
-        # assert unwrap_model(model) is self.model, "internal model should be a reference to self.model"
-        from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
-        # Save model checkpoint
-        checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
-
-        if self.hp_search_backend is None and trial is None:
-            self.store_flos()
-
-        run_dir = self._get_output_dir(trial=trial)
-        output_dir = os.path.join(run_dir, checkpoint_folder)
-        os.makedirs(output_dir, exist_ok=True)
-
-
-        # Save model checkpoint
-        # new_embs = model.state_dict()['base_model.model.model.embed_tokens.weight'][3200:, :]
-        # iterate through the model's parameters and add those that contain 'lora' in their name
-        # lora_params = {}
-        # for name, param in model.named_parameters():
-        #     if 'lora' in name:
-        #         lora_params[name] = param
-        # save the dictionary to a file
-        self._save(output_dir)
-        # torch.save(model.to, os.path.join(output_dir,"lora.pth"))
-        # self.tokenizer.save_pretrained(output_dir)
-        # torch.save(new_embs, os.path.join(output_dir,"extra_embeddings.pt"))
-        #
-        #
-        # # Good practice: save your training arguments together with the trained model
-        # torch.save(self.args, os.path.join(output_dir,"training_args.bin"))
-
-        # A process can arrive here before the process 0 has a chance to save the model, in which case output_dir may
-        # not yet exist.
-        os.makedirs(output_dir, exist_ok=True)
 
 
 class PeftFlashTrainer(Trainer):
@@ -243,7 +214,7 @@ class PeftFlashTrainer(Trainer):
                 },
             ]
 
-            optimizer_cls, optimizer_kwargs = self.get_optimizer_cls_and_kwargs(self.args)
+            optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
 
             self.optimizer = CustomAdamW(optimizer_grouped_parameters, **optimizer_kwargs)
 
@@ -298,3 +269,40 @@ class PeftFlashTrainer(Trainer):
             worker_init_fn=seed_worker,
         )
         return dataloader
+
+    def _save_checkpoint(self, model, trial, metrics=None):
+        # In all cases, including ddp/dp/deepspeed, self.model is always a reference to the model we
+        # want to save except FullyShardedDDP.
+        # assert unwrap_model(model) is self.model, "internal model should be a reference to self.model"
+        from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
+        # Save model checkpoint
+        checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
+
+        if self.hp_search_backend is None and trial is None:
+            self.store_flos()
+
+        run_dir = self._get_output_dir(trial=trial)
+        output_dir = os.path.join(run_dir, checkpoint_folder)
+        os.makedirs(output_dir, exist_ok=True)
+
+
+        # Save model checkpoint
+        # new_embs = model.state_dict()['base_model.model.model.embed_tokens.weight'][3200:, :]
+        # iterate through the model's parameters and add those that contain 'lora' in their name
+        # lora_params = {}
+        # for name, param in model.named_parameters():
+        #     if 'lora' in name:
+        #         lora_params[name] = param
+        # save the dictionary to a file
+        self._save(output_dir)
+        # torch.save(model.to, os.path.join(output_dir,"lora.pth"))
+        # self.tokenizer.save_pretrained(output_dir)
+        # torch.save(new_embs, os.path.join(output_dir,"extra_embeddings.pt"))
+        #
+        #
+        # # Good practice: save your training arguments together with the trained model
+        # torch.save(self.args, os.path.join(output_dir,"training_args.bin"))
+
+        # A process can arrive here before the process 0 has a chance to save the model, in which case output_dir may
+        # not yet exist.
+        os.makedirs(output_dir, exist_ok=True)
