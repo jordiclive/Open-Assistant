@@ -292,7 +292,7 @@ def main():
         warmup_steps=training_conf.warmup_steps,
         learning_rate=float(training_conf.learning_rate),
         deepspeed=training_conf.deepspeed_config if training_conf.deepspeed else None,
-        optim=optimizer,
+        # optim=optimizer,
         fp16=training_conf.dtype in ["fp16", "float16"],
         bf16=training_conf.dtype in ["bf16", "bfloat16"],
         local_rank=training_conf.local_rank,
