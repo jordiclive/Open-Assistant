@@ -195,7 +195,7 @@ def argument_parsing(notebook=False, notebook_args=None):
 
     # Config from YAML
     conf = {}
-    configs = read_yamls("/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs")
+    configs = read_yamls("/home/jordan/Open-Assistant/model/model_training/configs")
     conf.update(configs["defaults"])
     try:
         for name in args.configs:
@@ -423,7 +423,7 @@ def main():
 
         wandb.init(
             project="peft-comparison",
-            entity="open-assistant",
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
