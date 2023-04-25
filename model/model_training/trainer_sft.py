@@ -195,7 +195,7 @@ def argument_parsing(notebook=False, notebook_args=None):
 
     # Config from YAML
     conf = {}
-    configs = read_yamls("/home/jordan/Open-Assistant/model/model_training/configs")
+    configs = read_yamls("/home/jordan/Open-Assistant/model/model_training/configs/")
     conf.update(configs["defaults"])
     try:
         for name in args.configs:
