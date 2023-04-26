@@ -321,7 +321,13 @@ def main():
     # tokenizer = get_tokenizer(training_conf)
     import transformers
     tokenizer = transformers.AutoTokenizer.from_pretrained(training_conf.model_name)
-
+    tokenizer.add_special_tokens(
+        {
+            "pad_token": "[PAD]",
+            "eos_token": "[EOS]",
+                "sep_token":"[SEP]",
+        }
+    )
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
 
@@ -394,6 +400,7 @@ def main():
 
     # model = get_model(training_conf, tokenizer)
     model  = transformers.AutoModel.from_pretrained(training_conf.model_name)
+    model.resize_token_embeddings(len(tokenizer))
     if training_conf.peft_model:
         print('Using PEFT model')
         model = peft_model(model)
