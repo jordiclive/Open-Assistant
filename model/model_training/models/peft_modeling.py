@@ -202,19 +202,22 @@ class PeftFlashTrainer(Trainer):
         optimizer_grouped_parameters = [
             {
                 "params": [
-                    p for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad and 'lora' in n)
+                    p for n, p in opt_model.named_parameters() if
+                    (n in decay_parameters and p.requires_grad and ('lora' in n or 'prompt_encoder' in n))
                 ],
                 "weight_decay": self.args.weight_decay,
             },
             {
                 "params": [
-                    p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad and 'lora' in n)
+                    p for n, p in opt_model.named_parameters() if
+                    (n not in decay_parameters and p.requires_grad and ('lora' in n or 'prompt_encoder' in n))
                 ],
                 "weight_decay": 0.0,
             },
             {
                 "params": [
-                    p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad and 'lora' not in n)
+                    p for n, p in opt_model.named_parameters() if
+                    (n not in decay_parameters and p.requires_grad and 'lora' not in n and 'prompt_encoder' not in n)
                 ],
                 "weight_decay": None,
             },
