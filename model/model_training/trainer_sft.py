@@ -318,7 +318,9 @@ def main():
 
     init_rng(training_conf)
 
-    tokenizer = get_tokenizer(training_conf)
+    # tokenizer = get_tokenizer(training_conf)
+    import transformers
+    tokenizer = transformers.AutoTokenizer.from_pretrained(training_conf.model_name)
 
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
@@ -390,8 +392,8 @@ def main():
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
-    model = get_model(training_conf, tokenizer)
-
+    # model = get_model(training_conf, tokenizer)
+    model  = transformers.AutoModel.from_pretrained(training_conf.model_name)
     if training_conf.peft_model:
         print('Using PEFT model')
         model = peft_model(model)
