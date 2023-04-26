@@ -257,7 +257,7 @@ marvin2:
   dtype: fp16
   log_dir: "llama_log_7b"
   learning_rate: 4e-6
-  model_name: "gpt2" #"decapoda-research/llama-7b-hf"  #/admin/home-jordiclive/llama/7B" #"https://huggingface.co/decapoda-research/llama-7b-hf" #/admin/home-jordiclive/llama/7B
+  model_name: "EleutherAI/gpt-neo-125m" #"decapoda-research/llama-7b-hf"  #/admin/home-jordiclive/llama/7B" #"https://huggingface.co/decapoda-research/llama-7b-hf" #/admin/home-jordiclive/llama/7B
   output_dir: llama_model
   weight_decay: 0.0
   max_length: 2048
