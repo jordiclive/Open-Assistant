@@ -459,6 +459,8 @@ def main():
         tokenizer=tokenizer,
         compute_metrics=partial(compute_metrics, metrics=metrics, preprocess_fns=preprocess_fns),
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
+        zero_force_ds_cpu_optimizer =  True
+
     )
     trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
