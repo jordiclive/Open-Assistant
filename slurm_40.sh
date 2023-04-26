@@ -8,7 +8,7 @@
 
 
 
-source /admin/home-jordiclive/miniconda3/bin/activate open
+source /fsx/home-jordiclive/miniconda3/bin/activate open
 cd /admin/home-jordiclive/Open-Assistant
 export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
 #export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7"
