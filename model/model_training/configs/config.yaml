@@ -244,7 +244,7 @@ my-llama-7b:
 #  save_steps: 50
   num_train_epochs: 6
   save_total_limit: 4
-  save_strategy: epochs
+  save_strategy: epoch
   use_flash_attention: True
   residual_dropout: 0.0
 #  sort_by_length: true
