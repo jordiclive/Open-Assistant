@@ -261,6 +261,7 @@ marvin2:
   output_dir: llama_model
   weight_decay: 0.0
   max_length: 10
+  val_max_length: 10
   warmup_steps: 10
   gradient_checkpointing: true
   gradient_accumulation_steps: 2
