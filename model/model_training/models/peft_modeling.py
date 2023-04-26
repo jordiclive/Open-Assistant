@@ -75,7 +75,7 @@ class CustomAdamW(AdamW):
             loss = closure()
 
         for group in self.param_groups:
-            if group['weight_decay'] == 999:
+            if group['weight_decay'] is None:
                 continue
             for p in group["params"]:
                 if p.grad is None:
@@ -216,7 +216,7 @@ class PeftFlashTrainer(Trainer):
                 "params": [
                     p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad and 'lora' not in n)
                 ],
-                "weight_decay": 999,
+                "weight_decay": None,
             },
 
         ]
