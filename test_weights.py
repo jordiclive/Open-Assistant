@@ -44,6 +44,7 @@ import argparse
 if __name__ == "__main__":
     # args = parse_arguments()
     print('BASE MODE',model.state_dict()['base_model.model.model.layers.16.mlp.gate_proj.weight'])
+    print('BASE MODEL_LORA',model.state_dict()['base_model.model.model.layers.0.self_attn.o_proj.lora_A.weight'])
     x = model.state_dict()['base_model.model.model.layers.16.mlp.gate_proj.weight'].clone()
     y = model.state_dict()['base_model.model.model.embed_tokens.weight'].clone()
 
@@ -53,9 +54,14 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(torch_path1, map_location=torch.device('cpu')))
     vocab_size = tokenizer.vocab_size
     print('CKpt1',model.state_dict()['base_model.model.model.layers.16.mlp.gate_proj.weight'])
+    print('Ckpt1_LORA',model.state_dict()['base_model.model.model.layers.0.self_attn.o_proj.lora_A.weight'])
+
 
     model.load_state_dict(torch.load(torch_path2, map_location=torch.device('cpu')))
     print('CKpt2',model.state_dict()['base_model.model.model.layers.16.mlp.gate_proj.weight'])
+    print('Ckpt2_LORA',model.state_dict()['base_model.model.model.layers.0.self_attn.o_proj.lora_A.weight'])
+
+
 
 # model.load_state_dict(torch.load(training_conf.torch_ckpt_path))
 # vocab_size = tokenizer.vocab_size
