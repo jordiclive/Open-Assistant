@@ -45,7 +45,7 @@ def peft_model(model, peft_type="lora", int8_training=False):
         config = LoraConfig(
             r=16,
             lora_alpha=32,
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            target_modules=["c_attn"],
             lora_dropout=0.05,
             bias="none",
             task_type="CAUSAL_LM",
