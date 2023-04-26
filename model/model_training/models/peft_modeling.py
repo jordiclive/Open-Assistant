@@ -75,10 +75,10 @@ class CustomAdamW(AdamW):
             loss = closure()
 
         for group in self.param_groups:
+            if group['weight_decay'] == 999:
+                continue
             for p in group["params"]:
                 if p.grad is None:
-                    continue
-                if 'lora' not in p.grad_fn.variable.name:
                     continue
                 grad = p.grad.data
                 if grad.is_sparse:
@@ -202,16 +202,23 @@ class PeftFlashTrainer(Trainer):
         optimizer_grouped_parameters = [
             {
                 "params": [
-                    p for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad)
+                    p for n, p in opt_model.named_parameters() if (n in decay_parameters and p.requires_grad and 'lora' in n)
                 ],
                 "weight_decay": self.args.weight_decay,
             },
             {
                 "params": [
-                    p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad)
+                    p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad and 'lora' in n)
                 ],
                 "weight_decay": 0.0,
             },
+            {
+                "params": [
+                    p for n, p in opt_model.named_parameters() if (n not in decay_parameters and p.requires_grad and 'lora' not in n)
+                ],
+                "weight_decay": 999,
+            },
+
         ]
 
         optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
