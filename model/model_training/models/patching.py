@@ -126,18 +126,7 @@ or run with:
     if isinstance(model, LlamaForCausalLM):
         model = model.model
 
-    if isinstance(model, AutoModelForCausalLMWithHydraValueHead):
-        if isinstance(model.base_model, GPTNeoXForCausalLM):
-            model = model.base_model.gpt_neox
-        elif isinstance(model.base_model, LlamaForCausalLM):
-            model = model.base_model.model
-        else:
-            warnings.warn(
-                "Unfortunately there is currently only support for NeoX models and LLaMa models "
-                f"Please make sure that `{model.__class__.__name__}` is one of those model.\n"
-                "Or disable flash_attention and residual_dropout with:\n"
-                "--use_flash_attention=false  --no-residual_dropout"
-            )
+
 
     attention_key_lookup = {
         GPTNeoXModel: "attention",
