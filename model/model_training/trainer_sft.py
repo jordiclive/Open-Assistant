@@ -394,7 +394,7 @@ def main():
 
     if training_conf.peft_model:
         print('Using PEFT model')
-        model = peft_model(model)
+        model = peft_model(model,peft_type= "prefix-tuning")
 
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
@@ -435,9 +435,6 @@ def main():
         from collections import Counter
         x = [param.requires_grad for  _, param in model.named_parameters()]
         element_counts = Counter(x)
-        y = [n for n,p in model.named_parameters() if 'prefix' in n]
-        print(y)
-        # Print the results
         for element, count in element_counts.items():
             print(f"{element}: {count}")
         for _, param in model.named_parameters():
