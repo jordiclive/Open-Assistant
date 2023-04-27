@@ -195,7 +195,7 @@ def argument_parsing(notebook=False, notebook_args=None):
 
     # Config from YAML
     conf = {}
-    configs = read_yamls("/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs.yaml")
+    configs = read_yamls("/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/configs.yaml")
     conf.update(configs["defaults"])
     try:
         for name in args.configs:
