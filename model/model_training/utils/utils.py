@@ -15,6 +15,7 @@ from model_training.custom_datasets import get_one_dataset
 from model_training.custom_datasets.formatting import QA_SPECIAL_TOKENS
 from model_training.models import freeze_top_n_layers, get_specific_model
 from model_training.models.patching import patch_model
+from model_training.models.prefix_llama import LlamaForCausalLM
 from model_training.models.reward_model import GPTNeoXRewardModel
 from sklearn.model_selection import train_test_split
 from tokenizers import pre_tokenizers
@@ -305,6 +306,11 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
         dtype = torch.float16
     elif conf.dtype in ["bf16", "bfloat16"]:
         dtype = torch.bfloat16
+
+    if conf.peft_model is not None:
+        if conf.peft_type == "prefix-tuning":
+            model = LlamaForCausalLM.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
+            return model
 
     if conf.is_reward_model:
         if "pythia" in conf.model_name:
