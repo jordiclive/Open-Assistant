@@ -309,7 +309,7 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
 
     if conf.peft_model is not None:
         if conf.peft_type == "prefix-tuning":
-            model = LlamaForCausalLM.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
+            model = LlamaForCausalLM.from_pretrained("decapoda-research/llama-7b-hf", cache_dir=conf.cache_dir, torch_dtype=dtype)
             return model
 
     if conf.is_reward_model:
