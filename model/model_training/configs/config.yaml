@@ -358,7 +358,7 @@ llama-30b-pretrain:
 llama-7b-lora:
   dtype: fp16
   log_dir: "llama_log_7b"
-  learning_rate: 5e-5
+  learning_rate: 8e-5
   model_name: "/admin/home-jordiclive/llama/7B"
   output_dir: llama_model
   weight_decay: 0.0
@@ -369,12 +369,12 @@ llama-7b-lora:
   per_device_train_batch_size: 12
   per_device_eval_batch_size: 12
   eval_steps: 500
-  num_train_epochs: 6
+  num_train_epochs: 12
   save_total_limit: 4
   save_strategy: epoch
   use_flash_attention: True
   residual_dropout: 0.0
-  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config_peft.json"
   peft_model: True
   peft_type: "lora"
   datasets:
@@ -420,7 +420,7 @@ llama-7b-prefix:
   save_strategy: epoch
   use_flash_attention: True
   residual_dropout: 0.0
-  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config_peft.json"
   peft_model: True
   peft_type: "prefix-tuning"
   datasets:
