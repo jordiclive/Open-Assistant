@@ -268,7 +268,7 @@ def tokenizer_sanity_check(tokenizer):
         print(f'{i}: {xs} -> "{decoded}"')
 
     print("message_indices:", message_indices)
-
+    print('x')
 
 def main():
     training_conf = argument_parsing()
