@@ -307,10 +307,7 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
     elif conf.dtype in ["bf16", "bfloat16"]:
         dtype = torch.bfloat16
 
-    if conf.peft_model is not None:
-        if conf.peft_type == "prefix-tuning":
-            model = LlamaForCausalLM.from_pretrained("decapoda-research/llama-7b-hf", cache_dir=conf.cache_dir, torch_dtype=dtype)
-            return model
+
 
     if conf.is_reward_model:
         if "pythia" in conf.model_name:
@@ -324,14 +321,18 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
                 conf.model_name, cache_dir=conf.cache_dir, num_labels=1, torch_dtype=dtype
             )
     else:
-        model = get_specific_model(
-            conf.model_name,
-            cache_dir=conf.cache_dir,
-            quantization=conf.quantization,
-            seq2seqmodel=conf.seq2seqmodel,
-            without_head=conf.is_reward_model,
-            torch_dtype=dtype,
-        )
+        if conf.peft_type is not None:
+            if conf.peft_type == "prefix-tuning":
+                model = LlamaForCausalLM.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
+            else:
+                model = get_specific_model(
+                    conf.model_name,
+                    cache_dir=conf.cache_dir,
+                    quantization=conf.quantization,
+                    seq2seqmodel=conf.seq2seqmodel,
+                    without_head=conf.is_reward_model,
+                    torch_dtype=dtype,
+                )
 
         n_embs = model.get_input_embeddings().num_embeddings
         if len(tokenizer) != n_embs and check_freeze_layer:
