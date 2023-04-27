@@ -374,7 +374,7 @@ llama-7b-lora:
   save_strategy: epoch
   use_flash_attention: True
   residual_dropout: 0.0
-  deepspeed_config: configs/zero_config_peft.json
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
   peft_model: True
   peft_type: "lora"
   datasets:
@@ -420,7 +420,7 @@ llama-7b-prefix:
   save_strategy: epoch
   use_flash_attention: True
   residual_dropout: 0.0
-  deepspeed_config: configs/zero_config_peft.json
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
   peft_model: True
   peft_type: "prefix-tuning"
   datasets:
