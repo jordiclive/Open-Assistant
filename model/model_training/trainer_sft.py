@@ -408,8 +408,9 @@ def main():
     if training_conf.fuse_gelu:
         model = fuse_gelu(model)
 
-    if not training_conf.log_wandb:
-        os.environ["WANDB_MODE"] = "offline"
+    # if not training_conf.log_wandb:
+
+    os.environ["WANDB_MODE"] = "offline"
 
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
@@ -417,7 +418,7 @@ def main():
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
             project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
@@ -439,9 +440,12 @@ def main():
         compute_metrics=partial(compute_metrics, metrics=metrics, preprocess_fns=preprocess_fns),
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
     )
-    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
-    trainer.save_model()
-    tokenizer.save_pretrained(output_dir)
+    dataloader = trainer.get_train_dataloader()
+    X = next(iter(dataloader))
+    x = 1
+    # trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
+    # trainer.save_model()
+    # tokenizer.save_pretrained(output_dir)
 
 
 if __name__ == "__main__":

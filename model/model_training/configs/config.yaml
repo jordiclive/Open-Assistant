@@ -93,6 +93,41 @@ math:
   datasets_extra: # Will get merged with datasets
     - minimath
 
+
+data_debug:
+  learning_rate: 8e-6
+  # model_name: EleutherAI/pythia-1b-deduped
+  model_name: EleutherAI/pythia-70m-deduped
+  weight_decay: 0.0
+  max_length: 520
+  warmup_steps: 1000
+  gradient_checkpointing: false
+  gradient_accumulation_steps: 9
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  output_dir: /Users/jordanclive/Desktop/output_dir
+  cache_dir: /Users/jordanclive/Desktop/oa_dataset_2
+#  cache_dir: ~/.cache/huggingface/datasets
+  use_flash_attention: false
+  residual_dropout: 0
+  dtype: fp32
+  use_system_prefix: false
+  use_custom_sampler: false
+  datasets:
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+#    - red_pajama:
+#        fraction: 0.8
+#        max_val_set: 1
+#    - oasst_export:
+#        lang: "en"
+#        input_file_path: 2023-03-25_oasst_research_ready_synth_labels.jsonl.gz
+#        val_split: 0.05
+
+
+
+
 pretrain:
   num_train_epochs: 1
   weight_decay: 0.0

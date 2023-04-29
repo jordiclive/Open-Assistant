@@ -9,7 +9,7 @@ from model_training.custom_datasets.formatting import (
     DatasetEntry,
     Mode,
     format_pairs,
-    format_system_prefix,
+    format_system_prefix, PretrainDatasetEntry,
 )
 from torch.nn import functional as F
 from transformers.tokenization_utils_base import PaddingStrategy, PreTrainedTokenizerBase, TruncationStrategy
@@ -46,6 +46,7 @@ class DialogueDataCollator:
             self.max_length = self.max_length - len(self.system_prefix)
 
     def process_one(self, messages, return_length=False):
+
         total_short_context_one = 0
         if random.random() < self.random_offset_probability:
             truncation = TruncationStrategy.DO_NOT_TRUNCATE
@@ -54,11 +55,17 @@ class DialogueDataCollator:
             truncation = TruncationStrategy.LONGEST_FIRST
             max_length = self.max_length
 
+        pretrain_dataset = False
         if isinstance(messages, DatasetEntry):
             messages = messages.get_formatted(mode=Mode.sft, eos_token=self.tokenizer.eos_token)
+        elif isinstance(messages, PretrainDatasetEntry):
+            messages = messages.text
+            pretrain_dataset = True
         else:
             messages = list(messages)
             messages = format_pairs(messages, self.tokenizer.eos_token)
+        #['<|prompter|>How would the Future of AI in 10 Years look?<|endoftext|>',
+        #'<|assistant|>Predicting the future is always a challenging task, but here are some possible ways that AI could evolve over the next 10 years:\n\nContinued advancements in deep learning: Deep learning has been one of the main drivers of recent AI breakthroughs, and we can expect continued advancements in this area. This may include improvements to existing algorithms, as well as the development of new architectures that are better suited to specific types of data and tasks.\n\nIncreased use of AI in healthcare: AI has the potential to revolutionize healthcare, by improving the accuracy of diagnoses, developing new treatments, and personalizing patient care. We can expect to see continued investment in this area, with more healthcare providers and researchers using AI to improve patient outcomes.\n\nGreater automation in the workplace: Automation is already transforming many industries, and AI is likely to play an increasingly important role in this process. We can expect to see more jobs being automated, as well as the development of new types of jobs that require a combination of human and machine skills.\n\nMore natural and intuitive interactions with technology: As AI becomes more advanced, we can expect to see more natural and intuitive ways of interacting with technology. This may include voice and gesture recognition, as well as more sophisticated chatbots and virtual assistants.\n\nIncreased focus on ethical considerations: As AI becomes more powerful, there will be a growing need to consider its ethical implications. This may include issues such as bias in AI algorithms, the impact of automation on employment, and the use of AI in surveillance and policing.\n\nOverall, the future of AI in 10 years is likely to be shaped by a combination of technological advancements, societal changes, and ethical considerations. While there are many exciting possibilities for AI in the future, it will be important to carefully consider its potential impact on society and to work towards ensuring that its benefits are shared fairly and equitably.<|endoftext|>']
 
         flatten_message = self.tokenizer(
             "".join(messages),
@@ -66,6 +73,10 @@ class DialogueDataCollator:
             truncation=truncation,
             padding=False,
         )
+
+        if pretrain_dataset:
+            label_mask = np.ones(len(flatten_message.input_ids), dtype=bool)
+            return flatten_message, label_mask, 0
 
         if return_length:
             return min(len(flatten_message.input_ids), self.max_length)
@@ -101,8 +112,9 @@ class DialogueDataCollator:
                 if x in (prompter_token_id, assistant_token_id, system_token_id):
                     i += 1
                 message_indices.append(i)
-
+        # [0, 0, 0, 0, 0, 1, 1, 1, 2, 2] # like token type ids. 0 for prompter, 1 for assistant or if system, 0,1,2
         input_length = len(flatten_message.input_ids)
+        #randomly take sliding window of it.
         if self.max_length and input_length > self.max_length:
             offset = random.randint(0, input_length - self.max_length)
             for k in flatten_message.keys():
@@ -125,6 +137,19 @@ class DialogueDataCollator:
 
         if len(flatten_message.input_ids) < self.mix_length_threshold and self.samples_mixing:
             total_short_context_one += len(flatten_message.input_ids)
+
+        # if self.use_system_prefix:
+        #     flatten_message = {
+        #             "input_ids": np.concatenate([self.system_prefix, flatten_message["input_ids"]]),
+        #             "attention_mask": np.concatenate(
+        #                 [np.ones_like(self.system_prefix).astype(bool), flatten_message["attention_mask"]]
+        #             ),
+        #         }
+        #
+        #     label_mask = [
+        #         np.concatenate([np.zeros_like(self.system_prefix).astype(bool), label_mask])
+        #
+        #     ]
 
         return {k: v for k, v in flatten_message.items() if k != "offset_mapping"}, label_mask, total_short_context_one
 
@@ -184,6 +209,7 @@ class DialogueDataCollator:
                 np.concatenate([np.zeros_like(self.system_prefix).astype(bool), label_mask])
                 for label_mask in label_masks
             ]
+
 
         batch = self.tokenizer.pad(
             flatten_messages,
