@@ -398,7 +398,7 @@ def main():
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
-
+    training_conf.model_name = "decapoda-research/llama-30b-hf"
     model = get_model(training_conf, tokenizer)
 
     if training_conf.peft_model:

@@ -258,7 +258,7 @@ class SODA(Dataset):
             truncated_dialogue = [k[:input_max_length] for k in data["dialogue"]]
             return truncated_dialogue
 
-    def __init__(self, cache_dir, mode="sft", input_max_length=1024) -> None:
+    def __init__(self, cache_dir, mode="sft", input_max_length=9024) -> None:
         super().__init__()
         if mode not in ("sft", "rl"):
             raise NotImplementedError(f"Currently only the modes 'sft' and 'rl' are implemented. Received {mode}.")
@@ -535,7 +535,7 @@ class Vicuna(Dataset):
                 answers.append("\n".join(messages)[:input_max_length])
         return questions, answers
 
-    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 2048) -> None:
+    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 9048) -> None:
         super().__init__()
 
         self.pairs = []
@@ -561,7 +561,7 @@ class Vicuna(Dataset):
 
 
 class DatabricksDolly15k(Dataset):
-    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 2048) -> None:
+    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 9048) -> None:
         super().__init__()
         self.rows = []
         self.citation_regex = re.compile(r"\[[a-zA-Z]\]")  # removes citations in the form of e.g. [a] or [A]
@@ -592,7 +592,7 @@ class DatabricksDolly15k(Dataset):
 
 
 class AlpacaGpt4(Dataset):
-    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 2048) -> None:
+    def __init__(self, cache_dir: str | Path, mode: str = "sft", input_max_length: int = 9048) -> None:
         super().__init__()
         self.rows = []
         if mode not in ("sft", "rl"):
