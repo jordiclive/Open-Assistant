@@ -16,6 +16,6 @@ export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
 #export PYTHONPATH="/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model:$PYTHONPATH"
 
 
-cd /admin/home-jordiclive/peft_open_assistant/Open-Assistant/Open-Assistant/model/model_training/
+cd /admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_eval/manual
 
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed --num_gpus 8 ds-zero-inference.py --name OpenAssistant/llama-65b-sft-v7-2k-steps
