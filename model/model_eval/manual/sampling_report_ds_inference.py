@@ -323,13 +323,13 @@ def main():
             return
         print(*msg)
 
-    config = AutoConfig.from_pretrained(model_name)
+    # config = AutoConfig.from_pretrained(model_name)
 
     # XXX: can't automatically derive dtype via config's `from_pretrained`
     dtype = torch.bfloat16 if model_name in ["bigscience/bloom",
                                              "bigscience/bigscience-small-testing"] else torch.float16
 
-    model_hidden_size = config.hidden_size
+    model_hidden_size = AutoConfig.from_pretrained(model_name).hidden_size
     train_batch_size = 1 * world_size
 
     ds_config = {
