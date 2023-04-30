@@ -408,7 +408,7 @@ llama-30b-lora:
   model_name: "/admin/home-jordiclive/llama/7B"
   output_dir: llama_model
   weight_decay: 0.0
-  max_length: 2048
+  max_length: 1968
   warmup_steps: 300
   gradient_checkpointing: true
   gradient_accumulation_steps: 12
