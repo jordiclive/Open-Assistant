@@ -113,6 +113,9 @@ def sample(
         pad_to_max_length=False,
         truncation=True,
     ).to(device)
+    for t in inputs:
+        if torch.is_tensor(inputs[t]):
+            inputs[t] = inputs[t].to(torch.cuda.current_device())
     input_ids = inputs.input_ids
 
     outputs = model.generate(
