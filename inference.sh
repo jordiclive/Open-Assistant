@@ -21,4 +21,4 @@ cd /admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_eval/ma
 
 
 #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed --num_gpus 8 ds-zero-inference.py --name OpenAssistant/llama-65b-sft-v7-2k-steps
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed --num_gpus 8 sampling_report.py --model-name /admin/home-jordiclive/llama/7B --config config/noprefix2.json --prompts data/prompt_lottery_en_250_text.jsonl --report /admin/home-jordiclive/65_report.json --verbose --num-samples 2 --half
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed --num_gpus 8 sampling_report_ds_inference.py --model-name /admin/home-jordiclive/llama/7B --config config/noprefix2.json --prompts data/prompt_lottery_en_250_text.jsonl --report /admin/home-jordiclive/65_report.json --verbose --num-samples 2 --half
