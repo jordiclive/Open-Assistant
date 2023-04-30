@@ -408,13 +408,13 @@ llama-30b-lora:
   model_name: "/admin/home-jordiclive/llama/7B"
   output_dir: llama_model
   weight_decay: 0.0
-  max_length: 1968
+  max_length: 1600
   warmup_steps: 300
   gradient_checkpointing: true
   gradient_accumulation_steps: 12
-  per_device_train_batch_size: 1
-  per_device_eval_batch_size: 1
-  eval_steps: 600
+  per_device_train_batch_size: 3
+  per_device_eval_batch_size: 3
+  eval_steps: 20
   num_train_epochs: 12
   save_total_limit: 3
   save_strategy: epoch
