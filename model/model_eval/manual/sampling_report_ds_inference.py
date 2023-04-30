@@ -391,7 +391,7 @@ def main():
     model = ds_engine.module
 
     prompts = load_jsonl(input_file_path=args.prompts)
-    prompts = prompts[:5]
+    # prompts = prompts[:5]
     print(f"prompt count: {len(prompts)}")
 
     if args.n:
