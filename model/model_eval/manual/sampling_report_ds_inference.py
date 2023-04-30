@@ -251,7 +251,20 @@ def main():
     eval oasst model:
     python sampling_report.py --model-name theblackcat102/pythia-3b-deduped-sft --mode v2 --config config/default.json --prompts data/en_100_text.jsonl -n 2 --verbose
     """
+    import torch
+    import gc
+    import math
+    import os
+    import time
+    from argparse import ArgumentParser
 
+    import torch
+    import torch.distributed as dist
+
+    import deepspeed
+    from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+    from transformers.deepspeed import HfDeepSpeedConfig
+    from transformers.models.bloom.modeling_bloom import BloomBlock as BloomBlock
     print("Using pytorch version {}".format(torch.__version__))
 
     args = parse_args()
@@ -297,19 +310,7 @@ def main():
     print("decoded:", decoded)
 
     #todo DS LOAD MODEL
-    import gc
-    import math
-    import os
-    import time
-    from argparse import ArgumentParser
 
-    import torch
-    import torch.distributed as dist
-
-    import deepspeed
-    from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
-    from transformers.deepspeed import HfDeepSpeedConfig
-    from transformers.models.bloom.modeling_bloom import BloomBlock as BloomBlock
 
     local_rank = int(os.getenv("LOCAL_RANK", "0"))
     world_size = int(os.getenv("WORLD_SIZE", "1"))
