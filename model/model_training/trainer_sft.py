@@ -446,7 +446,7 @@ def main():
         trainer_cls = PeftFlashTrainer
         for _, param in model.named_parameters():
             param.requires_grad = True
-
+            break
     else:
         trainer_cls = SFTTrainer
 
@@ -464,7 +464,7 @@ def main():
         compute_metrics=partial(compute_metrics, metrics=metrics, preprocess_fns=preprocess_fns),
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
     )
-    trainer.train(resume_from_checkpoint="/fsx/home-jordiclive/peft_models_lora_13b/_20230430_1752__admin_home-jordiclive_llama_7B_2048/checkpoint-2000")
+    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
 
