@@ -9,7 +9,7 @@ import datasets
 import torch
 from model_training.custom_datasets.dialogue_collator import DialogueDataCollator
 from model_training.efficiency_utils import fuse_gelu
-from model_training.models.peft_modeling import PeftFlashTrainer, peft_model
+from model_training.models.peft_modeling import peft_model, prepare_model_for_gradient_checkpointing
 from model_training.utils.utils import (
     PerDatasetSampler,
     _strtobool,
@@ -403,9 +403,12 @@ def main():
 
 
 
+
     if training_conf.peft_model:
         print("Using PEFT model")
         model = peft_model(model, peft_type=training_conf.peft_type)
+        model = prepare_model_for_gradient_checkpointing(model)
+
 
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
@@ -423,7 +426,7 @@ def main():
         os.environ["WANDB_MODE"] = "offline"
 
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
-        os.environ["WANDB_MODE"] = "offline"
+        # os.environ["WANDB_MODE"] = "offline"
         import wandb
 
         os.environ["WANDB_API_KEY"] = "d8216641d549f9bb3d0c5074baa39e15dfd55030"
@@ -447,16 +450,8 @@ def main():
         wandb.config["_val_max_length"] = training_conf.val_max_length
 
 
-    if training_conf.peft_model and training_conf.gradient_checkpointing is True:
-        trainer_cls = PeftFlashTrainer
-        # trainer_cls = SFTTrainer
-        for n, param in model.named_parameters():
-            param.requires_grad = True
-            break
-    else:
-        trainer_cls = SFTTrainer
 
-    trainer = trainer_cls(
+    trainer = SFTTrainer(
         model=model,
         args=args,
         sampler=sampler,
