@@ -582,17 +582,18 @@ pythia-12B:
   learning_rate: 6e-6
   model_name: EleutherAI/pythia-12b-deduped
   weight_decay: 0.0
-  max_length: 2048
+  max_length: 8192
   use_flash_attention: true
   warmup_steps: 100
   gradient_checkpointing: false
-  gradient_accumulation_steps: 4
-  per_device_train_batch_size: 2
-  per_device_eval_batch_size: 5
-  eval_steps: 200
+  gradient_accumulation_steps:
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  eval_steps: 10
   save_steps: 500
   num_train_epochs: 16
   save_total_limit: 4
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero3_config_sft.json"
 
 gpt-neox:
   model_name: EleutherAI/gpt-neox-20b
