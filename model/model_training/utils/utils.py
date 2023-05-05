@@ -333,6 +333,15 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
                     without_head=conf.is_reward_model,
                     torch_dtype=dtype,
                 )
+        else:
+            model = get_specific_model(
+                conf.model_name,
+                cache_dir=conf.cache_dir,
+                quantization=conf.quantization,
+                seq2seqmodel=conf.seq2seqmodel,
+                without_head=conf.is_reward_model,
+                torch_dtype=dtype,
+            )
 
         n_embs = model.get_input_embeddings().num_embeddings
         if len(tokenizer) != n_embs and check_freeze_layer:
