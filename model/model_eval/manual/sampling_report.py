@@ -6,10 +6,10 @@ import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
+from model_training.models.peft_modeling import load_peft_model
 
 import pydantic
 import torch
-from model_training.models.peft_modeling import load_peft_model
 from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
 
@@ -115,7 +115,6 @@ def sample(
         truncation=True,
     ).to(device)
     input_ids = inputs.input_ids
-
     outputs = model.generate(
         input_ids=input_ids,
         pad_token_id=tokenizer.eos_token_id,
@@ -235,7 +234,6 @@ def parse_args():
     parser.add_argument("--auth-token", type=str)
     parser.add_argument("--num-threads", type=int, default=8)
     parser.add_argument("--peft_model", type=str, default=None)
-
     return parser.parse_args()
 
 
@@ -323,10 +321,13 @@ def main():
     if args.n:
         prompts = prompts[: args.n]
 
+    args_dict = vars(args)
+    if "auth_token" in args_dict:
+        del args_dict["auth_token"]
     report = SamplingReport(
         model_name=model_name,
         date=datetime.utcnow().isoformat(),
-        args=vars(args),
+        args=args_dict,
         prompts=sample_prompt_continuations(
             prompts=prompts,
             model=model,
