@@ -282,7 +282,7 @@ def main():
     if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
         from transformers import AutoModelForCausalLM
 
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+        # tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
         model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
         skip_input_tokens = True
     elif args.model_type.lower() == "t5conditional":
