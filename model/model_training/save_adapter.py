@@ -15,7 +15,7 @@ class SaveLoraConfig:
     freeze_layer: bool = False
     residual_dropout: float = 0
     use_flash_attention: bool = False
-    adapter_save_path: str = "adapter"
+    adapter_save_path: str = "adapter_13B_new"
     cache_dir: str  = ""
     model_name: str = ""
     torch_ckpt_path: str = ""
