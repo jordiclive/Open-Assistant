@@ -593,7 +593,7 @@ pythia-12B:
   save_steps: 500
   num_train_epochs: 16
   save_total_limit: 4
-  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero3_config_sft.json"
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
   peft_type:
   datasets:
     - dolly15k:
