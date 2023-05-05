@@ -444,16 +444,17 @@ def main():
         #     config=training_conf,
         # )
         # wandb.config["_max_length"] = training_conf.max_length
+        # wandb.config["_max_length"] = training_conf.max_length
         # wandb.config["_val_max_length"] = training_conf.val_max_length
 
 
     if training_conf.peft_model and training_conf.gradient_checkpointing is True:
-        # trainer_cls = PeftFlashTrainer
-        trainer_cls = SFTTrainer
-        # for n, param in model.named_parameters():
-            # param.requires_grad = True
-            # print('FIRSTTTTT PARAM',n)
-            # break
+        trainer_cls = PeftFlashTrainer
+        # trainer_cls = SFTTrainer
+        for n, param in model.named_parameters():
+            param.requires_grad = True
+            print('FIRSTTTTT PARAM',n)
+            break
     else:
         trainer_cls = SFTTrainer
 
