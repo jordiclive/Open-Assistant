@@ -462,11 +462,10 @@ llama-13b-lora:
   gradient_accumulation_steps: 1
   per_device_train_batch_size: 24
   per_device_eval_batch_size: 20
-  eval_steps: 200
-  save_steps: 300
+  eval_steps: 500
   num_train_epochs: 12
   save_total_limit: 2
-  save_strategy: steps
+  save_strategy: epoch
   use_flash_attention: True
   residual_dropout: 0.0
   deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config_peft.json"
