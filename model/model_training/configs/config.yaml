@@ -594,10 +594,12 @@ pythia-12B:
   num_train_epochs: 16
   save_total_limit: 4
   deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero3_config_sft.json"
+  peft_type:
   datasets:
     - dolly15k:
         val_split: 0.05
         max_val_set: 300
+
 gpt-neox:
   model_name: EleutherAI/gpt-neox-20b
   deepspeed_config: configs/zero3_config_sft.json
