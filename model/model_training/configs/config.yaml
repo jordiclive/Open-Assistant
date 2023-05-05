@@ -586,7 +586,7 @@ pythia-12B:
   use_flash_attention: true
   warmup_steps: 100
   gradient_checkpointing: false
-  gradient_accumulation_steps:
+  gradient_accumulation_steps: 4
   per_device_train_batch_size: 1
   per_device_eval_batch_size: 1
   eval_steps: 10
