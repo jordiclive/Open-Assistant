@@ -453,7 +453,6 @@ def main():
         # trainer_cls = SFTTrainer
         for n, param in model.named_parameters():
             param.requires_grad = True
-            print('FIRSTTTTT PARAM',n)
             break
     else:
         trainer_cls = SFTTrainer
