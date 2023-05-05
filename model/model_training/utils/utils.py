@@ -304,19 +304,6 @@ from transformers import BertModel
 import torch
 
 
-class CustomModelWithDummyParam(LlamaForCausalLM):
-    def __init__(self, config):
-        super(CustomModelWithDummyParam, self).__init__(config)
-        self.dummy_param = torch.nn.Parameter(torch.zeros(1), requires_grad=True)
-
-    def named_parameters(self, recurse=True):
-        # First, yield the dummy parameter
-        yield "dummy_param", self.dummy_param
-
-        # Then, yield the rest of the original parameters
-        for name, param in super(CustomModelWithDummyParam, self).named_parameters(recurse=recurse):
-            yield name, param
-
 def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_layer=True):
     dtype = torch.float32
     if conf.dtype in ["fp16", "float16"]:
@@ -340,9 +327,8 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
     else:
         if conf.peft_type is not None:
             if conf.peft_type == "prefix-tuning":
-                print('X')
-                model = CustomModelWithDummyParam.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
-                # model = LlamaForCausalLM.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
+                # model = CustomModelWithDummyParam.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
+                model = LlamaForCausalLM.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
             else:
                 model = get_specific_model(
                     conf.model_name,

@@ -450,10 +450,10 @@ def main():
     if training_conf.peft_model and training_conf.gradient_checkpointing is True:
         # trainer_cls = PeftFlashTrainer
         trainer_cls = SFTTrainer
-        for n, param in model.named_parameters():
-            param.requires_grad = True
-            print('FIRSTTTTT PARAM',n)
-            break
+        # for n, param in model.named_parameters():
+            # param.requires_grad = True
+            # print('FIRSTTTTT PARAM',n)
+            # break
     else:
         trainer_cls = SFTTrainer
 
