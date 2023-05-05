@@ -400,7 +400,6 @@ def main():
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
     training_conf.model_name = "decapoda-research/llama-13b-hf"
     model = get_model(training_conf, tokenizer)
-    from transformers import BertModel
 
 
 
