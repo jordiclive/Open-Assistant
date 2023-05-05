@@ -294,7 +294,7 @@ def main():
         warmup_steps=training_conf.warmup_steps,
         learning_rate=float(training_conf.learning_rate),
         deepspeed=training_conf.deepspeed_config if training_conf.deepspeed else None,
-        # optim=optimizer,
+        optim=optimizer,
         fp16=training_conf.dtype in ["fp16", "float16"],
         bf16=training_conf.dtype in ["bf16", "bfloat16"],
         local_rank=training_conf.local_rank,
@@ -398,7 +398,7 @@ def main():
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
-    # training_conf.model_name = "decapoda-research/llama-13b-hf"
+    training_conf.model_name = "decapoda-research/llama-13b-hf"
     model = get_model(training_conf, tokenizer)
 
     if training_conf.peft_model:
@@ -443,11 +443,11 @@ def main():
         wandb.config["_val_max_length"] = training_conf.val_max_length
 
     if training_conf.peft_model and training_conf.gradient_checkpointing is True:
-        trainer_cls = PeftFlashTrainer
-        # trainer_cls = SFTTrainer
-        for _, param in model.named_parameters():
-            param.requires_grad = True
-            break
+        # trainer_cls = PeftFlashTrainer
+        trainer_cls = SFTTrainer
+        # for _, param in model.named_parameters():
+        #     param.requires_grad = True
+        #     break
     else:
         trainer_cls = SFTTrainer
 
