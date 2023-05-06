@@ -379,6 +379,7 @@ lora-llama-13b:
   peft_model: true
   peft_type: "lora"
   use_custom_sampler: true
+  true_model_name: "decapoda-research/llama-13b-hf"
   datasets:
     - dolly15k:
         val_split: 0.05
@@ -387,21 +388,21 @@ lora-llama-13b:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
         input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
         val_split: 0.05
-    - vicuna:
-        val_split: 0.05
-        max_val_set: 800
-        fraction: 0.8
-    - dolly15k:
-        val_split: 0.05
-        max_val_set: 300
-    - grade_school_math_instructions:
-        val_split: 0.05
-    - code_alpaca:
-        val_split: 0.05
-        max_val_set: 250
-    - alpaca_gpt4:
-        val_split: 0.02
-        max_val_set: 250
+#    - vicuna:
+#        val_split: 0.05
+#        max_val_set: 800
+#        fraction: 0.8
+#    - dolly15k:
+#        val_split: 0.05
+#        max_val_set: 300
+#    - grade_school_math_instructions:
+#        val_split: 0.05
+#    - code_alpaca:
+#        val_split: 0.05
+#        max_val_set: 250
+#    - alpaca_gpt4:
+#        val_split: 0.02
+#        max_val_set: 250
 
 lora-llama-30b:
   dtype: fp16
