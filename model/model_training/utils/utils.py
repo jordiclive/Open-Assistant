@@ -320,6 +320,7 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
             )
     if not conf.is_reward_model:
         if conf.peft_type is not None and conf.peft_type == "prefix-tuning" and "llama" in conf.model_name:
+            print('Prefix-tuning for LLAMA')
             model = LlamaForCausalLM.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
         else:
             model = get_specific_model(

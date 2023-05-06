@@ -396,11 +396,10 @@ def main():
         )
     else:
         sampler = None
-
+    print('sampler', sampler)
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
     training_conf.model_name = training_conf.true_model_name
     model = get_model(training_conf, tokenizer)
-    print('MODE LOADED')
     if training_conf.peft_model:
         print("Using PEFT model")
         model = peft_model(
