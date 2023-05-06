@@ -92,7 +92,7 @@ lora-finetune:
         max_val_set: 300
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
-        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+        input_file_path: 2023-05-06_OASST_labels.jsonl.gz #2023-05-06_OASST_labels.jsonl.gz
         val_split: 0.05
     - vicuna:
         val_split: 0.05
