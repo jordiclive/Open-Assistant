@@ -428,9 +428,13 @@ lora-llama-30b:
   use_custom_sampler: true
   true_model_name: "decapoda-research/llama-30b-hf"
   datasets:
-    - dolly15k:
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
+        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
         val_split: 0.05
-        max_val_set: 300
+#    - dolly15k:
+#        val_split: 0.05
+#        max_val_set: 300
 
 lora-llama-65b:
   dtype: fp16
@@ -457,9 +461,10 @@ lora-llama-65b:
   use_custom_sampler: true
   true_model_name: "decapoda-research/llama-65b-hf"
   datasets:
-    - dolly15k:
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
+        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
         val_split: 0.05
-        max_val_set: 300
 
 
 pythia-70m-deduped:
