@@ -61,10 +61,9 @@ def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpoint
     model = get_peft_model(model, config)
     if int8_training:
         model = prepare_model_for_int8_training(model)
-
+    model.print_trainable_parameters()
     if gradient_checkpointing:
         model = prepare_model_for_gradient_checkpointing(model)
-    model.print_trainable_parameters()
     return model
 
 
