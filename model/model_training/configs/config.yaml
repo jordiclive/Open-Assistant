@@ -81,6 +81,108 @@ defaults:
   per_digit_tokens: false
   is_reward_model: false
   deepspeed_config: configs/zero_config.json
+  peft_model: false
+  peft_type: "lora"
+
+
+lora-finetune:
+  datasets:
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
+        input_file_path: 2023-04-12_oasst_release_ready_synth.jsonl.gz
+        val_split: 0.05
+    - vicuna:
+        val_split: 0.05
+        max_val_set: 800
+        fraction: 0.8
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+    - grade_school_math_instructions:
+        val_split: 0.05
+    - code_alpaca:
+        val_split: 0.05
+        max_val_set: 250
+    - alpaca_gpt4:
+        val_split: 0.02
+        max_val_set: 250
+
+lora-llama-13b:
+  dtype: fp16
+  log_dir: "llama_log_7b"
+  learning_rate: 5e-5
+  model_name: "/admin/home-jordiclive/llama/7B"
+  output_dir: llama_model
+  weight_decay: 0.0
+  max_length: 2048
+  warmup_steps: 300
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 1
+  per_device_train_batch_size: 24
+  per_device_eval_batch_size: 5
+  eval_steps: 500
+  num_train_epochs: 12
+  save_total_limit: 2
+  save_strategy: epoch
+  use_flash_attention: True
+  residual_dropout: 0.0
+  deepspeed_config: configs/zero_config.json
+  peft_model: true
+  peft_type: "lora"
+  use_custom_sampler: true
+
+lora-llama-30b:
+  dtype: fp16
+  log_dir: "llama_log_7b"
+  learning_rate: 5e-5
+  model_name: "/admin/home-jordiclive/llama/7B"
+  output_dir: llama_model
+  weight_decay: 0.0
+  max_length: 2048
+  warmup_steps: 300
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 1
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 2
+  eval_steps: 500
+  num_train_epochs: 12
+  save_total_limit: 2
+  save_strategy: epoch
+  use_flash_attention: True
+  residual_dropout: 0.0
+  peft_model: true
+  peft_type: "lora"
+  use_custom_sampler: true
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config.json"
+  true_model_name: "decapoda-research/llama-30b-hf"
+
+lora-llama-65b:
+  dtype: fp16
+  log_dir: "llama_log_7b"
+  learning_rate: 5e-5
+  model_name: "/admin/home-jordiclive/llama/7B"
+  output_dir: llama_model
+  weight_decay: 0.0
+  max_length: 2048
+  warmup_steps: 300
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 1
+  per_device_train_batch_size: 12
+  per_device_eval_batch_size: 5
+  eval_steps: 250
+  num_train_epochs: 12
+  save_total_limit: 2
+  save_strategy: epoch
+  use_flash_attention: True
+  residual_dropout: 0.0
+  peft_model: true
+  peft_type: "lora"
+  use_custom_sampler: true
+  true_model_name: "decapoda-research/llama-65b-hf"
+  deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config_sft_65b.json"
 
 webgpt_dataset_only:
   datasets:

@@ -4,7 +4,7 @@ import logging
 import os
 from functools import partial
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-
+from model_training.models.peft_modeling import peft_model
 import datasets
 import torch
 #from model_training.custom_datasets.formatting import DatasetEntry
@@ -195,7 +195,7 @@ def argument_parsing(notebook=False, notebook_args=None):
 
     # Config from YAML
     conf = {}
-    configs = read_yamls("./configs")
+    configs = read_yamls("/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/")
     conf.update(configs["defaults"])
     try:
         for name in args.configs:
@@ -275,11 +275,15 @@ def main():
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         print(f"trainig_conf = {training_conf}")
 
+    import time
+
     output_dir = (
         training_conf.output_dir
         if training_conf.output_dir
         else f"{training_conf.model_name}-{training_conf.log_dir}-finetuned"
     )
+    output_dir += f"_{time.strftime('%Y%m%d_%H%M')}"
+    output_dir += f"_{training_conf.model_name.replace('/','_')}_{training_conf.max_length}"
 
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
 
@@ -400,9 +404,14 @@ def main():
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
+    training_conf.model_name = training_conf.true_model_name
 
     model = get_model(training_conf, tokenizer)
-
+    if training_conf.peft_model:
+        print("Using PEFT model")
+        model = peft_model(
+            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
+        )
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
 
@@ -421,10 +430,17 @@ def main():
     if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
         import wandb
 
-        wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
+        os.environ["WANDB_API_KEY"] = "d8216641d549f9bb3d0c5074baa39e15dfd55030"
+        # wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
+        import re
+
+        wandb_name = "llama" + str([int(num) for num in re.findall(r"\d+", training_conf.model_name)][0]) + "B"
+        if training_conf.peft_model:
+            wandb_name = wandb_name + f"peft:{training_conf.peft_type}"
+        wandb_name = f"{wandb_name}-{training_conf.log_dir}-finetuned"
         wandb.init(
-            project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            project="peft-comparison",
+            entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
