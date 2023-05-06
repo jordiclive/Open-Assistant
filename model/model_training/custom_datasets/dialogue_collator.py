@@ -65,12 +65,17 @@ class DialogueDataCollator:
             messages = list(messages)
             messages = format_pairs(messages, self.tokenizer.eos_token)
 
+        # flatten_message = self.tokenizer(
+        #     "".join(messages),
+        #     max_length=max_length,
+        #     truncation=truncation,
+        #     padding=False,
+        # )
         flatten_message = self.tokenizer(
             "".join(messages),
-            max_length=max_length,
-            truncation=truncation,
-            padding=False,
-        )
+            max_length=self.max_length,
+            truncation = True,
+            padding = 'max_length')
 
         if pretrain_dataset:
             label_mask = np.ones(len(flatten_message.input_ids), dtype=bool)
