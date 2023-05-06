@@ -8,6 +8,7 @@ from model_training.custom_datasets.formatting import (
     QA_SPECIAL_TOKENS,
     DatasetEntry,
     Mode,
+    PretrainDatasetEntry,
     format_pairs,
     format_system_prefix,
 )
@@ -54,18 +55,31 @@ class DialogueDataCollator:
             truncation = TruncationStrategy.LONGEST_FIRST
             max_length = self.max_length
 
+        pretrain_dataset = False
         if isinstance(messages, DatasetEntry):
             messages = messages.get_formatted(mode=Mode.sft, eos_token=self.tokenizer.eos_token)
+        elif isinstance(messages, PretrainDatasetEntry):
+            messages = messages.text
+            pretrain_dataset = True
         else:
             messages = list(messages)
             messages = format_pairs(messages, self.tokenizer.eos_token)
 
+        # flatten_message = self.tokenizer(
+        #     "".join(messages),
+        #     max_length=max_length,
+        #     truncation=truncation,
+        #     padding=False,
+        # )
         flatten_message = self.tokenizer(
             "".join(messages),
-            max_length=max_length,
-            truncation=truncation,
-            padding=False,
-        )
+            max_length=self.max_length,
+            truncation = True,
+            padding = 'max_length',)
+
+        if pretrain_dataset:
+            label_mask = np.ones(len(flatten_message.input_ids), dtype=bool)
+            return flatten_message, label_mask, 0
 
         if return_length:
             return min(len(flatten_message.input_ids), self.max_length)

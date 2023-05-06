@@ -376,27 +376,27 @@ def main():
         print(f"\nTotal eval: {total_eval}")
         print("-" * 80)
 
-    if training_conf.use_custom_sampler:
-        samples_length = None
-        if training_conf.sort_by_length:
-            samples_length = list(
-                map(
-                    lambda x: train_collate_fn.process_one(x, return_length=True),
-                    tqdm(train, desc="Calculating lengths per sample"),
-                )
-            )
-
-        sampler = PerDatasetSampler.build_sampler_from_config(
-            training_conf,
-            train.datasets,
-            rank=training_conf.local_rank,
-            world_size=training_conf.world_size,
-            samples_length=samples_length,
-            verbose=show_dataset_stats,
-        )
-    else:
-        sampler = None
-
+    # if training_conf.use_custom_sampler:
+    #     samples_length = None
+    #     if training_conf.sort_by_length:
+    #         samples_length = list(
+    #             map(
+    #                 lambda x: train_collate_fn.process_one(x, return_length=True),
+    #                 tqdm(train, desc="Calculating lengths per sample"),
+    #             )
+    #         )
+    #
+    #     sampler = PerDatasetSampler.build_sampler_from_config(
+    #         training_conf,
+    #         train.datasets,
+    #         rank=training_conf.local_rank,
+    #         world_size=training_conf.world_size,
+    #         samples_length=samples_length,
+    #         verbose=show_dataset_stats,
+    #     )
+    # else:
+    #     sampler = None
+    print('HEREEEEE')
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
     training_conf.model_name = training_conf.true_model_name
     model = get_model(training_conf, tokenizer)
