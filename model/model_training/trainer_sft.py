@@ -162,25 +162,6 @@ class SFTTrainer(Trainer):
         )
         return dataloader
 
-    def _save_checkpoint(self, model, trial, metrics=None):
-        # In all cases, including ddp/dp/deepspeed, self.model is always a reference to the model we
-        # want to save except FullyShardedDDP.
-        # assert unwrap_model(model) is self.model, "internal model should be a reference to self.model"
-        from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
-        # Save model checkpoint
-        checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
-
-        if self.hp_search_backend is None and trial is None:
-            self.store_flos()
-
-        run_dir = self._get_output_dir(trial=trial)
-        output_dir = os.path.join(run_dir, checkpoint_folder)
-        os.makedirs(output_dir, exist_ok=True)
-
-        self._save(output_dir)
-
-        os.makedirs(output_dir, exist_ok=True)
-
 
 def argument_parsing(notebook=False, notebook_args=None):
     parser = argparse.ArgumentParser()
