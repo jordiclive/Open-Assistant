@@ -45,7 +45,7 @@ def prepare_model_for_gradient_checkpointing(model):
 def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpointing=False):
     if peft_type == "lora":
         config = LoraConfig(
-            r=16,
+            r=64,
             lora_alpha=32,
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
             lora_dropout=0.05,
