@@ -126,7 +126,8 @@ lora-llama-13b:
   eval_steps: 500
   num_train_epochs: 12
   save_total_limit: 2
-  save_strategy: epoch
+  save_strategy: steps
+  save_steps: 20
   use_flash_attention: True
   residual_dropout: 0.0
   deepspeed_config: configs/zero_config.json
