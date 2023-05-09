@@ -409,8 +409,9 @@ def main():
     model = get_model(training_conf, tokenizer)
     if training_conf.peft_model:
         print("Using PEFT model")
+        print(f'R value {training_conf.r_value}')
         model = peft_model(
-            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing,r=training_conf.r_value
+            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing,r=int(training_conf.r_value)
         )
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
