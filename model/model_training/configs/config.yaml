@@ -85,7 +85,9 @@ defaults:
   peft_type: "lora"
   wandb_name:
   r_value:
-  resume_from_checkpoint:
+  resume_from_checkpoint_pth:
+
+
 lora-finetune:
   datasets:
     - dolly15k:

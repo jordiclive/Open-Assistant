@@ -462,7 +462,7 @@ def main():
         compute_metrics=partial(compute_metrics, metrics=metrics, preprocess_fns=preprocess_fns),
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
     )
-    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
+    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint_pth)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
 
