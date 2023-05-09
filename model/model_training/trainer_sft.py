@@ -383,7 +383,7 @@ def main():
         print("-" * 80)
     print(f'R value {training_conf.r_value}')
     print(f'TYPE{type(training_conf.r_value)}')
-    print("fREsuming from '{training_conf.resume_from_checkpoint_pth}")
+    print(f"REsuming from '{training_conf.resume_from_checkpoint_pth}")
 
     if training_conf.use_custom_sampler:
         samples_length = None
