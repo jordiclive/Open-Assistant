@@ -83,8 +83,9 @@ defaults:
   deepspeed_config: configs/zero_config.json
   peft_model: false
   peft_type: "lora"
-
-
+  wandb_name:
+  r_value:
+  resume_from_checkpoint:
 lora-finetune:
   datasets:
     - dolly15k:
@@ -186,6 +187,7 @@ lora-llama-65b:
   use_custom_sampler: true
   true_model_name: "decapoda-research/llama-65b-hf"
   deepspeed_config: "/admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/configs/zero_config_sft_65b.json"
+
 
 webgpt_dataset_only:
   datasets:
