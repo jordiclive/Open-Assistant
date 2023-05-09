@@ -84,7 +84,7 @@ defaults:
   peft_model: false
   peft_type: "lora"
   wandb_name:
-  r_value:
+  r_value: 16
   resume_from_checkpoint_pth:
 
 
