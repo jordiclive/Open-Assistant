@@ -101,9 +101,9 @@ lora-finetune:
         val_split: 0.05
         max_val_set: 800
         fraction: 0.8
-    - dolly15k:
-        val_split: 0.05
-        max_val_set: 300
+#    - dolly15k:
+#        val_split: 0.05
+#        max_val_set: 300
     - grade_school_math_instructions:
         val_split: 0.05
     - code_alpaca:
