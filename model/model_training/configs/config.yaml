@@ -90,9 +90,9 @@ defaults:
 
 lora-finetune:
   datasets:
-    - dolly15k:
-        val_split: 0.05
-        max_val_set: 300
+#    - dolly15k:
+#        val_split: 0.05
+#        max_val_set: 300
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
         input_file_path: 2023-05-06_OASST_labels.jsonl.gz #2023-05-06_OASST_labels.jsonl.gz
@@ -101,9 +101,6 @@ lora-finetune:
         val_split: 0.05
         max_val_set: 800
         fraction: 0.8
-#    - dolly15k:
-#        val_split: 0.05
-#        max_val_set: 300
     - grade_school_math_instructions:
         val_split: 0.05
     - code_alpaca:
