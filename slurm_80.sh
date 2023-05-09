@@ -23,7 +23,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed /admin/home-jordiclive/peft_open_
 
 
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed /admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/trainer_sft.py --configs defaults lora-finetune lora-llama-30b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/peft_models_lora_30b_2/ --deepspeed --residual_dropout 0.0 --wandb_name "30B_continue" --r_value 16 --resume_from_checkpoint /fsx/home-jordiclive/peft_models_lora_30b_2/_20230508_0740__admin_home-jordiclive_llama_7B_2048/checkpoint-6000 2>&1 | tee debug_30.txt
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed /admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model_training/trainer_sft.py --configs defaults lora-finetune lora-llama-30b --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/peft_models_lora_30b_2/ --deepspeed --residual_dropout 0.0 --wandb_name "30B_continue" --r_value 16 --resume_from_checkpoint "/fsx/home-jordiclive/peft_models_lora_30b_2/_20230508_0740__admin_home-jordiclive_llama_7B_2048/checkpoint-6000" 2>&1 | tee debug_30.txt
 
 #CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 deepspeed /admin/home-jordiclive/peft_open_assistant/Open-Assistant/model/model
 #_training/trainer_sft.py --configs defaults pythia-12B --cache_dir /fsx/home-jordiclive/data_cache --output_dir /fsx/home-jordiclive/peft_models_lora_13b_4/ --deepspeed --residual_dropout 0.0
