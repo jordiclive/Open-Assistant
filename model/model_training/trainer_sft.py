@@ -381,6 +381,9 @@ def main():
             print(f"{k}: {len(d)} ({len(d) / total_eval:.2%})")
         print(f"\nTotal eval: {total_eval}")
         print("-" * 80)
+    print(f'R value {training_conf.r_value}')
+    print(f'TYPE{type(training_conf.r_value)}')
+    print("fREsuming from '{training_conf.resume_from_checkpoint_pth}")
 
     if training_conf.use_custom_sampler:
         samples_length = None
@@ -409,7 +412,6 @@ def main():
     model = get_model(training_conf, tokenizer)
     if training_conf.peft_model:
         print("Using PEFT model")
-        print(f'R value {training_conf.r_value}')
         model = peft_model(
             model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing,r=int(training_conf.r_value)
         )
