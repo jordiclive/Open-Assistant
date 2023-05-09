@@ -410,7 +410,7 @@ def main():
     if training_conf.peft_model:
         print("Using PEFT model")
         model = peft_model(
-            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
+            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing,r=training_conf.r_value
         )
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
@@ -442,7 +442,7 @@ def main():
             project="peft-comparison",
             entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
-            name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
+            name=training_conf.wandb_name,
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
