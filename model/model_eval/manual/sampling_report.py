@@ -318,7 +318,7 @@ def main():
         model = model.to(device)
 
     print(f"Loading prompts file: {args.prompts}")
-    prompts = load_jsonl(input_file_path=args.prompts)[:2]
+    prompts = load_jsonl(input_file_path=args.prompts)
     print(f"prompt count: {len(prompts)}")
 
     if args.n:
