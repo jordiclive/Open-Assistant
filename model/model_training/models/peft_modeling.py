@@ -102,6 +102,27 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     tokenizer.save_pretrained(save_config.adapter_save_path)
     torch.save(new_embs, Path(save_config.adapter_save_path).joinpath("extra_embeddings.pt"))
 
+
+
+
+
 if __name__ == '__main__':
-    save_config = SaveLoraConfig(model_name='/admin/home-jordiclive/llama/7B',torch_ckpt_path="/fsx/home-jordiclive/peft_models_lora_30b/_20230508_0700__admin_home-jordiclive_llama_7B_2048/checkpoint-12000/pytorch_model.bin")
-    save_adapter_model_from_ckpt(save_config)
+    # save_config = SaveLoraConfig(model_name='/admin/home-jordiclive/llama/7B',torch_ckpt_path="/fsx/home-jordiclive/peft_models_lora_30b/_20230508_0700__admin_home-jordiclive_llama_7B_2048/checkpoint-12000/pytorch_model.bin")
+    # save_adapter_model_from_ckpt(save_config)
+    from huggingface_hub import HfApi, create_repo
+    api = HfApi()
+    repo_id = "jordiclive/alpaca_gpt4-dolly_15k-vicuna-lora-30b-r64"
+    import os
+    os.chdir('adapter_30B_r16')
+    create_repo(repo_id)
+    api.upload_folder(
+
+        folder_path=".",
+
+        path_in_repo=".",
+
+        repo_id=repo_id,
+
+        repo_type="model",
+
+    )
