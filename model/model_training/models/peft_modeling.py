@@ -89,7 +89,7 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     tokenizer = get_tokenizer(save_config)
     save_config.model_name = 'decapoda-research/llama-30b-hf'
     model = get_model(save_config, tokenizer)
-    model = peft_model(model)
+    model = peft_model(model,r=64)
     model.load_state_dict(torch.load(save_config.torch_ckpt_path))
     vocab_size = tokenizer.vocab_size
     num_special_tokens = len(tokenizer.additional_special_tokens)
