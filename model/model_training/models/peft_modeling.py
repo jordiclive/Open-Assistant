@@ -102,3 +102,4 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
 
 if __name__ == '__main__':
     save_config = SaveLoraConfig(torch_ckpt_path="/fsx/home-jordiclive/peft_models_lora_30b/_20230508_0700__admin_home-jordiclive_llama_7B_2048/checkpoint-12000/pytorch_model.bin")
+    save_adapter_model_from_ckpt(save_config)
