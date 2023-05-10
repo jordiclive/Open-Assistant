@@ -366,12 +366,7 @@ def main():
                 "enabled": dtype == torch.bfloat16,
             },"optimizer": {
     "type": "AdamW",
-    "params": {
-      "lr": "auto",
-      "betas": "auto",
-      "eps": "auto",
-      "weight_decay": "auto"
-    }
+
   },
   "zero_optimization": {
     "stage": 2,
