@@ -5,7 +5,7 @@ import random
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional, List, Dict, Union
+from typing import Any, Optional, List, Dict, Union, Tuple
 from model_training.models.peft_modeling import load_peft_model
 import pydantic
 import torch
@@ -132,7 +132,7 @@ def sample(
     return output_tokens, sampling_params
 
 
-def merge_configs(*configs: tuple[Optional[SamplingConfig]]) -> Optional[SamplingConfig]:
+def merge_configs(*configs: Tuple[Optional[SamplingConfig]]) -> Optional[SamplingConfig]:
     merged: Union[SamplingConfig, None] = None
     for c in configs:
         if not merged:
@@ -154,7 +154,7 @@ def merge_configs(*configs: tuple[Optional[SamplingConfig]]) -> Optional[Samplin
 
 
 def sample_prompt_continuations(
-    prompts: list[str],
+    prompts: List[str],
     model,
     tokenizer: PreTrainedTokenizer,
     mode: str,
@@ -165,10 +165,10 @@ def sample_prompt_continuations(
     skip_input_tokens: bool = False,
     verbose: bool = False,
     max_input_len: Optional[int] = None,
-) -> list[PromptResults]:
-    prompt_results: list[PromptResults] = []
+) -> List[PromptResults]:
+    prompt_results: List[PromptResults] = []
     for p in tqdm(prompts):
-        sampling_results: list[SamplingResult] = []
+        sampling_results: List[SamplingResult] = []
         for sc in config.configurations:
             outputs = []
             for i in range(num_samples):
