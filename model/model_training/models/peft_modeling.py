@@ -82,7 +82,7 @@ class SaveLoraConfig:
     model_name: str = ""
     torch_ckpt_path: str = ""
     peft_type: str = "lora"
-    cache_dir: str = '.cache'
+    cache_dir: str = '/fsx/home-jordiclive/data_cache'
 
 
 def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
