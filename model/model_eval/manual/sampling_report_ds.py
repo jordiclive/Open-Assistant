@@ -312,10 +312,7 @@ def main():
     else:
         raise RuntimeError("Invalid model_type specified")
 
-
-
-
-
+    tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
