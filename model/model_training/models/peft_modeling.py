@@ -77,7 +77,7 @@ class SaveLoraConfig:
     freeze_layer: bool = False
     residual_dropout: float = 0
     use_flash_attention: bool = False
-    adapter_save_path: str = "adapter_13B_new"
+    adapter_save_path: str = "adapter_30B_r16"
     cache_dir: str = ""
     model_name: str = ""
     torch_ckpt_path: str = ""
@@ -99,3 +99,6 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
     tokenizer.save_pretrained(save_config.adapter_save_path)
     torch.save(new_embs, Path(save_config.adapter_save_path).joinpath("extra_embeddings.pt"))
+
+if __name__ == '__main__':
+    save_config = SaveLoraConfig(torch_ckpt_path="/fsx/home-jordiclive/peft_models_lora_30b/_20230508_0700__admin_home-jordiclive_llama_7B_2048/checkpoint-12000/pytorch_model.bin")
