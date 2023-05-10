@@ -344,16 +344,7 @@ def main():
             },
             "bf16": {
                 "enabled": dtype == torch.bfloat16,
-            },  "optimizer": {
-    "type": "AdamW",
-    "params": {
-      "lr": "auto",
-      "betas": "auto",
-      "eps": "auto",
-      "weight_decay": "auto"
-    }
-  },
-
+            },
             "zero_optimization": {
                 "stage": 3,
                 "overlap_comm": True,
@@ -373,7 +364,15 @@ def main():
             },
             "bf16": {
                 "enabled": dtype == torch.bfloat16,
-            },
+            },"optimizer": {
+    "type": "AdamW",
+    "params": {
+      "lr": "auto",
+      "betas": "auto",
+      "eps": "auto",
+      "weight_decay": "auto"
+    }
+  },
   "zero_optimization": {
     "stage": 2,
     "allgather_partitions": True,
