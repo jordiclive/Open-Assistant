@@ -3,9 +3,159 @@ from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
-from model_training.utils.utils import get_model, get_tokenizer
+import transformers
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
+from typing import List, NamedTuple
+from tokenizers import pre_tokenizers
+from model_training.models.patching import patch_model
+import math
 
+class SpecialTokens(NamedTuple):
+    pad_token: str = ""
+    eos_token: str = ""
+    sep_token: str = ""
+
+class TokenizerConfig(NamedTuple):
+    special_tokens: SpecialTokens = {}
+QA_SPECIAL_TOKENS = {
+    "Question": "<|prompter|>",
+    "Answer": "<|assistant|>",
+    "System": "<|system|>",
+    "StartPrefix": "<|prefix_begin|>",
+    "EndPrefix": "<|prefix_end|>",
+}
+
+
+TOKENIZER_CONFIGS = {
+    "galactica": TokenizerConfig(special_tokens=SpecialTokens("<pad>", "</s>")),
+    "GPT-JT": TokenizerConfig(special_tokens=SpecialTokens(sep_token="<|extratoken_100|>")),
+    "codegen": TokenizerConfig(special_tokens=SpecialTokens("<|endoftext|>", sep_token="<|endoftext|>")),
+    "pythia": TokenizerConfig(special_tokens=SpecialTokens("<|padding|>", "<|endoftext|>", "<|endoftext|>")),
+    "gpt-neox": TokenizerConfig(special_tokens=SpecialTokens("<|padding|>", "<|endoftext|>", "<|endoftext|>")),
+    "llama": TokenizerConfig(special_tokens=SpecialTokens("</s>", "</s>", sep_token="<s>")),
+    "cerebras": TokenizerConfig(special_tokens=SpecialTokens("<|endoftext|>", "<|endoftext|>", "<|endoftext|>")),
+    "deberta-v3": TokenizerConfig(special_tokens=SpecialTokens("[PAD]", "[SEP]", sep_token="[CLS]")),
+    "bloom": TokenizerConfig(special_tokens=SpecialTokens("<pad>", "</s>", "<s>")),
+    "electra": TokenizerConfig(special_tokens=SpecialTokens("[PAD]", "[SEP]", sep_token="[CLS]")),
+}
+def match_tokenizer_name(model_name: str) -> TokenizerConfig:
+    """
+    Match a partial model name to a tokenizer configuration
+    i.e. model_name `Salesforce/codegen-2B-multi` has config name `codegen`
+    """
+    tokenizer_config_matches = [config for name, config in TOKENIZER_CONFIGS.items() if name in model_name]
+    if not tokenizer_config_matches:
+        raise ValueError(f"Cannot find any tokeniser configuration to match {model_name=}")
+    elif 1 < len(tokenizer_config_matches):
+        raise ValueError(f"Found multiple tokeniser configuration matches for {model_name=}")
+    else:
+        return tokenizer_config_matches[0]
+
+def get_tokenizer(conf) -> transformers.AutoTokenizer:
+    tokenizer_name = conf.model_name
+
+    if "cerebras" in conf.model_name:
+        # Only 13B has a tokenizer available on HF
+        tokenizer_name = "cerebras/Cerebras-GPT-13B"
+
+    tokenizer = transformers.AutoTokenizer.from_pretrained(tokenizer_name, cache_dir=conf.cache_dir)
+
+    tokenizer_config = match_tokenizer_name(conf.model_name)
+
+    if hasattr(conf, "per_digit_tokens") and conf.per_digit_tokens:
+        tokenizer._tokenizer.pre_processor = pre_tokenizers.Digits(True)
+
+    if tokenizer_config.special_tokens:
+        if "GPT-JT" in conf.model_name:
+            tokenizer_config.special_tokens.pad_token = tokenizer.eos_token
+        # SpecialTokens : latest in 4.25, 4.26
+        tokenizer.add_special_tokens(
+            {
+                "pad_token": tokenizer_config.special_tokens.pad_token,
+                "eos_token": tokenizer_config.special_tokens.eos_token,
+                "sep_token": tokenizer_config.special_tokens.sep_token,
+            }
+        )
+
+    additional_special_tokens = (
+        []
+        if "additional_special_tokens" not in tokenizer.special_tokens_map
+        else tokenizer.special_tokens_map["additional_special_tokens"]
+    )
+    additional_special_tokens = list(set(additional_special_tokens + list(QA_SPECIAL_TOKENS.values())))
+
+    tokenizer.add_special_tokens({"additional_special_tokens": additional_special_tokens})
+
+    return tokenizer
+
+def get_specific_model(
+    model_name, seq2seqmodel=False, without_head=False, cache_dir=".cache", quantization=False, **kwargs
+):
+    # encoder-decoder support for Flan-T5 like models
+    # for now, we can use an argument but in the future,
+    # we can automate this
+    if without_head:
+        model = transformers.AutoModel.from_pretrained(model_name, cache_dir=cache_dir, **kwargs)
+    elif seq2seqmodel:
+        model = transformers.AutoModelForSeq2SeqLM.from_pretrained(model_name, cache_dir=cache_dir, **kwargs)
+    else:
+        model = transformers.AutoModelForCausalLM.from_pretrained(model_name, cache_dir=cache_dir, **kwargs)
+    return model
+def freeze_top_n_layers(model, target_layers):
+    # its possible we can simply detect which module is a ModuleList
+    # and simply freeze the module without doing string parsing
+    for name, param in model.named_parameters():
+        if "embed" in name:
+            param.requires_grad = False
+        elif ".layer" in name or ".h." in name:
+            tokens = name.split(".")
+            layer_ = None
+            for token in tokens:
+                if token.isdigit():
+                    layer_ = int(token)
+                    break
+            if layer_ is not None and layer_ < target_layers:
+                # print('freeze ', layer_, name)
+                param.requires_grad = False
+    return model
+
+def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_layer=True):
+    dtype = torch.float32
+    if conf.dtype in ["fp16", "float16"]:
+        dtype = torch.float16
+    elif conf.dtype in ["bf16", "bfloat16"]:
+        dtype = torch.bfloat16
+
+
+    model = get_specific_model(
+        conf.model_name,
+        cache_dir=conf.cache_dir,
+        quantization=conf.quantization,
+        seq2seqmodel=conf.seq2seqmodel,
+        without_head=conf.is_reward_model,
+        torch_dtype=dtype,
+    )
+
+    n_embs = model.get_input_embeddings().num_embeddings
+    if len(tokenizer) != n_embs and check_freeze_layer:
+        assert not conf.freeze_layer, "Cannot change the number of embeddings if the model is frozen."
+
+    if len(tokenizer) != n_embs or pad_vocab_size_to_multiple_of:
+        p = pad_vocab_size_to_multiple_of
+        target_size = len(tokenizer) if not p else math.ceil(len(tokenizer) / p) * p
+        print("Resizing embeddings to", target_size)
+        model.resize_token_embeddings(target_size)
+
+    if conf.freeze_layer:
+        model = freeze_top_n_layers(model, conf.freeze_layer)
+
+    model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+    params = sum([p.numel() for p in model_parameters])
+    print("Number of trainable parameters: {}M".format(int(params / 1e6)))
+
+    patch_model(model, resid_pdrop=conf.residual_dropout, flash_attention=conf.use_flash_attention)
+
+    return model
 
 def load_peft_model(model, peft_model_path, tokenizer):
     model.resize_token_embeddings(len(tokenizer))
