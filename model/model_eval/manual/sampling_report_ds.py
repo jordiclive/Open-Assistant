@@ -301,7 +301,7 @@ def main():
         from transformers import AutoModelForCausalLM
 
         # tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
-        model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args,cache_dir="/fsx/home-jordiclive/data_cache")
+        # model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args,cache_dir="/fsx/home-jordiclive/data_cache")
         skip_input_tokens = True
     elif args.model_type.lower() == "t5conditional":
         from transformers import T5ForConditionalGeneration
@@ -313,9 +313,7 @@ def main():
         raise RuntimeError("Invalid model_type specified")
 
 
-    if args.peft_model is not None:
-        tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
-        model = load_peft_model(model, args.peft_model, tokenizer)
+
 
 
 
@@ -400,9 +398,12 @@ def main():
             torch.cuda.empty_cache()
             gc.collect()
             deepspeed.runtime.utils.see_memory_usage("pre-from-pretrained", force=True)
-        model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
         if args.benchmark:
             deepspeed.runtime.utils.see_memory_usage("post-from-pretrained", force=True)
+        model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args,cache_dir="/fsx/home-jordiclive/data_cache")
+        if args.peft_model is not None:
+            tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+            model = load_peft_model(model, args.peft_model, tokenizer)
         model = model.eval()
         print_rank0(ds_config)
         ds_engine = deepspeed.initialize(model=model, config_params=ds_config)[0]
