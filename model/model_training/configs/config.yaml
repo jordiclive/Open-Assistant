@@ -408,7 +408,7 @@ lora-llama-65b:
   dtype: fp16
   log_dir: "llama_lora_log_65b"
   learning_rate: 5e-5
-  model_name: /home/ubuntu/llama_hf/65B
+  model_name: /mnt/data/llama/65B
   output_dir: llama_model_65b_lora
   weight_decay: 0.0
   max_length: 2048

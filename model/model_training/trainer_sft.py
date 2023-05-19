@@ -423,10 +423,10 @@ def main():
 
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
-            project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            project="PEFT",
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
-            name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
+            name=f"Lora-65B",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
