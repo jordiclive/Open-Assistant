@@ -2,7 +2,7 @@
 
 source /mnt/data/jordiclive/jordan/bin/activate
 cd /mnt/data/jordiclive/Open-Assistant
-export TRANSFORMERS_CACHE=/fsx/home-jordiclive/transformers_cache
+export TRANSFORMERS_CACHE=/mnt/data/jordiclive/transformers_cache
 export PYTHONPATH="/mnt/data/jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
 export PYTHONPATH="/mnt/data/jordiclive/Open-Assistant/model:$PYTHONPATH"
 
