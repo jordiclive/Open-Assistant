@@ -7,7 +7,7 @@ from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
-
+from __future__ import annotations
 import pydantic
 import torch
 from model_training.models.peft_modeling import load_peft_model
@@ -131,6 +131,9 @@ def sample(
         pad_to_max_length=False,
         truncation=True,
     ).to(device)
+    for t in inputs:
+        if torch.is_tensor(inputs[t]):
+            inputs[t] = inputs[t].to(torch.cuda.current_device())
     input_ids = inputs.input_ids
     outputs = model.generate(
         input_ids=input_ids,
@@ -257,6 +260,12 @@ def parse_args():
     parser.add_argument("--auth-token", type=str)
     parser.add_argument("--num-threads", type=int, default=8)
     parser.add_argument("--peft_model", type=str, default=None)
+    parser.add_argument("--local_rank", required=False, type=int, help="used by dist launchers")
+    parser.add_argument("--batch_size", default=1, type=int, help="batch size")
+    parser.add_argument("--benchmark", action="store_true", help="additionally run benchmark")
+    parser.add_argument("--cpu_offload", action="store_true", help="whether to activate CPU offload")
+    parser.add_argument("--nvme_offload_path", help="whether to activate NVME offload and the path on nvme")
+
 
     return parser.parse_args()
 
@@ -269,6 +278,18 @@ def main():
     eval oasst model:
     python sampling_report.py --model-name theblackcat102/pythia-3b-deduped-sft --mode v2 --config config/default.json --prompts data/en_100_text.jsonl -n 2 --verbose
     """
+    import torch
+    import gc
+    import math
+    import os
+    import time
+    from argparse import ArgumentParser
+    import torch
+    import torch.distributed as dist
+    import deepspeed
+    from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
+    from transformers.deepspeed import HfDeepSpeedConfig
+    from transformers.models.bloom.modeling_bloom import BloomBlock as BloomBlock
 
     print("Using pytorch version {}".format(torch.__version__))
 
@@ -330,16 +351,72 @@ def main():
     decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
     print("decoded:", decoded)
 
-    model.eval()
-    if args.half:
-        model = model.half()
+    # todo DS LOAD MODEL
+    local_rank = int(os.getenv("LOCAL_RANK", "0"))
+    world_size = int(os.getenv("WORLD_SIZE", "1"))
+    deepspeed.init_distributed("nccl")
+    rank = dist.get_rank()
 
-    # int8 models (load_in_8bit = True + device_map = auto): will cause this method to error
-    if not args.int8:
-        model = model.to(device)
+    def print_rank0(*msg):
+        if rank != 0:
+            return
+        print(*msg)
+
+    # config = AutoConfig.from_pretrained(model_name)
+    # XXX: can't automatically derive dtype via config's `from_pretrained`
+    dtype = torch.bfloat16 if model_name in ["bigscience/bloom",
+                                             "bigscience/bigscience-small-testing"] else torch.float16
+    model_hidden_size = AutoConfig.from_pretrained(model_name).hidden_size
+    train_batch_size = 1 * world_size
+    ds_config = {
+        "fp16": {
+            "enabled": dtype == torch.float16,
+        },
+        "bf16": {
+            "enabled": dtype == torch.bfloat16,
+        },
+        "zero_optimization": {
+            "stage": 3,
+            "overlap_comm": True,
+            "contiguous_gradients": True,
+            "reduce_bucket_size": model_hidden_size * model_hidden_size,
+            "stage3_prefetch_bucket_size": 0.9 * model_hidden_size * model_hidden_size,
+            "stage3_param_persistence_threshold": 0,
+        },
+        "steps_per_print": 2000,
+        "train_batch_size": train_batch_size,
+        "train_micro_batch_size_per_gpu": 1,
+        "wall_clock_breakdown": False,
+    }
+    if args.cpu_offload and args.nvme_offload_path:
+        raise ValueError("Use one of --cpu_offload or --nvme_offload_path and not both")
+    if args.cpu_offload:
+        ds_config["zero_optimization"]["offload_param"] = dict(device="cpu", pin_memory=True)
+    if args.nvme_offload_path:
+        ds_config["zero_optimization"]["offload_param"] = dict(
+            device="nvme",
+            pin_memory=True,
+            nvme_path=args.nvme_offload_path,
+            buffer_size=4e9,
+        )
+    dschf = HfDeepSpeedConfig(ds_config)  # this tells from_pretrained to instantiate directly on gpus
+    if args.benchmark:
+        torch.cuda.empty_cache()
+        gc.collect()
+        deepspeed.runtime.utils.see_memory_usage("pre-from-pretrained", force=True)
+    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
+    if args.benchmark:
+        deepspeed.runtime.utils.see_memory_usage("post-from-pretrained", force=True)
+    model = model.eval()
+    print_rank0(ds_config)
+    ds_engine = deepspeed.initialize(model=model, config_params=ds_config)[0]
+    ds_engine.module.eval()
+    model = ds_engine.module
+
+
 
     print(f"Loading prompts file: {args.prompts}")
-    prompts = load_jsonl(input_file_path=args.prompts)
+    prompts = load_jsonl(input_file_path=args.prompts)[:5]
     print(f"prompt count: {len(prompts)}")
 
     if args.n:

@@ -519,13 +519,18 @@ class Vicuna(Dataset):
             raise NotImplementedError(f"Currently only the modes 'sft' and 'rl' are implemented. Received {mode}.")
         self.mode = mode
 
+        # dataset = load_dataset(
+        #     "gozfarb/ShareGPT_Vicuna_unfiltered",
+        #     cache_dir=cache_dir,
+        #     data_files=["ShareGPT_2023.05.02v0_unfiltered_cleaned_split.json"],
+        #     revision="7b8551404f3de5704d634e7516b9ff77be3e2700",
+        # )["train"]
         dataset = load_dataset(
-            "gozfarb/ShareGPT_Vicuna_unfiltered",
+            "anon8231489123/ShareGPT_Vicuna_unfiltered",
             cache_dir=cache_dir,
-            data_files=["ShareGPT_2023.05.02v0_unfiltered_cleaned_split.json"],
-            revision="7b8551404f3de5704d634e7516b9ff77be3e2700",
+            data_files=["ShareGPT_V3_unfiltered_cleaned_split_no_imsorry.json"],
+            revision="192ab2185289094fc556ec8ce5ce1e8e587154ca",
         )["train"]
-
         for data in dataset:
             if (qa := self.process_vicuna_conversations(data, input_max_length=input_max_length)) is not None:
                 if len(qa[0]) > 0 and len(qa[0]) == len(qa[1]):
