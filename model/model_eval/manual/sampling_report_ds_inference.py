@@ -10,9 +10,30 @@ from pathlib import Path
 from typing import Any, Optional
 import pydantic
 import torch
-from model_training.models.peft_modeling import load_peft_model
+
 from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
+
+from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
+from huggingface_hub import hf_hub_download
+
+def load_peft_model(model, peft_model_path, tokenizer):
+    model.resize_token_embeddings(len(tokenizer))
+    model.config.eos_token_id = tokenizer.eos_token_id
+    model.config.bos_token_id = tokenizer.bos_token_id
+    model.config.pad_token_id = tokenizer.pad_token_id
+    model = PeftModel.from_pretrained(
+        model,
+        peft_model_path,
+        torch_dtype=model.dtype,
+    )
+    model.eos_token_id = tokenizer.eos_token_id
+    extra_embeds = hf_hub_download(peft_model_path, "extra_embeddings.pt")
+    embed_weights = torch.load(extra_embeds, map_location=model.device)
+    model.base_model.model.model.embed_tokens.weight[len(tokenizer) - embed_weights.shape[0] :, :] = embed_weights.to(
+        model.base_model.model.model.embed_tokens.weight.dtype
+    )
+    return model
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
 QA_SPECIAL_TOKENS_V2_5 = {
@@ -278,18 +299,13 @@ def main():
     eval oasst model:
     python sampling_report.py --model-name theblackcat102/pythia-3b-deduped-sft --mode v2 --config config/default.json --prompts data/en_100_text.jsonl -n 2 --verbose
     """
-    import torch
     import gc
-    import math
     import os
-    import time
-    from argparse import ArgumentParser
     import torch
     import torch.distributed as dist
     import deepspeed
     from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
     from transformers.deepspeed import HfDeepSpeedConfig
-    from transformers.models.bloom.modeling_bloom import BloomBlock as BloomBlock
 
     print("Using pytorch version {}".format(torch.__version__))
 
@@ -364,8 +380,7 @@ def main():
 
     # config = AutoConfig.from_pretrained(model_name)
     # XXX: can't automatically derive dtype via config's `from_pretrained`
-    dtype = torch.bfloat16 if model_name in ["bigscience/bloom",
-                                             "bigscience/bigscience-small-testing"] else torch.float16
+    dtype = torch.float16
     model_hidden_size = AutoConfig.from_pretrained(model_name).hidden_size
     train_batch_size = 1 * world_size
     ds_config = {
