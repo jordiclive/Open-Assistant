@@ -47,7 +47,7 @@ QA_SPECIAL_TOKENS_V2_5 = {
 class SamplingConfig(pydantic.BaseModel):
     name: Optional[str]
     generate_args: Dict[str, Any] = {}
-    system_profile: Optional[OrderedDict[str, Union[float, int, str]]] = None
+    system_profile: Optional[OrderedDict[str, Union[Union[float, int], str]]] = None
     pre_text: Optional[str]
     add_prefix_tokens: Optional[bool] = False
 
