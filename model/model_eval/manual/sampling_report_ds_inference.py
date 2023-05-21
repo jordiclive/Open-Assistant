@@ -404,7 +404,6 @@ def main():
         torch.cuda.empty_cache()
         gc.collect()
         deepspeed.runtime.utils.see_memory_usage("pre-from-pretrained", force=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
     if args.benchmark:
         deepspeed.runtime.utils.see_memory_usage("post-from-pretrained", force=True)
     model = model.eval()
