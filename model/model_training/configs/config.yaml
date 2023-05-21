@@ -517,7 +517,7 @@ lora-llama-30b:
 lora-llama-65b:
   dtype: fp16
   log_dir: "llama_lora_log_65b"
-  learning_rate: 8e-5
+  learning_rate: 5e-5
   model_name: /mnt/data/llama_hf/65B
   output_dir: llama_model_65b_lora
   weight_decay: 0.0
