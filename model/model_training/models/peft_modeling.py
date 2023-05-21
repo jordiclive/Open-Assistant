@@ -99,3 +99,14 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
     tokenizer.save_pretrained(save_config.adapter_save_path)
     torch.save(new_embs, Path(save_config.adapter_save_path).joinpath("extra_embeddings.pt"))
+
+if __name__ == '__main__':
+    save_config = SaveLoraConfig(
+        torch_ckpt_path="/mnt/data/jordiclive/65B_ckpts/checkpoint-1500/pytorch_model.bin",
+        adapter_save_path="/mnt/data/jordiclive/adapter_ckpt_1500",
+        model_name="/mnt/data/llama_hf/65B",
+        cache_dir="/mnt/data/jordiclive/data_cache",
+        dtype=torch.float16,
+        peft_type="lora",
+    )
+    save_adapter_model_from_ckpt(save_config)
