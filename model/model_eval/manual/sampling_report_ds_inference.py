@@ -1,4 +1,3 @@
-from __future__ import annotations
 import argparse
 import gzip
 import json
@@ -7,7 +6,7 @@ import re
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union, Dict, List
 import pydantic
 import torch
 
@@ -47,8 +46,8 @@ QA_SPECIAL_TOKENS_V2_5 = {
 
 class SamplingConfig(pydantic.BaseModel):
     name: Optional[str]
-    generate_args: dict[str, Any] = {}
-    system_profile: Optional[OrderedDict[str, float | int | str]] = None
+    generate_args: Dict[str, Any] = {}
+    system_profile: Optional[OrderedDict[str, Union[float, int, str]]] = None
     pre_text: Optional[str]
     add_prefix_tokens: Optional[bool] = False
 
@@ -59,28 +58,28 @@ class SamplingConfig(pydantic.BaseModel):
 
 class Configuration(pydantic.BaseModel):
     default: Optional[SamplingConfig]
-    configurations: list[SamplingConfig]
+    configurations: List[SamplingConfig]
 
 
 class SamplingResult(pydantic.BaseModel):
     sampling_config: str
     sampling_params: dict
-    outputs: list[str]
+    outputs: List[str]
 
 
 class PromptResults(pydantic.BaseModel):
     prompt: str
-    results: list[SamplingResult]
+    results: List[SamplingResult]
 
 
 class SamplingReport(pydantic.BaseModel):
     model_name: str
     date: str
     args: dict
-    prompts: list[PromptResults]
+    prompts: List[PromptResults]
 
 
-def load_jsonl(input_file_path: str | Path) -> list[dict | str]:
+def load_jsonl(input_file_path: Union[str, Path]) -> List[Union[dict, str]]:
     if not isinstance(input_file_path, Path):
         input_file_path = Path(input_file_path)
 
@@ -169,7 +168,7 @@ def sample(
 
 
 def merge_configs(*configs: tuple[Optional[SamplingConfig]]) -> Optional[SamplingConfig]:
-    merged: SamplingConfig | None = None
+    merged: Union[SamplingConfig, None] = None
     for c in configs:
         if not merged:
             if c:
@@ -196,7 +195,7 @@ def merge_configs(*configs: tuple[Optional[SamplingConfig]]) -> Optional[Samplin
 
 
 def sample_prompt_continuations(
-    prompts: list[str],
+    prompts: List[str],
     model,
     tokenizer: PreTrainedTokenizer,
     mode: str,
@@ -207,10 +206,10 @@ def sample_prompt_continuations(
     skip_input_tokens: bool = False,
     verbose: bool = False,
     max_input_len: Optional[int] = None,
-) -> list[PromptResults]:
-    prompt_results: list[PromptResults] = []
+) -> List[PromptResults]:
+    prompt_results: List[PromptResults] = []
     for p in tqdm(prompts):
-        sampling_results: list[SamplingResult] = []
+        sampling_results: List[SamplingResult] = []
         for sc in config.configurations:
             outputs = []
             for i in range(num_samples):
