@@ -446,7 +446,7 @@ def main():
         os.environ["WANDB_API_KEY"] = "d8216641d549f9bb3d0c5074baa39e15dfd55030"
         wandb.init(
             project="PEFT",
-            entity="jordanclive",
+            entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
             name=f"Lora-65B",
             config=training_conf,

@@ -353,7 +353,7 @@ def main():
     # XXX: can't automatically derive dtype via config's `from_pretrained`
     dtype = torch.float16
     train_batch_size = 1 * world_size
-    config_for_model_hz = AutoConfig.from_pretrained("decapoda-research/llama-7b-hf")
+    config_for_model_hz = AutoConfig.from_pretrained("decapoda-research/llama-65b-hf")
     model_hidden_size = config_for_model_hz.hidden_size
     print('model_hidden_size', model_hidden_size)
     ds_config = {
