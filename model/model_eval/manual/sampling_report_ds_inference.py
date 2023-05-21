@@ -6,7 +6,7 @@ import re
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional, Union, Dict, List
+from typing import Any, Optional, Union, Dict, List, Tuple
 import pydantic
 import torch
 
@@ -167,7 +167,7 @@ def sample(
     return output_tokens, sampling_params
 
 
-def merge_configs(*configs: tuple[Optional[SamplingConfig]]) -> Optional[SamplingConfig]:
+def merge_configs(*configs: Tuple[Optional[SamplingConfig]]) -> Optional[SamplingConfig]:
     merged: Union[SamplingConfig, None] = None
     for c in configs:
         if not merged:
