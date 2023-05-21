@@ -448,7 +448,7 @@ def main():
             project="PEFT",
             entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
-            name=f"Lora-65B",
+            name=f"Lora-65B_r_32_lr_8e-5_pretrain",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
