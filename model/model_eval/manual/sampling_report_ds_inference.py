@@ -348,26 +348,9 @@ def main():
     # XXX: can't automatically derive dtype via config's `from_pretrained`
     dtype = torch.float16
     train_batch_size = 1 * world_size
-    # ds_config = {
-    #     "fp16": {
-    #         "enabled": dtype == torch.float16,
-    #     },
-    #     "bf16": {
-    #         "enabled": dtype == torch.bfloat16,
-    #     },
-    #     "zero_optimization": {
-    #         "stage": 3,
-    #         "overlap_comm": True,
-    #         "contiguous_gradients": True,
-    #         "reduce_bucket_size": model_hidden_size * model_hidden_size,
-    #         "stage3_prefetch_bucket_size": 0.9 * model_hidden_size * model_hidden_size,
-    #         "stage3_param_persistence_threshold": 0,
-    #     },
-    #     "steps_per_print": 2000,
-    #     "train_batch_size": train_batch_size,
-    #     "train_micro_batch_size_per_gpu": 1,
-    #     "wall_clock_breakdown": False,
-    # }
+    config = AutoConfig.from_pretrained("decapoda-research/llama-7b-hf")
+    model_hidden_size = config.hidden_size
+    print('model_hidden_size', model_hidden_size)
     ds_config = {
         "fp16": {
             "enabled": dtype == torch.float16,
@@ -375,22 +358,42 @@ def main():
         "bf16": {
             "enabled": dtype == torch.bfloat16,
         },
-  "zero_optimization": {
-    "stage": 3,
-    "overlap_comm": True,
-    "contiguous_gradients": True,
-    "sub_group_size": 2e9,
-    "reduce_bucket_size": "auto",
-    "stage3_prefetch_bucket_size": "auto",
-    "stage3_param_persistence_threshold": "auto",
-    "stage3_max_live_parameters": 2e9,
-    "stage3_max_reuse_distance": 2e9,
-    "stage3_gather_16bit_weights_on_model_save": True,
-    "offload_param": {
-      "device": "cpu",
-      "pin_memory": True,
-    },
-  }}
+        "zero_optimization": {
+            "stage": 3,
+            "overlap_comm": True,
+            "contiguous_gradients": True,
+            "reduce_bucket_size": model_hidden_size * model_hidden_size,
+            "stage3_prefetch_bucket_size": 0.9 * model_hidden_size * model_hidden_size,
+            "stage3_param_persistence_threshold": 0,
+        },
+        "steps_per_print": 2000,
+        "train_batch_size": train_batch_size,
+        "train_micro_batch_size_per_gpu": 1,
+        "wall_clock_breakdown": False,
+    }
+  #   ds_config = {
+  #       "fp16": {
+  #           "enabled": dtype == torch.float16,
+  #       },
+  #       "bf16": {
+  #           "enabled": dtype == torch.bfloat16,
+  #       },
+  # "zero_optimization": {
+  #   "stage": 3,
+  #   "overlap_comm": True,
+  #   "contiguous_gradients": True,
+  #   "sub_group_size": 2e9,
+  #   "reduce_bucket_size": "auto",
+  #   "stage3_prefetch_bucket_size": "auto",
+  #   "stage3_param_persistence_threshold": "auto",
+  #   "stage3_max_live_parameters": 2e9,
+  #   "stage3_max_reuse_distance": 2e9,
+  #   "stage3_gather_16bit_weights_on_model_save": True,
+  #   "offload_param": {
+  #     "device": "cpu",
+  #     "pin_memory": True,
+  #   },
+  # }}
     # if args.cpu_offload and args.nvme_offload_path:
     #     raise ValueError("Use one of --cpu_offload or --nvme_offload_path and not both")
     # if args.cpu_offload:
