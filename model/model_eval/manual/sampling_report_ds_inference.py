@@ -331,6 +331,11 @@ def main():
     model_name = args.model_name
     print(f"Loading model: {model_name}")
 
+    tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+    print('len(tokenizer)',len(tokenizer))
+    print('tokenizer.eos_token_id',tokenizer.eos_token_id)
+    print('tokenizer.bos_token_id',tokenizer.bos_token_id)
+    print('tokenizer.pad_token_id',tokenizer.pad_token_id)
 
 
     # todo DS LOAD MODEL
