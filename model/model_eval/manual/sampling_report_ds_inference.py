@@ -27,8 +27,10 @@ def load_peft_model(model, peft_model_path, tokenizer):
         torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
-    extra_embeds = hf_hub_download(peft_model_path, "extra_embeddings.pt")
-    embed_weights = torch.load(extra_embeds, map_location=model.device)
+    # extra_embeds = hf_hub_download(peft_model_path, "extra_embeddings.pt")
+    # embed_weights = torch.load(extra_embeds, map_location=model.device)
+    embed_weights = torch.load(peft_model_path + '/extra_embeddings.pt', map_location=model.device)
+
     model.base_model.model.model.embed_tokens.weight[len(tokenizer) - embed_weights.shape[0] :, :] = embed_weights.to(
         model.base_model.model.model.embed_tokens.weight.dtype
     )
@@ -353,8 +355,9 @@ def main():
     # XXX: can't automatically derive dtype via config's `from_pretrained`
     dtype = torch.float16
     train_batch_size = 1 * world_size
-    config_for_model_hz = AutoConfig.from_pretrained("decapoda-research/llama-65b-hf")
-    model_hidden_size = config_for_model_hz.hidden_size
+    # config_for_model_hz = AutoConfig.from_pretrained("decapoda-research/llama-65b-hf")
+    # model_hidden_size = config_for_model_hz.hidden_size
+    model_hidden_size = 8192
     print('model_hidden_size', model_hidden_size)
     ds_config = {
         "fp16": {
