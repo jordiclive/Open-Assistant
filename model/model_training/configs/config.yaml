@@ -534,7 +534,7 @@ lora-llama-65b:
   save_steps: 1500
   use_flash_attention: True
   residual_dropout: 0.0
-  deepspeed_config: configs/zero_config_sft_65b.json
+  deepspeed_config: configs/zero_config_sft_65b_pretrain.json
   peft_model: true
   peft_type: "lora"
   use_custom_sampler: true
