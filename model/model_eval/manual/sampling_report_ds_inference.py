@@ -1,3 +1,4 @@
+from __future__ import annotations
 import argparse
 import gzip
 import json
@@ -7,7 +8,6 @@ from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
-from __future__ import annotations
 import pydantic
 import torch
 from model_training.models.peft_modeling import load_peft_model
