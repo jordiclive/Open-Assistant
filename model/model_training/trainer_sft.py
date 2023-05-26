@@ -211,7 +211,7 @@ def argument_parsing(notebook=False, notebook_args=None):
 
     conf["wandb_entity"] = args.wandb_entity
     conf["local_rank"] = args.local_rank
-    conf["deepspeed"] = False
+    conf["deepspeed"] = args.deepspeed
     conf["resume_from_checkpoint"] = args.resume_from_checkpoint
     if args.rng_seed is not None:
         conf["rng_seed"] = args.rng_seed
