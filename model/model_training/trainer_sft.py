@@ -438,9 +438,10 @@ def main():
         import wandb
 
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
+        os.environ["WANDB_API_KEY"] = "d8216641d549f9bb3d0c5074baa39e15dfd55030"
         wandb.init(
             project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
