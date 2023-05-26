@@ -326,6 +326,8 @@ def main():
     init_rng(training_conf)
 
     tokenizer = get_tokenizer(training_conf)
+    tokenizer.bos_token = '<|endoftext|>'
+    tokenizer.bos_token_id = 11
     tokenizer.eos_token = '<|endoftext|>'
     tokenizer.eos_token_id = 11
     if not training_conf.deepspeed or training_conf.local_rank == 0:
