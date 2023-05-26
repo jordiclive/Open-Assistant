@@ -291,7 +291,7 @@ def main():
     )
 
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
-
+    optimizer = "adamw_hf"
     # needs to happen before model loading in case of stage 3 training
     args = TrainingArguments(
         output_dir=output_dir,
@@ -428,8 +428,8 @@ def main():
                     module, "weight", {"optim_bits": 32}
                 )
 
-    if training_conf.fuse_gelu:
-        model = fuse_gelu(model)
+    # if training_conf.fuse_gelu:
+    #     model = fuse_gelu(model)
 
     if not training_conf.log_wandb:
         os.environ["WANDB_MODE"] = "offline"
