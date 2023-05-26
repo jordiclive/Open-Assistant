@@ -7,7 +7,7 @@ from typing import Callable, Optional
 import torch.nn as nn
 import transformers
 from transformers import GPTNeoXForCausalLM, GPTNeoXModel, LlamaForCausalLM, LlamaModel
-from trlx.models.modeling_ppo import AutoModelForCausalLMWithHydraValueHead
+# from trlx.models.modeling_ppo import AutoModelForCausalLMWithHydraValueHead
 
 from .patching_llama import llama_forward_with_flash_attn
 from .patching_neox import neox_forward_with_flash_attn
@@ -20,7 +20,7 @@ SUPPORTED_MODELS = [
     LlamaModel,
     GPTNeoXRewardModel,
     # Currently only supported by NeoX models; Will work on LLaMa models
-    AutoModelForCausalLMWithHydraValueHead,
+    # AutoModelForCausalLMWithHydraValueHead,
 ]
 
 
