@@ -73,6 +73,7 @@ def patch_model(
     resid_pdrop: Optional[float] = 0.1,
     flash_attention: bool = True,
     patch_unsupported: bool = False,
+    residual_dropout_lima: bool = False,
 ):
     """
     Helper function for patching HF language models.
@@ -128,6 +129,10 @@ or run with:
     if isinstance(model, LlamaForCausalLM):
         model = model.model
 
+    if model.__class__.__name__ == "RWForCausalLM":
+        model = model.base_model
+
+
     if isinstance(model, AutoModelForCausalLMWithHydraValueHead):
         if isinstance(model.base_model, GPTNeoXForCausalLM):
             model = model.base_model.gpt_neox
@@ -151,13 +156,20 @@ or run with:
         GPTNeoXRewardModel: "mlp",
         LlamaModel: "mlp",
     }
-    attention_key = attention_key_lookup.get(model.__class__, "attention")
-    mlp_key = mlp_key_lookup.get(model.__class__, "mlp")
-
-    for layer in model.layers:
+    if model.__class__.__name__ == "RWForCausalLM":
+        layers = model.h
+        attention_key = "self_attention"
+        mlp_key = "mlp"
+    else:
+        layers = model.layers
+        attention_key = attention_key_lookup.get(model.__class__, "attention")
+        mlp_key = mlp_key_lookup.get(model.__class__, "mlp")
+    num_layers = len(layers)
+    for i, layer in enumerate(layers):
         if flash_attention:
             add_flash_attn(getattr(layer, attention_key), causal=True)
-
+        if residual_dropout_lima:
+            resid_pdrop = i / (num_layers - 1) * resid_pdrop
         if resid_pdrop is not None and resid_pdrop > 0:
             add_dropout(getattr(layer, attention_key), _patched_attn_forward, resid_pdrop)
             add_dropout(getattr(layer, mlp_key), _patched_mlp_forward, resid_pdrop)
