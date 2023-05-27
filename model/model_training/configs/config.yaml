@@ -258,6 +258,8 @@ falcon-1b:
   use_flash_attention: false
   residual_dropout: 0.3
   residual_dropout_lima: true
+  peft_model: false
+  peft_type: "lora"
 
 falcon-7b:
   dtype: bf16

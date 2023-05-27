@@ -7,7 +7,7 @@ from typing import Callable, Optional
 import torch.nn as nn
 import transformers
 from transformers import GPTNeoXForCausalLM, GPTNeoXModel, LlamaForCausalLM, LlamaModel
-from trlx.models.modeling_ppo import AutoModelForCausalLMWithHydraValueHead
+# from trlx.models.modeling_ppo import AutoModelForCausalLMWithHydraValueHead
 
 from .patching_llama import llama_forward_with_flash_attn
 from .patching_neox import neox_forward_with_flash_attn
@@ -20,7 +20,7 @@ SUPPORTED_MODELS = [
     LlamaModel,
     GPTNeoXRewardModel,
     # Currently only supported by NeoX models; Will work on LLaMa models
-    AutoModelForCausalLMWithHydraValueHead,
+    # AutoModelForCausalLMWithHydraValueHead,
 ]
 
 
@@ -105,7 +105,7 @@ or run with:
     if not flash_attention and (resid_pdrop is None or resid_pdrop == 0.0):
         return
 
-    if not any(isinstance(model, model_class) for model_class in SUPPORTED_MODELS):
+    if not any(isinstance(model, model_class) for model_class in SUPPORTED_MODELS) and model.__class__.__name__ != "RWForCausalLM":
         if not flash_attention and (resid_pdrop is None or resid_pdrop == 0.0):
             return  # nothing to patch
 
@@ -133,18 +133,18 @@ or run with:
         model = model.base_model
 
 
-    if isinstance(model, AutoModelForCausalLMWithHydraValueHead):
-        if isinstance(model.base_model, GPTNeoXForCausalLM):
-            model = model.base_model.gpt_neox
-        elif isinstance(model.base_model, LlamaForCausalLM):
-            model = model.base_model.model
-        else:
-            warnings.warn(
-                "Unfortunately there is currently only support for NeoX models and LLaMa models "
-                f"Please make sure that `{model.__class__.__name__}` is one of those model.\n"
-                "Or disable flash_attention and residual_dropout with:\n"
-                "--use_flash_attention=false  --no-residual_dropout"
-            )
+    # if isinstance(model, AutoModelForCausalLMWithHydraValueHead):
+    #     if isinstance(model.base_model, GPTNeoXForCausalLM):
+    #         model = model.base_model.gpt_neox
+    #     elif isinstance(model.base_model, LlamaForCausalLM):
+    #         model = model.base_model.model
+    #     else:
+    #         warnings.warn(
+    #             "Unfortunately there is currently only support for NeoX models and LLaMa models "
+    #             f"Please make sure that `{model.__class__.__name__}` is one of those model.\n"
+    #             "Or disable flash_attention and residual_dropout with:\n"
+    #             "--use_flash_attention=false  --no-residual_dropout"
+    #         )
 
     attention_key_lookup = {
         GPTNeoXModel: "attention",
@@ -156,7 +156,7 @@ or run with:
         GPTNeoXRewardModel: "mlp",
         LlamaModel: "mlp",
     }
-    if model.__class__.__name__ == "RWForCausalLM":
+    if model.__class__.__name__ == "RWModel":
         layers = model.h
         attention_key = "self_attention"
         mlp_key = "mlp"
@@ -165,11 +165,12 @@ or run with:
         attention_key = attention_key_lookup.get(model.__class__, "attention")
         mlp_key = mlp_key_lookup.get(model.__class__, "mlp")
     num_layers = len(layers)
+    resid_pdrop_last_layer = resid_pdrop
     for i, layer in enumerate(layers):
         if flash_attention:
             add_flash_attn(getattr(layer, attention_key), causal=True)
         if residual_dropout_lima:
-            resid_pdrop = i / (num_layers - 1) * resid_pdrop
+            resid_pdrop = i / (num_layers - 1) * resid_pdrop_last_layer
         if resid_pdrop is not None and resid_pdrop > 0:
             add_dropout(getattr(layer, attention_key), _patched_attn_forward, resid_pdrop)
             add_dropout(getattr(layer, mlp_key), _patched_mlp_forward, resid_pdrop)
