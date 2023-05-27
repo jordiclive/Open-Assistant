@@ -344,7 +344,7 @@ def get_qlora_model():
 
     # Create argparse Namespace object
     args = argparse.Namespace(
-        model_name_or_path='decapoda-research/llama-7b-hf',
+        model_name_or_path='/mnt/data/llama_hf/7B',
         trust_remote_code=False,
         eval_dataset_size=1024,
         max_train_samples=None,
