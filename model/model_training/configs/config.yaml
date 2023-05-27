@@ -229,7 +229,7 @@ falcon-7b:
   dtype: bf16
   log_dir: "llama_log_7b"
   learning_rate: 1e-5
-  model_name: "tiiuae/falcon-7b"
+  model_name: "tiiuae/falcon-rw-1b"
   deepspeed_config: configs/zero_config_pretrain.json
   output_dir: falcon
   weight_decay: 0.0
@@ -244,7 +244,7 @@ falcon-7b:
   num_train_epochs: 8
   save_total_limit: 4
   use_flash_attention: false
-  residual_dropout: 0.0
+  residual_dropout: 0.1
 
 llama-7b:
   dtype: fp16

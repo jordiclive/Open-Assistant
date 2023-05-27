@@ -326,13 +326,12 @@ def main():
     init_rng(training_conf)
 
     tokenizer = get_tokenizer(training_conf)
-    # tokenizer.bos_token = '<|endoftext|>'
-    # tokenizer.bos_token_id = 11
-    tokenizer.eos_token = '<|endoftext|>'
-    tokenizer.eos_token_id = 11
+
+    model = get_model(training_conf, tokenizer)
+
+
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
-
     train_collate_fn = DialogueDataCollator(
         tokenizer,
         max_length=training_conf.max_length,

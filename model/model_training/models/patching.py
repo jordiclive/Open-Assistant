@@ -104,23 +104,23 @@ or run with:
     if not flash_attention and (resid_pdrop is None or resid_pdrop == 0.0):
         return
 
-    if not any(isinstance(model, model_class) for model_class in SUPPORTED_MODELS):
-        if not flash_attention and (resid_pdrop is None or resid_pdrop == 0.0):
-            return  # nothing to patch
-
-        if not patch_unsupported:
-            warnings.warn(
-                "Model patching does not support this model class. No patches will be applied. "
-                "If you want to force patch this model, please set `patch_unsupported=True`."
-            )
-            return
-
-        warnings.warn(
-            "Patching residual dropout has only been tested with this model class. "
-            f"Please make sure that it also works for `{model.__class__.__name__}`.\n"
-            "Or disable flash_attention and residual_dropout with:\n"
-            "--use_flash_attention=false  --no-residual_dropout"
-        )
+    # if not any(isinstance(model, model_class) for model_class in SUPPORTED_MODELS):
+    #     if not flash_attention and (resid_pdrop is None or resid_pdrop == 0.0):
+    #         return  # nothing to patch
+    #
+    #     if not patch_unsupported:
+    #         warnings.warn(
+    #             "Model patching does not support this model class. No patches will be applied. "
+    #             "If you want to force patch this model, please set `patch_unsupported=True`."
+    #         )
+    #         return
+    #
+    #     warnings.warn(
+    #         "Patching residual dropout has only been tested with this model class. "
+    #         f"Please make sure that it also works for `{model.__class__.__name__}`.\n"
+    #         "Or disable flash_attention and residual_dropout with:\n"
+    #         "--use_flash_attention=false  --no-residual_dropout"
+    #     )
 
     if isinstance(model, GPTNeoXRewardModel) or isinstance(model, GPTNeoXForCausalLM):
         model = model.gpt_neox
@@ -128,18 +128,19 @@ or run with:
     if isinstance(model, LlamaForCausalLM):
         model = model.model
 
-    if isinstance(model, AutoModelForCausalLMWithHydraValueHead):
-        if isinstance(model.base_model, GPTNeoXForCausalLM):
-            model = model.base_model.gpt_neox
-        elif isinstance(model.base_model, LlamaForCausalLM):
-            model = model.base_model.model
-        else:
-            warnings.warn(
-                "Unfortunately there is currently only support for NeoX models and LLaMa models "
-                f"Please make sure that `{model.__class__.__name__}` is one of those model.\n"
-                "Or disable flash_attention and residual_dropout with:\n"
-                "--use_flash_attention=false  --no-residual_dropout"
-            )
+
+    # if isinstance(model, AutoModelForCausalLMWithHydraValueHead):
+    #     if isinstance(model.base_model, GPTNeoXForCausalLM):
+    #         model = model.base_model.gpt_neox
+    #     elif isinstance(model.base_model, LlamaForCausalLM):
+    #         model = model.base_model.model
+    #     else:
+    #         warnings.warn(
+    #             "Unfortunately there is currently only support for NeoX models and LLaMa models "
+    #             f"Please make sure that `{model.__class__.__name__}` is one of those model.\n"
+    #             "Or disable flash_attention and residual_dropout with:\n"
+    #             "--use_flash_attention=false  --no-residual_dropout"
+    #         )
 
     attention_key_lookup = {
         GPTNeoXModel: "attention",
@@ -151,10 +152,13 @@ or run with:
         GPTNeoXRewardModel: "mlp",
         LlamaModel: "mlp",
     }
-    attention_key = attention_key_lookup.get(model.__class__, "attention")
-    mlp_key = mlp_key_lookup.get(model.__class__, "mlp")
-
-    for layer in model.layers:
+    model = model.base_model
+    # attention_key = attention_key_lookup.get(model.__class__, "attention")
+    # mlp_key = mlp_key_lookup.get(model.__class__, "mlp")
+    attention_key = "self_attention"
+    mlp_key = "mlp"
+    resid_pdrop = 0.01
+    for layer in model.h:
         if flash_attention:
             add_flash_attn(getattr(layer, attention_key), causal=True)
 
