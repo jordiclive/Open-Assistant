@@ -417,6 +417,7 @@ def main():
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
     model = get_model(training_conf, tokenizer)
+    # model = get_model()
 
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy

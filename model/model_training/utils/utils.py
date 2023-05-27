@@ -14,6 +14,7 @@ from model_training.custom_datasets import get_one_dataset
 from model_training.custom_datasets.formatting import QA_SPECIAL_TOKENS
 from model_training.models import freeze_top_n_layers, get_specific_model
 from model_training.models.patching import patch_model
+from model_training.models.qlora import get_qlora_model
 from model_training.models.reward_model import GPTNeoXRewardModel
 from sklearn.model_selection import train_test_split
 from tokenizers import pre_tokenizers
@@ -295,45 +296,45 @@ def get_metrics(conf, tokenizer):
 
 
 def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_layer=True):
-    dtype = torch.float32
-    if conf.dtype in ["fp16", "float16"]:
-        dtype = torch.float16
-    elif conf.dtype in ["bf16", "bfloat16"]:
-        dtype = torch.bfloat16
+    # dtype = torch.float32
+    # if conf.dtype in ["fp16", "float16"]:
+    #     dtype = torch.float16
+    # elif conf.dtype in ["bf16", "bfloat16"]:
+    #     dtype = torch.bfloat16
+    #
+    # if conf.is_reward_model:
+    #     if "pythia" in conf.model_name:
+    #         model = GPTNeoXRewardModel.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
+    #
+    #         if conf.pooling:
+    #             assert conf.pooling in ("mean", "last"), f"invalid pooling configuration '{conf.pooling}'"
+    #             model.config.pooling = conf.pooling
+    #     else:
+    #         model = transformers.AutoModelForSequenceClassification.from_pretrained(
+    #             conf.model_name, cache_dir=conf.cache_dir, num_labels=1, torch_dtype=dtype
+    #         )
+    # else:
+    #     model = get_specific_model(
+    #         conf.model_name,
+    #         cache_dir=conf.cache_dir,
+    #         quantization=conf.quantization,
+    #         seq2seqmodel=conf.seq2seqmodel,
+    #         without_head=conf.is_reward_model,
+    #         torch_dtype=dtype,
+    #     )
+    model = get_qlora_model()
+    n_embs = model.get_input_embeddings().num_embeddings
+    if len(tokenizer) != n_embs and check_freeze_layer:
+        assert not conf.freeze_layer, "Cannot change the number of embeddings if the model is frozen."
 
-    if conf.is_reward_model:
-        if "pythia" in conf.model_name:
-            model = GPTNeoXRewardModel.from_pretrained(conf.model_name, cache_dir=conf.cache_dir, torch_dtype=dtype)
+    if len(tokenizer) != n_embs or pad_vocab_size_to_multiple_of:
+        p = pad_vocab_size_to_multiple_of
+        target_size = len(tokenizer) if not p else math.ceil(len(tokenizer) / p) * p
+        print("Resizing embeddings to", target_size)
+        model.resize_token_embeddings(target_size)
 
-            if conf.pooling:
-                assert conf.pooling in ("mean", "last"), f"invalid pooling configuration '{conf.pooling}'"
-                model.config.pooling = conf.pooling
-        else:
-            model = transformers.AutoModelForSequenceClassification.from_pretrained(
-                conf.model_name, cache_dir=conf.cache_dir, num_labels=1, torch_dtype=dtype
-            )
-    else:
-        model = get_specific_model(
-            conf.model_name,
-            cache_dir=conf.cache_dir,
-            quantization=conf.quantization,
-            seq2seqmodel=conf.seq2seqmodel,
-            without_head=conf.is_reward_model,
-            torch_dtype=dtype,
-        )
-
-        n_embs = model.get_input_embeddings().num_embeddings
-        if len(tokenizer) != n_embs and check_freeze_layer:
-            assert not conf.freeze_layer, "Cannot change the number of embeddings if the model is frozen."
-
-        if len(tokenizer) != n_embs or pad_vocab_size_to_multiple_of:
-            p = pad_vocab_size_to_multiple_of
-            target_size = len(tokenizer) if not p else math.ceil(len(tokenizer) / p) * p
-            print("Resizing embeddings to", target_size)
-            model.resize_token_embeddings(target_size)
-
-        if conf.freeze_layer:
-            model = freeze_top_n_layers(model, conf.freeze_layer)
+    if conf.freeze_layer:
+        model = freeze_top_n_layers(model, conf.freeze_layer)
 
     model_parameters = filter(lambda p: p.requires_grad, model.parameters())
     params = sum([p.numel() for p in model_parameters])
