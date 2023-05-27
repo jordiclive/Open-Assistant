@@ -323,6 +323,7 @@ def get_model(conf, tokenizer, pad_vocab_size_to_multiple_of=16, check_freeze_la
     #         torch_dtype=dtype,
     #     )
     model = get_qlora_model()
+    print('MODEL LOADED', model)
     n_embs = model.get_input_embeddings().num_embeddings
     if len(tokenizer) != n_embs and check_freeze_layer:
         assert not conf.freeze_layer, "Cannot change the number of embeddings if the model is frozen."
