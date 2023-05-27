@@ -23,7 +23,7 @@ def load_oasst_export(
     input_file_path: str | Path,
     val_split: float = 0.2,
     lang: str = "en",
-    top_k: Optional[int] = None,
+    top_k: Optional[int] = 1,
     manual_seed: int = 287631038922,
     data_path: str | Path = None,
     mode: Literal["sft", "rm", "rl"] = "sft",
