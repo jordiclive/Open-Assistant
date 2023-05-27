@@ -4,7 +4,7 @@ from pathlib import Path
 import torch
 from huggingface_hub import hf_hub_download
 from model_training.utils.utils import get_model, get_tokenizer
-from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
+# from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 
 
 def load_peft_model(model, peft_model_path, tokenizer):

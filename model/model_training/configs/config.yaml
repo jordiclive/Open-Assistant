@@ -22,6 +22,9 @@ defaults:
   dtype: fp16
   eval_accumulation_steps:
   freeze_layer:
+  peft_model: false
+  peft_type: "lora"
+  residual_dropout_lima: false
   datasets:
     - webgpt
     - squad_v2
@@ -84,9 +87,7 @@ defaults:
   per_digit_tokens: false
   is_reward_model: false
   deepspeed_config: configs/zero_config.json
-  peft_model: false
-  peft_type: "lora"
-  residual_dropout_lima: false
+
 
 use_system_tag:
   use_system_tag: True
@@ -257,9 +258,9 @@ falcon-1b:
   save_total_limit: 4
   use_flash_attention: false
   residual_dropout: 0.3
-  residual_dropout_lima: true
-  peft_model: false
-  peft_type: "lora"
+#  residual_dropout_lima: true
+#  peft_model: false
+#  peft_type: "lora"
 
 falcon-7b:
   dtype: bf16
@@ -282,6 +283,8 @@ falcon-7b:
   use_flash_attention: false
   residual_dropout: 0.3
   residual_dropout_lima: true
+  peft_model: false
+  peft_type: "lora"
 
 llama-7b:
   dtype: fp16
