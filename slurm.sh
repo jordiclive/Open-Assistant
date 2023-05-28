@@ -1,3 +1,4 @@
+source /mnt/data/jordan_falcon/bin/activate
 cd /mnt/data/jordiclive/falcon/Open-Assistant
 export TRANSFORMERS_CACHE=/mnt/data/jordiclive/transformers_cache
 export PYTHONPATH="/mnt/data/jordiclive/falcon/Open-Assistant/model/model_training:$PYTHONPATH"
