@@ -257,6 +257,28 @@ falcon-7b:
   residual_dropout: 0.3
   residual_dropout_lima: true
 
+falcon-40b:
+  dtype: bf16
+  log_dir: "llama_log_7b"
+  learning_rate: 1e-5
+  model_name: "tiiuae/falcon-40b"
+  deepspeed_config: configs/zero3_config_falcon.json
+  output_dir: falcon
+  weight_decay: 0.0
+  max_length: 2048
+  warmup_steps: 20
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 8
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 3
+  eval_steps: 101
+  save_steps: 485
+  num_train_epochs: 8
+  save_total_limit: 3
+  use_flash_attention: false
+  residual_dropout: 0.3
+  residual_dropout_lima: true
+
 llama-7b:
   dtype: fp16
   log_dir: "llama_log_7b"
