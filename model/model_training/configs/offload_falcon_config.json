@@ -1,6 +1,6 @@
 {
   "bf16": {
-    "enabled": "auto"
+    "enabled": true
   },
   "scheduler": {
     "type":  "WarmupLR",
@@ -24,10 +24,6 @@
 
     "stage3_gather_16bit_weights_on_model_save": true,
     "offload_param": {
-      "device": "cpu",
-      "pin_memory": true
-    },
-    "offload_optimizer": {
       "device": "cpu",
       "pin_memory": true
     }
