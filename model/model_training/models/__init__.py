@@ -39,7 +39,6 @@ def get_specific_model(
             import torch
             kwargs["trust_remote_code"] = True
             kwargs['torch_dtype'] =torch.bfloat16
-            kwargs['device_map'] = 'auto'
 
         model = transformers.AutoModelForCausalLM.from_pretrained(model_name, cache_dir=cache_dir, **kwargs)
     return model
