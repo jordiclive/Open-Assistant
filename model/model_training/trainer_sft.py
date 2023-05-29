@@ -291,7 +291,7 @@ def main():
     )
 
     optimizer = OptimizerNames.ADAMW_BNB if training_conf.quantization else OptimizerNames.ADAMW_HF
-    optimizer = "adamw_torch_fused"
+    optimizer = "adamw_bnb_8bit"
     # needs to happen before model loading in case of stage 3 training
     args = TrainingArguments(
         output_dir=output_dir,
