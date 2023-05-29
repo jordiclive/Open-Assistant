@@ -158,21 +158,21 @@ or run with:
         GPTNeoXRewardModel: "mlp",
         LlamaModel: "mlp",
     }
-    if model.__class__.__name__ == "RWModel":
-        layers = model.h
-        attention_key = "self_attention"
-        mlp_key = "mlp"
-    else:
-        layers = model.layers
-        attention_key = attention_key_lookup.get(model.__class__, "attention")
-        mlp_key = mlp_key_lookup.get(model.__class__, "mlp")
-    num_layers = len(layers)
-    resid_pdrop_last_layer = resid_pdrop
-    for i, layer in enumerate(layers):
-        if flash_attention:
-            add_flash_attn(getattr(layer, attention_key), causal=True)
-        if residual_dropout_lima:
-            resid_pdrop = i / (num_layers - 1) * resid_pdrop_last_layer
-        if resid_pdrop is not None and resid_pdrop > 0:
-            add_dropout(getattr(layer, attention_key), _patched_attn_forward, resid_pdrop)
-            add_dropout(getattr(layer, mlp_key), _patched_mlp_forward, resid_pdrop)
+    # if model.__class__.__name__ == "RWModel":
+    #     layers = model.h
+    #     attention_key = "self_attention"
+    #     mlp_key = "mlp"
+    # else:
+    #     layers = model.layers
+    #     attention_key = attention_key_lookup.get(model.__class__, "attention")
+    #     mlp_key = mlp_key_lookup.get(model.__class__, "mlp")
+    # num_layers = len(layers)
+    # resid_pdrop_last_layer = resid_pdrop
+    # for i, layer in enumerate(layers):
+    #     if flash_attention:
+    #         add_flash_attn(getattr(layer, attention_key), causal=True)
+    #     if residual_dropout_lima:
+    #         resid_pdrop = i / (num_layers - 1) * resid_pdrop_last_layer
+    #     if resid_pdrop is not None and resid_pdrop > 0:
+    #         add_dropout(getattr(layer, attention_key), _patched_attn_forward, resid_pdrop)
+    #         add_dropout(getattr(layer, mlp_key), _patched_mlp_forward, resid_pdrop)
