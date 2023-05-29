@@ -265,7 +265,7 @@ falcon-40b:
   deepspeed_config: configs/falcon_offload2.json
   output_dir: falcon
   weight_decay: 0.0
-  max_length: 1024
+  max_length: 512
   warmup_steps: 20
   gradient_checkpointing: true
   gradient_accumulation_steps: 16
