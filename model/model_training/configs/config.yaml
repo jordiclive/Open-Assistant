@@ -258,11 +258,11 @@ falcon-7b:
   residual_dropout_lima: true
 
 falcon-40b:
-  dtype: bf16
+  dtype: fp16
   log_dir: "llama_log_7b"
   learning_rate: 1e-5
-  model_name: "tiiuae/falcon-40b"
-  deepspeed_config: configs/offload_falcon_config.json
+  model_name: "tiiuae/falcon-7b"
+  deepspeed_config: configs/zero_config_falcon2.json
   output_dir: falcon
   weight_decay: 0.0
   max_length: 2048
