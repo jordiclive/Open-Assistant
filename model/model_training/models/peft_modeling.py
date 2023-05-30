@@ -70,7 +70,7 @@ def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpoint
 def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
     model = PeftModel.from_pretrained(
         model,
-        peft_ckpt_path="/mnt/data/jordiclive/adapter_ckpt_10500",
+        model_id="/mnt/data/jordiclive/adapter_ckpt_10500",
         torch_dtype=torch.float16,
     )
     model.eos_token_id = tokenizer.eos_token_id
