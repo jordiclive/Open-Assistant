@@ -120,8 +120,8 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
 
 if __name__ == '__main__':
     save_config = SaveLoraConfig(
-        torch_ckpt_path="/mnt/data/jordiclive/65B_ckpts/checkpoint-9000/pytorch_model.bin",
-        adapter_save_path="/mnt/data/jordiclive/adapter_ckpt_9000",
+        torch_ckpt_path="/mnt/data/jordiclive/65B_ckpts_stage2/checkpoint-666/pytorch_model.bin",
+        adapter_save_path="/mnt/data/jordiclive/stage_2_oasst_top_1_adapter_ckpt_666",
         model_name="/mnt/data/llama_hf/65B",
         cache_dir="/mnt/data/jordiclive/data_cache",
         dtype=torch.float16,
