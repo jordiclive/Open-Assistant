@@ -67,6 +67,26 @@ def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpoint
     model.print_trainable_parameters()
     return model
 
+def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
+    model = PeftModel.from_pretrained(
+        model,
+        peft_ckpt_path="/mnt/data/jordiclive/adapter_ckpt_10500",
+        torch_dtype=torch.float16,
+    )
+    model.eos_token_id = tokenizer.eos_token_id
+    embed_weights = torch.load(
+        "/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",
+        map_location=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    )
+    model.base_model.model.model.embed_tokens.weight[32000:, :] = embed_weights.to(
+    model.base_model.model.model.embed_tokens.weight.dtype
+    ).to(
+    model.base_model.model.model.embed_tokens.weight.device
+    )
+    model = prepare_model_for_gradient_checkpointing(model)
+
+    return model
+
 
 @dataclass
 class SaveLoraConfig:
