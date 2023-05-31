@@ -34,7 +34,7 @@ from transformers.utils import is_datasets_available
 
 import torch
 from huggingface_hub import hf_hub_download
-from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
+# from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 
 
 # def prepare_model_for_gradient_checkpointing(model):
