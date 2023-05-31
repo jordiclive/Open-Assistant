@@ -419,12 +419,12 @@ def main():
 
     model = get_model(training_conf, tokenizer)
     #
-    # if training_conf.peft_model:
-    #     print("Using PEFT model")
-    #     model = peft_model(
-    #         model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
-    #     )
-    #
+    if training_conf.peft_model:
+        print("Using PEFT model")
+        model = peft_model(
+            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
+        )
+
     model.load_state_dict(torch.load("/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/pytorch_model.bin",map_location=model.dtype))
     for n,p in model.named_parameters():
         print(n,p.requires_grad)
