@@ -3,7 +3,6 @@ from pathlib import Path
 
 import torch
 from huggingface_hub import hf_hub_download
-from model_training.utils.utils import get_model, get_tokenizer
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 
 
@@ -68,34 +67,6 @@ def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpoint
     return model
 
 
-@dataclass
-class SaveLoraConfig:
-    dtype: torch.dtype = torch.float16
-    is_reward_model: bool = False
-    quantization: bool = False
-    seq2seqmodel: bool = False
-    freeze_layer: bool = False
-    residual_dropout: float = 0
-    use_flash_attention: bool = False
-    adapter_save_path: str = "adapter"
-    cache_dir: str = ""
-    model_name: str = ""
-    torch_ckpt_path: str = ""
-    peft_type: str = "lora"
 
 
-def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
-    tokenizer = get_tokenizer(save_config)
-    model = get_model(save_config, tokenizer)
-    model = peft_model(model)
-    model.load_state_dict(torch.load(save_config.torch_ckpt_path))
-    vocab_size = tokenizer.vocab_size
-    num_special_tokens = len(tokenizer.additional_special_tokens)
 
-    new_embs = model.state_dict()["base_model.model.model.embed_tokens.weight"][
-        vocab_size : vocab_size + num_special_tokens, :
-    ].clone()
-    new_embs = new_embs.to(save_config.dtype)
-    model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
-    tokenizer.save_pretrained(save_config.adapter_save_path)
-    torch.save(new_embs, Path(save_config.adapter_save_path).joinpath("extra_embeddings.pt"))
