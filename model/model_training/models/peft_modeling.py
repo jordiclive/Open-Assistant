@@ -74,7 +74,7 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
         torch_dtype=torch.float16,
     )
     # model.eos_token_id = tokenizer.eos_token_id
-    embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
+    embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location=model.device)
     print('embed_requires_grad1',embed_weights.requires_grad)
     embed_weights.requires_grad = False
     model.base_model.model.model.embed_tokens.weight[32000:32000+embed_weights.shape[0], :] = embed_weights.to(
