@@ -496,8 +496,8 @@ def main():
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         # ignore_data_skip=True,
     )
-    trainer.train(resume_from_checkpoint='/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/global_step10500')
-    # trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
+    # trainer.train(resume_from_checkpoint='/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/global_step10500')
+    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
 
