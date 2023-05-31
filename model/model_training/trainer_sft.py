@@ -421,6 +421,7 @@ def main():
     model = get_model(training_conf, tokenizer)
 
 
+
     # model = load_peft_ckpt(model,tokenizer)
 
     #
@@ -430,7 +431,10 @@ def main():
             model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
         )
 
-
+    adapters_weights = torch.load(
+        "/mnt/data/jordiclive/adapter_ckpt_10500", map_location=model.device
+    )
+    model.load_state_dict(adapters_weights, strict=False)
     # model.load_state_dict(torch.load("/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/pytorch_model.bin"))
 
     # model.save_pretrained()
