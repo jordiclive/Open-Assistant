@@ -418,6 +418,7 @@ def main():
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
     model = get_model(training_conf, tokenizer)
+    model
     #
     # if training_conf.peft_model:
     #     print("Using PEFT model")
