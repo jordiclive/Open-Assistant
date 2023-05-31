@@ -553,7 +553,7 @@ lora-llama-65b-sft:
   dtype: fp16
   log_dir: "llama_lora_log_65b"
   learning_rate: 5e-5
-  model_name: /mnt/data/llama_hf/65B
+  model_name: /mnt/data/llama_hf/7B
   output_dir: llama_model_65b_lora_sft
   weight_decay: 0.0
   max_length: 2048
