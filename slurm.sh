@@ -1,12 +1,12 @@
-source /mnt/data/jordiclive/jordan_falcon/bin/activate
+source /mnt/data/jordiclive/falcon_lora/bin/activate
 source /mnt/data/jordiclive/jordan/bin/activate
 
 cd /mnt/data/jordiclive/falcon/Open-Assistant
 export TRANSFORMERS_CACHE=/mnt/data/jordiclive/transformers_cache
-#export PYTHONPATH="/mnt/data/jordiclive/falcon/Open-Assistant/model/model_training:$PYTHONPATH"
-#export PYTHONPATH="/mnt/data/jordiclive/falcon/Open-Assistant/model:$PYTHONPATH"
-export PYTHONPATH="/mnt/data/jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
-export PYTHONPATH="/mnt/data/jordiclive/Open-Assistant/model:$PYTHONPATH"
+export PYTHONPATH="/mnt/data/jordiclive/falcon_lora/Open-Assistant/model/model_training:$PYTHONPATH"
+export PYTHONPATH="/mnt/data/jordiclive/falcon_lora/Open-Assistant/model:$PYTHONPATH"
+#export PYTHONPATH="/mnt/data/jordiclive/Open-Assistant/model/model_training:$PYTHONPATH"
+#export PYTHONPATH="/mnt/data/jordiclive/Open-Assistant/model:$PYTHONPATH"
 
 #export HF_DATASETS_OFFLINE=1
 #export TRANSFORMERS_OFFLINE=1
