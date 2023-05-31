@@ -299,7 +299,7 @@ falcon-40b-lora:
   gradient_accumulation_steps: 1
   per_device_train_batch_size: 8
   per_device_eval_batch_size: 8
-  eval_steps: 200
+  eval_steps: 100
   save_steps: 500
   max_grad_norm: 3
   num_train_epochs: 10
