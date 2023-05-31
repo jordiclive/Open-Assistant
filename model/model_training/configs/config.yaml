@@ -314,12 +314,12 @@ falcon-40b-lora:
 falcon-40b:
   dtype: bf16
   log_dir: "llama_log_7b"
-  learning_rate: 1e-5
+  learning_rate: 1e-4
   model_name: "tiiuae/falcon-40b"
   deepspeed_config: configs/falcon_offload2.json
   output_dir: falcon
   weight_decay: 0.0
-  max_length: 512
+  max_length: 2048
   warmup_steps: 20
   gradient_checkpointing: true
   gradient_accumulation_steps: 16
