@@ -5,7 +5,7 @@ import torch
 from huggingface_hub import hf_hub_download
 from model_training.utils.utils import get_model, get_tokenizer
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
-
+from peft.tuners.lora import LoraLayer
 
 def load_peft_model(model, peft_model_path, tokenizer):
     model.resize_token_embeddings(len(tokenizer))
@@ -41,13 +41,39 @@ def prepare_model_for_gradient_checkpointing(model):
             model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
     return model
 
+# def find_all_linear_names(args, model):
+#     cls = bnb.nn.Linear4bit if args.bits == 4 else (bnb.nn.Linear8bitLt if args.bits == 8 else torch.nn.Linear)
+#     lora_module_names = set()
+#     for name, module in model.named_modules():
+#         if isinstance(module, cls):
+#             names = name.split('.')
+#             lora_module_names.add(names[0] if len(names) == 1 else names[-1])
+#
+#
+#     if 'lm_head' in lora_module_names: # needed for 16-bit
+#         lora_module_names.remove('lm_head')
+#     return list(lora_module_names)
 
-def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpointing=False):
+# def get_peft_model(model,peft_type='lora',int8_training=False, gradient_checkpointing=False):
+#     falcon= ['dense_4h_to_h', 'dense', 'query_key_value', 'dense_h_to_4h']
+#     llama = ['down_proj', 'k_proj', 'q_proj', 'gate_proj', 'o_proj', 'up_proj', 'v_proj']
+#     # modules = find_all_linear_names(args, model)
+#     modules = falcon
+#     config = LoraConfig(
+#         r=args.lora_r,
+#         lora_alpha=args.lora_alpha,
+#         target_modules=modules,
+#         lora_dropout=args.lora_dropout,
+#         bias="none",
+#         task_type="CAUSAL_LM",
+#     )
+
+def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpointing=False,bf16=True):
     if peft_type == "lora":
         config = LoraConfig(
-            r=16,
-            lora_alpha=32,
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+            r=64,
+            lora_alpha=16,
+            target_modules=['dense_4h_to_h', 'dense', 'query_key_value', 'dense_h_to_4h'],
             lora_dropout=0.05,
             bias="none",
             task_type="CAUSAL_LM",
@@ -64,6 +90,18 @@ def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpoint
 
     if gradient_checkpointing:
         model = prepare_model_for_gradient_checkpointing(model)
+
+    # for name, module in model.named_modules():
+    #     if isinstance(module, LoraLayer):
+    #         if bf16:
+    #             module = module.to(torch.bfloat16)
+    #     if 'norm' in name:
+    #         module = module.to(torch.float32)
+    #     if 'lm_head' in name or 'embed_tokens' in name:
+    #         if hasattr(module, 'weight'):
+    #             if args.bf16 and module.weight.dtype == torch.float32:
+    #                 module = module.to(torch.bfloat16)
+
     model.print_trainable_parameters()
     return model
 
