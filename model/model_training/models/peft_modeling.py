@@ -90,28 +90,29 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
     model.print_trainable_parameters()
     return model
 
-# def transfer_embeddings(model,path):
-#     old_embeddings = model.get_input_embeddings()
-#     new_embeddings = torch.nn.Embedding(old_embeddings.shape[0], old_embeddings.shape[1])
-#     # new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
-#     from transformers.deepspeed import  is_deepspeed_zero3_enabled
-#
-#     embed_weights = torch.load(path,map_location=model.device)
-#     if is_deepspeed_zero3_enabled():
-#         import deepspeed
-#
-#         with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=0):
-#             if torch.distributed.get_rank() == 0:
-#                 new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
-#                 new_embeddings.data[32000:32000+embed_weights.shape[0], :] = embed_weights.data.to(model.model.embed_tokens.weight.dtype).to(model.model.embed_tokens.weight.device)                                                                                  )
-#     else:
-#         new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
-#         new_embeddings.data[32000:32000 + embed_weights.shape[0], :] = embed_weights.data.to(
-#         model.model.embed_tokens.weight.dtype
-#         ).to(model.model.embed_tokens.weight.device)
-#
-#     model.set_input_embeddings(model.model.embed_tokens)
-#     model.tie_weights()
+def transfer_embeddings(model,path):
+    old_embeddings = model.get_input_embeddings()
+    new_embeddings = torch.nn.Embedding(old_embeddings.weight.shape[0], old_embeddings.weight.shape[1])
+    new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
+    from transformers.deepspeed import  is_deepspeed_zero3_enabled
+
+    embed_weights = torch.load(path,map_location=model.device)
+    if is_deepspeed_zero3_enabled():
+        import deepspeed
+
+        with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=0):
+            if torch.distributed.get_rank() == 0:
+                new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
+                new_embeddings.weight.data[32000:32000+embed_weights.shape[0], :] = embed_weights.weight.data.to(new_embeddings.weight.dtype).to(new_embeddings.weight.device)
+    else:
+        new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
+        new_embeddings.weight.data[32000:32000 + embed_weights.shape[0], :] = embed_weights.weight.data.to(
+            new_embeddings.weight.dtype).to(new_embeddings.weight.device)
+
+    model.set_input_embeddings(new_embeddings)
+    model.tie_weights()
+
+
 
 
 @dataclass
