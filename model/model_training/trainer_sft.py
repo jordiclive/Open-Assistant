@@ -322,6 +322,7 @@ def main():
         eval_accumulation_steps=training_conf.eval_accumulation_steps,
         resume_from_checkpoint=training_conf.resume_from_checkpoint,
         report_to="wandb" if training_conf.log_wandb else None,
+        ignore_data_skip=True,
     )
 
     init_rng(training_conf)
@@ -418,13 +419,12 @@ def main():
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
     model = get_model(training_conf, tokenizer)
-    model
     #
-    # if training_conf.peft_model:
-    #     print("Using PEFT model")
-    #     model = peft_model(
-    #         model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
-    #     )
+    if training_conf.peft_model:
+        print("Using PEFT model")
+        model = peft_model(
+            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
+        )
     # model.print_trainable_parameters()
     # device = model.device
     # dtype = model.dtype
@@ -435,7 +435,7 @@ def main():
     # model = model.to(torch.float16)
     # # model.to(device)
     # model.print_trainable_parameters()
-    model = load_peft_ckpt(model,tokenizer)
+    # model = load_peft_ckpt(model,tokenizer)
 
 
 
@@ -483,8 +483,8 @@ def main():
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
         # ignore_data_skip=True,
     )
-    # trainer.train(resume_from_checkpoint='/mnt/data/jordiclive/65B_ckpts/checkpoint-10500')
-    trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
+    trainer.train(resume_from_checkpoint='/mnt/data/jordiclive/65B_ckpts/checkpoint-10500')
+    # trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
 
