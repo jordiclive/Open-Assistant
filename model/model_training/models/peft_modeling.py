@@ -91,12 +91,20 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
     return model
 
 def transfer_embeddings(model,path):
-    old_embeddings = model.get_input_embeddings()
-    new_embeddings = torch.nn.Embedding(old_embeddings.weight.shape[0], old_embeddings.weight.shape[1])
-    new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
     from transformers.deepspeed import  is_deepspeed_zero3_enabled
 
-    embed_weights = torch.load(path,map_location=model.device)
+    old_embeddings = model.get_input_embeddings()
+    if is_deepspeed_zero3_enabled():
+        import deepspeed
+
+        with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=None):
+            old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
+    else:
+        old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
+    new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
+    new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
+    model._init_weights(new_embeddings)
+    embed_weights = torch.load(path,map_location=old_embeddings.weight.device)
     if is_deepspeed_zero3_enabled():
         import deepspeed
 
