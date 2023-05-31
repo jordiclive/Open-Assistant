@@ -84,7 +84,7 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
     )
     print('embed_requires_grad',model.base_model.model.model.embed_tokens.weight.requires_grad)
     model = prepare_model_for_gradient_checkpointing(model)
-
+    model.print_trainable_parameters()
     return model
 
 
