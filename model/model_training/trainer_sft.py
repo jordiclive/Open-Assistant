@@ -7,11 +7,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import datasets
 import torch
-
-# from model_training.custom_datasets.formatting import DatasetEntry
-
+from huggingface_hub import hf_hub_download
 from model_training.custom_datasets.dialogue_collator import DialogueDataCollator
 from model_training.efficiency_utils import fuse_gelu
+from model_training.models.peft_modeling import peft_model
 from model_training.utils.utils import (
     PerDatasetSampler,
     _strtobool,
@@ -31,9 +30,9 @@ from transformers.trainer_pt_utils import IterableDatasetShard
 from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
-from model_training.models.peft_modeling import peft_model
-import torch
-from huggingface_hub import hf_hub_download
+
+# from model_training.custom_datasets.formatting import DatasetEntry
+
 
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):

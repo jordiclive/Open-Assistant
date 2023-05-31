@@ -7,6 +7,7 @@ from model_training.utils.utils import get_model, get_tokenizer
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 from peft.tuners.lora import LoraLayer
 
+
 def load_peft_model(model, peft_model_path, tokenizer):
     model.resize_token_embeddings(len(tokenizer))
     model.config.eos_token_id = tokenizer.eos_token_id
@@ -41,6 +42,7 @@ def prepare_model_for_gradient_checkpointing(model):
             model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
     return model
 
+
 # def find_all_linear_names(args, model):
 #     cls = bnb.nn.Linear4bit if args.bits == 4 else (bnb.nn.Linear8bitLt if args.bits == 8 else torch.nn.Linear)
 #     lora_module_names = set()
@@ -68,12 +70,13 @@ def prepare_model_for_gradient_checkpointing(model):
 #         task_type="CAUSAL_LM",
 #     )
 
-def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpointing=False,bf16=True):
+
+def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpointing=False, bf16=True):
     if peft_type == "lora":
         config = LoraConfig(
             r=64,
             lora_alpha=16,
-            target_modules=['dense_4h_to_h', 'dense', 'query_key_value', 'dense_h_to_4h'],
+            target_modules=["dense_4h_to_h", "dense", "query_key_value", "dense_h_to_4h"],
             lora_dropout=0.05,
             bias="none",
             task_type="CAUSAL_LM",
