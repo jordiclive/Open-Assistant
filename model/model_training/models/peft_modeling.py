@@ -5,7 +5,6 @@ import torch
 from huggingface_hub import hf_hub_download
 from model_training.utils.utils import get_model, get_tokenizer
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
-from peft.tuners.lora import LoraLayer
 
 def load_peft_model(model, peft_model_path, tokenizer):
     model.resize_token_embeddings(len(tokenizer))
