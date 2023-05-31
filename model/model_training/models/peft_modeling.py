@@ -120,6 +120,36 @@ def transfer_embeddings(model,path):
     model.set_input_embeddings(new_embeddings)
     model.tie_weights()
 
+def transfer_embeddings_after(model,path):
+    from transformers.deepspeed import  is_deepspeed_zero3_enabled
+
+    old_embeddings = model.get_input_embeddings()
+    if is_deepspeed_zero3_enabled():
+        import deepspeed
+
+        with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=None):
+            old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
+    else:
+        old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
+    new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
+    new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
+    model._init_weights(new_embeddings)
+    embed_weights = torch.load(path,map_location=old_embeddings.weight.device)
+    if is_deepspeed_zero3_enabled():
+        import deepspeed
+
+        with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=0):
+            if torch.distributed.get_rank() == 0:
+                new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
+                new_embeddings.weight.data[32000:32000+embed_weights.shape[0], :] = embed_weights.weight.data.to(new_embeddings.weight.dtype).to(new_embeddings.weight.device)
+    else:
+        new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
+        new_embeddings.weight.data[32000:32000 + embed_weights.shape[0], :] = embed_weights.weight.data.to(
+            new_embeddings.weight.dtype).to(new_embeddings.weight.device)
+
+    model.set_input_embeddings(new_embeddings)
+    model.tie_weights()
+
 
 
 

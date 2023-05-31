@@ -420,13 +420,18 @@ def main():
 
     model = get_model(training_conf, tokenizer)
 
-    # transfer_embeddings(model,"/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt")
+
+
     #
     # if training_conf.peft_model:
     #     print("Using PEFT model")
     #     model = peft_model(
     #         model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
     #     )
+
+    # model.load_state_dict(torch.load("/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/pytorch_model.bin"))
+
+    # model.save_pretrained()
     # model.print_trainable_parameters()
     # device = model.device
     # dtype = model.dtype
@@ -438,7 +443,7 @@ def main():
     # # model.to(device)
     # model.print_trainable_parameters()
     model = load_peft_ckpt(model,tokenizer)
-
+    # transfer_embeddings(model, "/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt")
 
 
     if training_conf.quantization:
