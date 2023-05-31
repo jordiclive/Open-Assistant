@@ -73,7 +73,7 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
         model_id="/mnt/data/jordiclive/adapter_ckpt_10500",
         torch_dtype=torch.float16,
     )
-    model.eos_token_id = tokenizer.eos_token_id
+    # model.eos_token_id = tokenizer.eos_token_id
     embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location=torch.device("cuda" if torch.cuda.is_available() else "cpu"))
 
     model.base_model.model.model.embed_tokens.weight[32000:32000+embed_weights.shape[0], :] = embed_weights.to(
@@ -81,6 +81,7 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
     ).to(
     model.base_model.model.model.embed_tokens.weight.device
     )
+    print('embed_requires_grad',model.base_model.model.model.embed_tokens.weight.requires_grad)
     model = prepare_model_for_gradient_checkpointing(model)
 
     return model

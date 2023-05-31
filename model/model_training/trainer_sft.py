@@ -425,7 +425,12 @@ def main():
     #         model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
     #     )
     #
+    # model.load_state_dict(torch.load("/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/pytorch_model.bin",map_location=model.dtype))
+    # for n,p in model.named_parameters():
+    #     print(n,p.requires_grad)
     model = load_peft_ckpt(model,tokenizer)
+
+
 
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
