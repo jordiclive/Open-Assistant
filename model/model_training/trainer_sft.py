@@ -419,11 +419,11 @@ def main():
 
     model = get_model(training_conf, tokenizer)
     #
-    if training_conf.peft_model:
-        print("Using PEFT model")
-        model = peft_model(
-            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
-        )
+    # if training_conf.peft_model:
+    #     print("Using PEFT model")
+    #     model = peft_model(
+    #         model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
+    #     )
     model.print_trainable_parameters()
     # device = model.device
     # dtype = model.dtype
