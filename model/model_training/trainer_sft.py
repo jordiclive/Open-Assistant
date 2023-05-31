@@ -424,7 +424,7 @@ def main():
     #     model = peft_model(
     #         model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
     #     )
-    model.print_trainable_parameters()
+    # model.print_trainable_parameters()
     # device = model.device
     # dtype = model.dtype
     # model.load_state_dict(torch.load("/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/pytorch_model.bin"))
