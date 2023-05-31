@@ -280,6 +280,7 @@ def tokenizer_sanity_check(tokenizer):
 
 
 def main():
+    print('AAAAAAAAAAA'*100)
     training_conf = argument_parsing()
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         print(f"trainig_conf = {training_conf}")
@@ -328,8 +329,8 @@ def main():
 
     tokenizer = get_tokenizer(training_conf)
 
-    if not training_conf.deepspeed or training_conf.local_rank == 0:
-        tokenizer_sanity_check(tokenizer)
+    # if not training_conf.deepspeed or training_conf.local_rank == 0:
+    #     tokenizer_sanity_check(tokenizer)
 
     train_collate_fn = DialogueDataCollator(
         tokenizer,
