@@ -453,7 +453,7 @@ def main():
             project="supervised-finetuning",
             entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
-            name=f"falcon-40b-finetuned",
+            name=f"lora-falcon-40b-oasst",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
