@@ -445,7 +445,7 @@ def main():
     # # model.to(device)
     # model.print_trainable_parameters()
     # model = load_peft_ckpt(model,tokenizer)
-    # transfer_embeddings(model, "/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt")
+    transfer_embeddings(model, "/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt")
 
 
     if training_conf.quantization:
