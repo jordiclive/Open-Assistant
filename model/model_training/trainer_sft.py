@@ -451,7 +451,7 @@ def main():
 
         wandb.init(
             project="supervised-finetuning",
-            entity="jordanclive",
+            entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
             name=f"lora-falcon-40b-oasst",
             config=training_conf,
