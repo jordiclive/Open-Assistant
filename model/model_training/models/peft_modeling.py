@@ -74,10 +74,8 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
         torch_dtype=torch.float16,
     )
     # model.eos_token_id = tokenizer.eos_token_id
-    # new_embeddings = torch.nn.Embedding(new_num_tokens, old_embedding_dim)
-
-    # embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location='cpu')
-
+    #
+    #
     # embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location=model.device)
     # print('embed_requires_grad1',embed_weights.requires_grad)
     # embed_weights.requires_grad = False
@@ -91,6 +89,29 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
     model = prepare_model_for_gradient_checkpointing(model)
     model.print_trainable_parameters()
     return model
+
+# def transfer_embeddings(model,path):
+#     old_embeddings = model.get_input_embeddings()
+#     new_embeddings = torch.nn.Embedding(old_embeddings.shape[0], old_embeddings.shape[1])
+#     # new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
+#     from transformers.deepspeed import  is_deepspeed_zero3_enabled
+#
+#     embed_weights = torch.load(path,map_location=model.device)
+#     if is_deepspeed_zero3_enabled():
+#         import deepspeed
+#
+#         with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=0):
+#             if torch.distributed.get_rank() == 0:
+#                 new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
+#                 new_embeddings.data[32000:32000+embed_weights.shape[0], :] = embed_weights.data.to(model.model.embed_tokens.weight.dtype).to(model.model.embed_tokens.weight.device)                                                                                  )
+#     else:
+#         new_embeddings.weight.data[:32000, :] = old_embeddings.weight.data[:32000, :]
+#         new_embeddings.data[32000:32000 + embed_weights.shape[0], :] = embed_weights.data.to(
+#         model.model.embed_tokens.weight.dtype
+#         ).to(model.model.embed_tokens.weight.device)
+#
+#     model.set_input_embeddings(model.model.embed_tokens)
+#     model.tie_weights()
 
 
 @dataclass
