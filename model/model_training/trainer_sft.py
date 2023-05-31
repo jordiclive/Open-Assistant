@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from model_training.models.peft_modeling import peft_model
 import datasets
 import torch
-
+print('AAAAAAAAAAA'*100)
 # from model_training.custom_datasets.formatting import DatasetEntry
 from model_training.custom_datasets.dialogue_collator import DialogueDataCollator
 from model_training.efficiency_utils import fuse_gelu
@@ -280,7 +280,7 @@ def tokenizer_sanity_check(tokenizer):
 
 
 def main():
-    print('AAAAAAAAAAA'*100)
+
     training_conf = argument_parsing()
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         print(f"trainig_conf = {training_conf}")
