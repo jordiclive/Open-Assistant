@@ -210,9 +210,7 @@ def get_tokenizer(conf) -> transformers.AutoTokenizer:
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(tokenizer_name, cache_dir=conf.cache_dir)
 
-    tokenizer_config = TokenizerConfig(
-        special_tokens=SpecialTokens("<|endoftext|>", "<|endoftext|>", sep_token="<|endoftext|>")
-    )
+    tokenizer_config = match_tokenizer_name(conf.model_name)
 
     if hasattr(conf, "per_digit_tokens") and conf.per_digit_tokens:
         tokenizer._tokenizer.pre_processor = pre_tokenizers.Digits(True)
