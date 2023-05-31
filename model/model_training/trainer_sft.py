@@ -9,8 +9,10 @@ import datasets
 import torch
 
 # from model_training.custom_datasets.formatting import DatasetEntry
+
 from model_training.custom_datasets.dialogue_collator import DialogueDataCollator
 from model_training.efficiency_utils import fuse_gelu
+from model_training.models.peft_modeling import peft_model
 from model_training.utils.utils import (
     PerDatasetSampler,
     _strtobool,
@@ -30,7 +32,6 @@ from transformers.trainer_pt_utils import IterableDatasetShard
 from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
-
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
     out = {}
