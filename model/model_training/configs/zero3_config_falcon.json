@@ -2,21 +2,21 @@
   "bf16": {
     "enabled": "auto"
   },
-    "optimizer": {
+  "optimizer": {
     "type": "AdamW",
     "params": {
       "lr": "auto",
       "betas": "auto",
       "eps": "auto",
       "weight_decay": "auto"
-    },
+    }
+  },
   "scheduler": {
-    "type":  "WarmupLR",
+    "type": "WarmupLR",
     "params": {
       "warmup_min_lr": "auto",
       "warmup_max_lr": "auto",
-      "warmup_num_steps": "auto",
-      "warmup_type": "linear"
+      "warmup_num_steps": "auto"
     }
   },
   "zero_optimization": {
@@ -37,5 +37,4 @@
   "train_batch_size": "auto",
   "train_micro_batch_size_per_gpu": "auto",
   "wall_clock_breakdown": false
-    }
-
+}
