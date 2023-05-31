@@ -94,7 +94,7 @@ def transfer_embeddings(model,path):
     from transformers.deepspeed import  is_deepspeed_zero3_enabled
 
     old_embeddings = model.get_input_embeddings()
-    if is_deepspeed_zero3_enabled():
+    if True:
         import deepspeed
 
         with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=None):
@@ -105,7 +105,7 @@ def transfer_embeddings(model,path):
     new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
     model._init_weights(new_embeddings)
     embed_weights = torch.load(path,map_location=old_embeddings.weight.device)
-    if is_deepspeed_zero3_enabled():
+    if True:
         import deepspeed
 
         with deepspeed.zero.GatheredParameters(old_embeddings.weight, modifier_rank=0):
@@ -119,6 +119,8 @@ def transfer_embeddings(model,path):
 
     model.set_input_embeddings(new_embeddings)
     model.tie_weights()
+
+
 
 def transfer_embeddings_after(model,path):
     from transformers.deepspeed import  is_deepspeed_zero3_enabled
