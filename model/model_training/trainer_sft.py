@@ -31,53 +31,10 @@ from transformers.trainer_pt_utils import IterableDatasetShard
 from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
-
+from model_training.models.peft_modeling import peft_model
 import torch
 from huggingface_hub import hf_hub_download
-import peft
-# from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 
-
-# def prepare_model_for_gradient_checkpointing(model):
-#     r"""
-#     Prepares the model for gradient checkpointing if necessary
-#     """
-#     if not getattr(model, "is_loaded_in_8bit", False):
-#         if hasattr(model, "enable_input_require_grads"):
-#             model.enable_input_require_grads()
-#         else:
-#
-#             def make_inputs_require_grad(module, input, output):
-#                 output.requires_grad_(True)
-#
-#             model.get_input_embeddings().register_forward_hook(make_inputs_require_grad)
-#     return model
-#
-#
-# def peft_model(model, peft_type="lora", int8_training=False, gradient_checkpointing=False):
-#     if peft_type == "lora":
-#         config = LoraConfig(
-#             r=16,
-#             lora_alpha=32,
-#             target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
-#             lora_dropout=0.05,
-#             bias="none",
-#             task_type="CAUSAL_LM",
-#         )
-#     elif peft_type == "prefix-tuning":
-#         config = PrefixTuningConfig(
-#             num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024, task_type="CAUSAL_LM"
-#         )
-#     else:
-#         raise ValueError("peft_method config is lora or prefix-tuning")
-#     model = get_peft_model(model, config)
-#     if int8_training:
-#         model = prepare_model_for_int8_training(model)
-#
-#     if gradient_checkpointing:
-#         model = prepare_model_for_gradient_checkpointing(model)
-#     model.print_trainable_parameters()
-#     return model
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
     out = {}
@@ -465,6 +422,12 @@ def main():
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
     model = get_model(training_conf, tokenizer)
+
+    if training_conf.peft_model:
+        print("Using PEFT model")
+        model = peft_model(
+            model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
+        )
 
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
