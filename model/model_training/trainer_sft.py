@@ -432,7 +432,7 @@ def main():
         )
 
     adapters_weights = torch.load(
-        "/mnt/data/jordiclive/adapter_ckpt_10500", map_location=model.device
+        "/mnt/data/jordiclive/adapter_ckpt_10500/adapter_model.bin", map_location=model.device
     )
     model.load_state_dict(adapters_weights, strict=False)
     # model.load_state_dict(torch.load("/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/pytorch_model.bin"))
