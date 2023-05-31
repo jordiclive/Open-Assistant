@@ -76,15 +76,15 @@ def load_peft_ckpt(model, tokenizer,peft_ckpt_path=None):
     # model.eos_token_id = tokenizer.eos_token_id
     #
     #
-    # embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location=model.device)
-    # print('embed_requires_grad1',embed_weights.requires_grad)
-    # embed_weights.requires_grad = False
-    #
-    # model.base_model.model.model.embed_tokens.weight.data[32000:32000+embed_weights.shape[0], :] = embed_weights.data.to(
-    # model.base_model.model.model.embed_tokens.weight.dtype
-    # ).to(
-    # model.base_model.model.model.embed_tokens.weight.device
-    # )
+    embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location=model.device)
+    print('embed_requires_grad1',embed_weights.requires_grad)
+    embed_weights.requires_grad = False
+
+    model.base_model.model.model.embed_tokens.weight.data[32000:32000+embed_weights.shape[0], :] = embed_weights.data.to(
+    model.base_model.model.model.embed_tokens.weight.dtype
+    ).to(
+    model.base_model.model.model.embed_tokens.weight.device
+    )
     # print('embed_requires_grad',model.base_model.model.model.embed_tokens.weight.requires_grad)
     model = prepare_model_for_gradient_checkpointing(model)
     model.print_trainable_parameters()

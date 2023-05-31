@@ -431,10 +431,21 @@ def main():
             model, peft_type=training_conf.peft_type, gradient_checkpointing=training_conf.gradient_checkpointing
         )
 
+    embed_weights = torch.load("/mnt/data/jordiclive/adapter_ckpt_10500/extra_embeddings.pt",map_location=model.device)
+    print('embed_requires_grad1',embed_weights.requires_grad)
+    embed_weights.requires_grad = False
+
+    model.base_model.model.model.embed_tokens.weight.data[32000:32000+embed_weights.shape[0], :] = embed_weights.data.to(
+    model.base_model.model.model.embed_tokens.weight.dtype
+    ).to(
+    model.base_model.model.model.embed_tokens.weight.device
+    )
+
     adapters_weights = torch.load(
         "/mnt/data/jordiclive/adapter_ckpt_10500/adapter_model.bin", map_location=model.device
     )
     model.load_state_dict(adapters_weights, strict=False)
+
     # model.load_state_dict(torch.load("/mnt/data/jordiclive/65B_ckpts/checkpoint-10500/pytorch_model.bin"))
 
     # model.save_pretrained()
