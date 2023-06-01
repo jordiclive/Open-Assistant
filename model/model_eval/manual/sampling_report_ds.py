@@ -20,7 +20,7 @@ from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prep
 
 def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
-    old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
+    old_num_tokens, old_embedding_dim = old_embeddings.weight.shape[0], old_embeddings.weight.shape[1]
     new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
     new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
     model._init_weights(new_embeddings)
@@ -362,7 +362,7 @@ def main():
     """
 
 
-    model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-7b/snapshots/da8d49a4c7dde3bfc39461e6f2cf7433e2fa44c2",trust_remote_code=True)
+    model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
 
     import gc
     import os
@@ -469,13 +469,10 @@ def main():
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
         print('LEN tokenizer', len(tokenizer))
         old_embeddings = model.get_input_embeddings()
-        print('old_embeddings',old_embeddings)
-        print('old_embeddings', old_embeddings.weight.data.shape)
+        print('old_embeddings', old_embeddings.weight.shape)
         model.resize_token_embeddings(len(tokenizer))
         old_embeddings = model.get_input_embeddings()
-        old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
-        print('new_num_tokens', old_num_tokens)
-
+        print('new_num_tokens', old_embeddings.weight.shape)
         peft_model_path = '/mnt/data/jordiclive/falcon_lora_checkpoint_500'
         model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
         model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
