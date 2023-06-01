@@ -25,11 +25,12 @@ def add_embeddings(model, embed_path, tokenizer):
     embed_weights = torch.load(embed_path, map_location=old_embeddings.weight.device)
     vocab_size = tokenizer.vocab_size
     new_embeddings.weight.data[:vocab_size, :] = old_embeddings.weight.data[:vocab_size, :]
-    new_embeddings.weight.data[vocab_size : vocab_size + embed_weights.shape[0], :] = embed_weights.weight.data.to(
+    new_embeddings.weight.data[vocab_size : vocab_size + embed_weights.shape[0], :] = embed_weights.to(
         new_embeddings.weight.dtype
     ).to(new_embeddings.weight.device)
     model.set_input_embeddings(new_embeddings)
     model.tie_weights()
+
 
 
 def load_peft_model(model, peft_model_path, tokenizer):
@@ -44,7 +45,7 @@ def load_peft_model(model, peft_model_path, tokenizer):
         torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
-    add_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
+    add_embeddings(model, embed_weights, tokenizer)
     return model
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
