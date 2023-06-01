@@ -455,7 +455,7 @@ def main():
     # from huggingface_hub import snapshot_download
     # snapshot_download("tiiuae/falcon-40b", local_dir="falcon40b", local_dir_use_symlinks=False)
     # model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
-    model = transformers.AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b",trust_remote_code=True,revision="52aee9ee895fcfca1f8db422d15e86576a67c65b")
+    model = transformers.AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b",trust_remote_code=True,revision="6e61c89")
     skip_input_tokens = True
     # elif args.model_type.lower() == "t5conditional":
     #     from transformers import T5ForConditionalGeneration
