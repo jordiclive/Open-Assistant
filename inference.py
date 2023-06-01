@@ -45,7 +45,7 @@ def load_peft_model(model, peft_model_path, tokenizer,p=16):
 tokenizer = transformers.AutoTokenizer.from_pretrained(repo_id)
 
 model = transformers.AutoModelForCausalLM.from_pretrained(
-    base_model, torch_dtype=dtype
+    base_model, torch_dtype=dtype,trust_remote_code=True
 )
 model = load_peft_model(model, repo_id, tokenizer)
 
