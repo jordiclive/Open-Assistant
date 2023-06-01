@@ -23,8 +23,7 @@ import transformers
 from transformers import AutoTokenizer, PreTrainedTokenizer
 
 
-model = transformers.AutoModelForCausalLM.from_pretrained(
-    "/mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual/falcon40b", trust_remote_code=True)
+
 
 def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
@@ -474,6 +473,9 @@ def main():
     #     skip_input_tokens = False
     # else:
     #     raise RuntimeError("Invalid model_type specified")
+    model = transformers.AutoModelForCausalLM.from_pretrained(
+        "/mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual/falcon40b", trust_remote_code=True,
+        dtype=dtype)
 
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
