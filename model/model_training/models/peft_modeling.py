@@ -140,3 +140,14 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
     tokenizer.save_pretrained(save_config.adapter_save_path)
     torch.save(new_embs, Path(save_config.adapter_save_path).joinpath("extra_embeddings.pt"))
+
+if __name__ == '__main__':
+    save_config = SaveLoraConfig(
+        torch_ckpt_path="/mnt/data/jordiclive/falcon/checkpoint-500/pytorch_model.bin",
+        adapter_save_path="/mnt/data/jordiclive/falcon_lora_checkpoint_500",
+        model_name="tiiuae/falcon-40b",
+        cache_dir="/mnt/data/jordiclive/data_cache",
+        dtype=torch.bfloat16,
+        peft_type="lora",
+    )
+    save_adapter_model_from_ckpt(save_config)
