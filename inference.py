@@ -30,7 +30,7 @@ def transfer_embeddings(model, embed_path, tokenizer):
 
 def load_peft_model(model, peft_model_path, tokenizer):
     embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
-    model.resize_token_embeddings(tokenizer.vocab_size + embed_weights.shape[0])
+    model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
     model.config.eos_token_id = tokenizer.eos_token_id
     model.config.bos_token_id = tokenizer.bos_token_id
     model.config.pad_token_id = tokenizer.pad_token_id
