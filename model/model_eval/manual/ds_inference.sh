@@ -1,7 +1,7 @@
 source /mnt/data/jordiclive/falcon_lora/bin/activate
 
 cd /mnt/data/jordiclive/falcon/Open-Assistant
-#export TRANSFORMERS_CACHE=/mnt/data/jordiclive/transformers_cache
+export TRANSFORMERS_CACHE=/mnt/data/jordiclive/transformers_cache
 export PYTHONPATH="/mnt/data/jordiclive/falcon_lora/Open-Assistant/model/model_training:$PYTHONPATH"
 export PYTHONPATH="/mnt/data/jordiclive/falcon_lora/Open-Assistant/model:$PYTHONPATH"
 
