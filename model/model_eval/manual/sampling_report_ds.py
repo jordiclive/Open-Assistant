@@ -450,12 +450,8 @@ def main():
     # if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
     #     from transformers import AutoModelForCausalLM
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
-    import torch.distributed as dist
-    dist.barrier()
-    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True,cache_dir="/mnt/data/jordiclive/data_cache")
-    import torch.distributed as dist
-    dist.barrier()
+    tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1")
+    model = AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b", trust_remote_code=True,cache_dir="/mnt/data/jordiclive/data_cache")
     skip_input_tokens = True
     # elif args.model_type.lower() == "t5conditional":
     #     from transformers import T5ForConditionalGeneration
