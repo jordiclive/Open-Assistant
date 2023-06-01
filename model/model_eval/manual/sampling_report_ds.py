@@ -16,7 +16,7 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
 
 
-def transfer_embeddings(model, embed_path, tokenizer):
+def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
     old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
     new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
@@ -33,20 +33,19 @@ def transfer_embeddings(model, embed_path, tokenizer):
 
 
 def load_peft_model(model, peft_model_path, tokenizer):
-    model.resize_token_embeddings(len(tokenizer))
+    embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
+    model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
     model.config.eos_token_id = tokenizer.eos_token_id
     model.config.bos_token_id = tokenizer.bos_token_id
     model.config.pad_token_id = tokenizer.pad_token_id
     model = PeftModel.from_pretrained(
         model,
-        peft_model_path,
+        model_id=peft_model_path,
         torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
-    hf_hub_download(peft_model_path, "extra_embeddings.pt")
-    transfer_embeddings(model, peft_model_path.joinpath("extra_embeddings.pt"), tokenizer)
+    add_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
     return model
-
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
 QA_SPECIAL_TOKENS_V2_5 = {

@@ -11,8 +11,11 @@ dtype = torch.bfloat16
 repo_id = "jordiclive/falcon_lora_40b_ckpt_500_oasst_1"
 base_model = "tiiuae/falcon-40b"
 
+dtype = torch.float16
+repo_id = "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b"
+base_model = "decapoda-research/llama-7b-hf"
 # Model Loading
-def transfer_embeddings(model, embed_path, tokenizer):
+def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
     old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
     new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
@@ -40,7 +43,7 @@ def load_peft_model(model, peft_model_path, tokenizer):
         torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
-    transfer_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
+    add_embeddings(model, embed_weights, tokenizer)
     return model
 
 

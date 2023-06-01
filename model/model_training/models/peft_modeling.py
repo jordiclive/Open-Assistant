@@ -7,7 +7,7 @@ from model_training.utils.utils import get_model, get_tokenizer
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 import math
 
-def transfer_embeddings(model, embed_path, tokenizer):
+def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
     old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
     new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
@@ -23,8 +23,9 @@ def transfer_embeddings(model, embed_path, tokenizer):
     model.tie_weights()
 
 
-def load_peft_model(model, peft_model_path, tokenizer,p=16):
-    model.resize_token_embeddings(math.ceil(len(tokenizer) / p) * p)
+def load_peft_model(model, peft_model_path, tokenizer):
+    embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
+    model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
     model.config.eos_token_id = tokenizer.eos_token_id
     model.config.bos_token_id = tokenizer.bos_token_id
     model.config.pad_token_id = tokenizer.pad_token_id
@@ -34,13 +35,12 @@ def load_peft_model(model, peft_model_path, tokenizer,p=16):
         torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
-    hf_hub_download(peft_model_path, "extra_embeddings.pt")
-    transfer_embeddings(model, peft_model_path.joinpath("extra_embeddings.pt"), tokenizer)
+    add_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
     return model
 
 
 def load_peft_finetuned_model(model, peft_model_path, tokenizer):
-    transfer_embeddings(model, peft_model_path.joinpath("extra_embeddings.pt"), tokenizer)
+    add_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
     adapters_weights = torch.load(Path(peft_model_path).joinpath("adapter_model.bin"), map_location=model.device)
     model.load_state_dict(adapters_weights, strict=False)
     return model
