@@ -452,7 +452,7 @@ def main():
     #     from transformers import AutoModelForCausalLM
     tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1")
     model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
-
+    skip_input_tokens = True
     # elif args.model_type.lower() == "t5conditional":
     #     from transformers import T5ForConditionalGeneration
     #
