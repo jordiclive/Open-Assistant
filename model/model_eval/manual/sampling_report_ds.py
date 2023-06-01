@@ -360,9 +360,8 @@ def main():
     eval oasst model:
     python sampling_report.py --model-name theblackcat102/pythia-3b-deduped-sft --mode v2 --config config/default.json --prompts data/en_100_text.jsonl -n 2 --verbose
     """
-    from transformers import  AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1")
+
     model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-7b/snapshots/da8d49a4c7dde3bfc39461e6f2cf7433e2fa44c2",trust_remote_code=True)
 
     import gc
@@ -471,7 +470,7 @@ def main():
         print('LEN tokenizer', len(tokenizer))
         old_embeddings = model.get_input_embeddings()
         print('old_embeddings',old_embeddings)
-        print('old_embeddings', old_embeddings.shape)
+        print('old_embeddings', old_embeddings.weight.data.shape)
         model.resize_token_embeddings(len(tokenizer))
         old_embeddings = model.get_input_embeddings()
         old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
