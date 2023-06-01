@@ -110,13 +110,14 @@ class SaveLoraConfig:
     model_name: str = ""
     torch_ckpt_path: str = ""
     peft_type: str = "lora"
-
+    model: bool = False
+    model_name: str = "llama"
 
 
 def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     tokenizer = get_tokenizer(save_config)
     model = get_model(save_config, tokenizer)
-    model = peft_model(model)
+    model = peft_model(model, save_config.model_name)
     model.load_state_dict(torch.load(save_config.torch_ckpt_path))
     vocab_size = tokenizer.vocab_size
     print(f"Vocab size is {vocab_size}, and new tokenizer length is {len(tokenizer)}")
@@ -136,5 +137,6 @@ if __name__ == '__main__':
         cache_dir="/mnt/data/jordiclive/data_cache",
         dtype=torch.bfloat16,
         peft_type="lora",
+        model_name="falcon"
     )
     save_adapter_model_from_ckpt(save_config)
