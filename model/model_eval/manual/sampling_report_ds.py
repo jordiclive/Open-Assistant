@@ -452,10 +452,10 @@ def main():
 
     # if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
     #     from transformers import AutoModelForCausalLM
-
+    # from huggingface_hub import snapshot_download
+    # snapshot_download("tiiuae/falcon-40b", local_dir="falcon40b", local_dir_use_symlinks=False)
     # model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
-    model = transformers.AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b",trust_remote_code=True,cache_dir="/mnt/data/jordiclive/data_cache/",revision="f0e87dc1bbd9ba728dbca83b69c6c862e17b43f1")
-
+    model = transformers.AutoModelForCausalLM.from_pretrained("/mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual/falcon40b",trust_remote_code=True)
     skip_input_tokens = True
     # elif args.model_type.lower() == "t5conditional":
     #     from transformers import T5ForConditionalGeneration
