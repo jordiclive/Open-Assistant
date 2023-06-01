@@ -1,16 +1,17 @@
-from typing import List, NamedTuple
+from pathlib import Path
 
 import torch
 import transformers
 from huggingface_hub import hf_hub_download
 from peft import PeftModel
 from transformers import GenerationConfig
-import math
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 dtype = torch.bfloat16
 repo_id = "jordiclive/falcon_lora_40b_ckpt_500_oasst_1"
 base_model = "tiiuae/falcon-40b"
 
+# Model Loading
 def transfer_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
     old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
@@ -39,17 +40,24 @@ def load_peft_model(model, peft_model_path, tokenizer):
         torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
-    transfer_embeddings(model, peft_model_path.joinpath("extra_embeddings.pt"), tokenizer)
+    transfer_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
     return model
+
 
 tokenizer = transformers.AutoTokenizer.from_pretrained(repo_id)
 
 model = transformers.AutoModelForCausalLM.from_pretrained(
-    base_model, torch_dtype=dtype,trust_remote_code=True, cache_dir='/mnt/data/jordiclive/data_cache'
+    base_model, torch_dtype=dtype, trust_remote_code=True, cache_dir="/mnt/data/jordiclive/data_cache"
 )
 model = load_peft_model(model, repo_id, tokenizer)
 
+
+# device  configuration
 model = model.to(device)
+
+
+# Choose Generation parameters
+
 generation_config = GenerationConfig(
     temperature=0.1,
     top_p=0.75,
@@ -59,12 +67,8 @@ generation_config = GenerationConfig(
 
 
 def format_system_prompt(prompt, eos_token="</s>"):
-    return "{}{}{}{}".format(
-        "<|prompter|>",
-        prompt,
-        eos_token,
-        "<|assistant|>"
-    )
+    return "{}{}{}{}".format("<|prompter|>", prompt, eos_token, "<|assistant|>")
+
 
 def generate(prompt, generation_config=generation_config, max_new_tokens=2048, device=device):
     prompt = format_system_prompt(prompt)  # OpenAssistant Prompt Format expected
