@@ -451,7 +451,11 @@ def main():
     #     from transformers import AutoModelForCausalLM
 
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+    import torch.distributed as dist
+    dist.barrier()
     model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True,cache_dir="/mnt/data/jordiclive/data_cache")
+    import torch.distributed as dist
+    dist.barrier()
     skip_input_tokens = True
     # elif args.model_type.lower() == "t5conditional":
     #     from transformers import T5ForConditionalGeneration
