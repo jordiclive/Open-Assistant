@@ -60,7 +60,7 @@ model = load_peft_model(model, repo_id, tokenizer)
 
 
 # device  configuration
-model = model.to(device)
+model = model.to(device).half()
 
 
 # Choose Generation parameters
