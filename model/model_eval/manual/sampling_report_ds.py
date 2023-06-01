@@ -352,7 +352,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main(model):
     """
     Usage example:
     python sampling_report.py --model-name facebook/galactica-125m --config config/default.json --prompts data/en_100_text.jsonl --report report_file.json -n 10 --verbose
@@ -455,7 +455,8 @@ def main():
     # from huggingface_hub import snapshot_download
     # snapshot_download("tiiuae/falcon-40b", local_dir="falcon40b", local_dir_use_symlinks=False)
     # model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
-    model = transformers.AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b",trust_remote_code=True,revision="6e61c89")
+    # model = transformers.AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b",trust_remote_code=True,revision="6e61c89")
+
     skip_input_tokens = True
     # elif args.model_type.lower() == "t5conditional":
     #     from transformers import T5ForConditionalGeneration
@@ -546,4 +547,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import os
+
+    os.environ['HF_HOME'] = '/mnt/data/jordiclive/transformers_cache'
+    os.environ['TRANSFORMERS_CACHE'] = '/mnt/data/jordiclive/transformers_cache'
+    os.environ['HF_DATASETS_CACHE'] = "/mnt/data/jordiclive/transformers_cache"
+    import transformers
+
+    model = transformers.AutoModelForCausalLM.from_pretrained("falcon40b", trust_remote_code=True)
+    main(model)
