@@ -149,5 +149,6 @@ if __name__ == '__main__':
         cache_dir="/mnt/data/jordiclive/data_cache",
         dtype=torch.bfloat16,
         peft_type="lora",
+        residual_dropout_lima=0.3,
     )
     save_adapter_model_from_ckpt(save_config)
