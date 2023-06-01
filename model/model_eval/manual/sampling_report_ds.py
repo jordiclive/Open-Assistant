@@ -60,7 +60,7 @@ def peft_model(model, model_name, peft_type="lora", int8_training=False, gradien
             if "65" in model_name:
                 r = 16
             else:
-                r = 64
+                r = 8
         else:
             raise ValueError(
                 f"Invalid model name '{model_name}'. The model name should contain 'falcon' or 'llama', Simply find target_modules for it"
@@ -85,6 +85,13 @@ def peft_model(model, model_name, peft_type="lora", int8_training=False, gradien
 
 
     model.print_trainable_parameters()
+    return model
+
+
+def load_peft_finetuned_model(model, peft_model_path, tokenizer):
+    add_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
+    adapters_weights = torch.load(Path(peft_model_path).joinpath("adapter_model.bin"), map_location=model.device)
+    model.load_state_dict(adapters_weights, strict=False)
     return model
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
@@ -457,7 +464,8 @@ def main():
 
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
-    model = peft_model(model, "llama", peft_type="lora", int8_training=False, gradient_checkpointing=False)
+        model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
+        model = load_peft_finetuned_model(model, peft_model_path='/mnt/data/jordiclive/falcon_lora_checkpoint_500', tokenizer=tokenizer)
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")

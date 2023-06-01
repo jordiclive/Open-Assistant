@@ -319,7 +319,7 @@ def main():
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
         model = load_peft_model(model, args.peft_model, tokenizer)
-
+        model = load_peft_finetuned_model(model)
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
 
