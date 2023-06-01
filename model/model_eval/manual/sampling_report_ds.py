@@ -464,8 +464,18 @@ def main():
 
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+        print('LEN tokenizer', len(tokenizer))
+        old_embeddings = model.get_input_embeddings()
+        old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
+        print('old_num_tokens', old_num_tokens)
+        model.resize_token_embeddings(len(tokenizer))
+        old_embeddings = model.get_input_embeddings()
+        old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
+        print('new_num_tokens', old_num_tokens)
+
+        peft_model_path = '/mnt/data/jordiclive/falcon_lora_checkpoint_500'
         model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
-        model = load_peft_finetuned_model(model, peft_model_path='/mnt/data/jordiclive/falcon_lora_checkpoint_500', tokenizer=tokenizer)
+        model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
