@@ -8,6 +8,8 @@ from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prep
 
 def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
+    print(old_embeddings.weight.data)
+    print(old_embeddings.weight.shape)
     old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
     new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
     new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
@@ -15,11 +17,13 @@ def add_embeddings(model, embed_path, tokenizer):
     embed_weights = torch.load(embed_path, map_location=old_embeddings.weight.device)
     vocab_size = tokenizer.vocab_size
     new_embeddings.weight.data[:vocab_size, :] = old_embeddings.weight.data[:vocab_size, :]
-    new_embeddings.weight.data[vocab_size : vocab_size + embed_weights.shape[0], :] = embed_weights.weight.data.to(
+    new_embeddings.weight.data[vocab_size : vocab_size + embed_weights.shape[0], :] = embed_weights.to(
         new_embeddings.weight.dtype
     ).to(new_embeddings.weight.device)
     model.set_input_embeddings(new_embeddings)
     model.tie_weights()
+    print(model.get_input_embeddings().weight.data)
+    print(model.get_input_embeddings().weight.shape)
 
 
 def load_peft_model(model, peft_model_path, tokenizer):
@@ -125,7 +129,6 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     vocab_size = tokenizer.vocab_size
     print(f"Vocab size is {vocab_size}, and new tokenizer length is {len(tokenizer)}")
     old_embeddings = model.get_input_embeddings()
-    # todo saving more embedding than necessary, (pad embeds as well)
     new_embs = old_embeddings.weight.data[vocab_size:, :].clone()
     new_embs = new_embs.to(save_config.dtype)
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
