@@ -475,7 +475,7 @@ def main():
     #     raise RuntimeError("Invalid model_type specified")
     model = transformers.AutoModelForCausalLM.from_pretrained(
         "/mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual/falcon40b", trust_remote_code=True,
-        dtype=dtype)
+        torch_dtype=dtype)
 
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
