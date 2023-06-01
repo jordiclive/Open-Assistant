@@ -14,6 +14,7 @@ from huggingface_hub import hf_hub_download
 from peft import PeftModel
 from tqdm import tqdm
 from transformers import AutoTokenizer, PreTrainedTokenizer
+from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 
 
 def add_embeddings(model, embed_path, tokenizer):
@@ -46,6 +47,44 @@ def load_peft_model(model, peft_model_path, tokenizer):
     )
     model.eos_token_id = tokenizer.eos_token_id
     add_embeddings(model, embed_weights, tokenizer)
+    return model
+
+def peft_model(model, model_name, peft_type="lora", int8_training=False, gradient_checkpointing=False):
+    if peft_type == "lora":
+        if "falcon" in model_name:
+            target_modules = ["dense_4h_to_h", "dense", "query_key_value", "dense_h_to_4h"]
+            r = 64
+        elif "llama" in model_name:
+            target_modules = [ "k_proj", "q_proj", "o_proj", "v_proj"]
+            # target_modules = ["down_proj", "k_proj", "q_proj", "gate_proj", "o_proj", "up_proj", "v_proj"]
+            if "65" in model_name:
+                r = 16
+            else:
+                r = 64
+        else:
+            raise ValueError(
+                f"Invalid model name '{model_name}'. The model name should contain 'falcon' or 'llama', Simply find target_modules for it"
+            )
+        config = LoraConfig(
+            r=r,
+            lora_alpha=16,
+            target_modules=target_modules,
+            lora_dropout=0.05,
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+    elif peft_type == "prefix-tuning":
+        config = PrefixTuningConfig(
+            num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024, task_type="CAUSAL_LM"
+        )
+    else:
+        raise ValueError("peft_method config is lora or prefix-tuning")
+    model = get_peft_model(model, config)
+    if int8_training:
+        model = prepare_model_for_int8_training(model)
+
+
+    model.print_trainable_parameters()
     return model
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
@@ -418,7 +457,7 @@ def main():
 
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
-        model = load_peft_model(model, args.peft_model, tokenizer)
+    model = peft_model(model, "llama", peft_type="lora", int8_training=False, gradient_checkpointing=False)
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
@@ -436,7 +475,7 @@ def main():
         deepspeed.runtime.utils.see_memory_usage("pre-from-pretrained", force=True)
     if args.benchmark:
         deepspeed.runtime.utils.see_memory_usage("post-from-pretrained", force=True)
-    # model = model.eval()
+    model = model.eval()
     print_rank0(ds_config)
     ds_engine = deepspeed.initialize(model=model, config_params=ds_config)[0]
     ds_engine.module.eval()
