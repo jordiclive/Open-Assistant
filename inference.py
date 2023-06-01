@@ -24,7 +24,7 @@ def add_embeddings(model, embed_path, tokenizer):
     embed_weights = torch.load(embed_path, map_location=old_embeddings.weight.device)
     vocab_size = tokenizer.vocab_size
     new_embeddings.weight.data[:vocab_size, :] = old_embeddings.weight.data[:vocab_size, :]
-    new_embeddings.weight.data[vocab_size : vocab_size + embed_weights.shape[0], :] = embed_weights.weight.data.to(
+    new_embeddings.weight.data[vocab_size : vocab_size + embed_weights.shape[0], :] = embed_weights.to(
         new_embeddings.weight.dtype
     ).to(new_embeddings.weight.device)
     model.set_input_embeddings(new_embeddings)
