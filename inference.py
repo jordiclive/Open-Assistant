@@ -11,9 +11,9 @@ dtype = torch.bfloat16
 repo_id = "jordiclive/falcon_lora_40b_ckpt_500_oasst_1"
 base_model = "tiiuae/falcon-40b"
 
-dtype = torch.float16
-repo_id = "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b"
-base_model = "decapoda-research/llama-7b-hf"
+# dtype = torch.float16
+# repo_id = "jordiclive/gpt4all-alpaca-oa-codealpaca-lora-7b"
+# base_model = "decapoda-research/llama-7b-hf"
 # Model Loading
 def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
