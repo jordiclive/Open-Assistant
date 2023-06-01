@@ -362,7 +362,7 @@ def main():
     """
 
 
-    model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
+    model = transformers.AutoModelForCausalLM.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
 
     import gc
     import os
