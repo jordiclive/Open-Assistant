@@ -471,7 +471,8 @@ def main():
         print('LEN tokenizer', len(tokenizer))
         old_embeddings = model.get_input_embeddings()
         print('old_embeddings', old_embeddings.weight.shape)
-        model.resize_token_embeddings(len(tokenizer))
+        embed_weights = '/mnt/data/jordiclive/falcon_lora_checkpoint_500/extra_embeddings.pt'
+        model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
         old_embeddings = model.get_input_embeddings()
         print('new_num_tokens', old_embeddings.weight.shape)
         peft_model_path = '/mnt/data/jordiclive/falcon_lora_checkpoint_500'
