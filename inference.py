@@ -18,7 +18,7 @@ base_model = "decapoda-research/llama-7b-hf"
 def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
     print(old_embeddings.weight.data)
-    print(old_embeddings.shape)
+    print(old_embeddings.weight.data.shape)
     old_num_tokens, old_embedding_dim = old_embeddings.weight.size()
     new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
     new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
@@ -32,7 +32,7 @@ def add_embeddings(model, embed_path, tokenizer):
     model.set_input_embeddings(new_embeddings)
     model.tie_weights()
     print(model.get_input_embeddings().weight.data)
-    print(model.get_input_embeddings().shape)
+    print(model.get_input_embeddings().weight.data.shape)
 
 
 def load_peft_model(model, peft_model_path, tokenizer):
