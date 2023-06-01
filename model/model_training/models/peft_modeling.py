@@ -5,7 +5,7 @@ import torch
 from huggingface_hub import hf_hub_download
 from model_training.utils.utils import get_model, get_tokenizer
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
-
+import math
 
 def transfer_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
@@ -23,14 +23,14 @@ def transfer_embeddings(model, embed_path, tokenizer):
     model.tie_weights()
 
 
-def load_peft_model(model, peft_model_path, tokenizer):
-    model.resize_token_embeddings(len(tokenizer))
+def load_peft_model(model, peft_model_path, tokenizer,p=16):
+    model.resize_token_embeddings(math.ceil(len(tokenizer) / p) * p)
     model.config.eos_token_id = tokenizer.eos_token_id
     model.config.bos_token_id = tokenizer.bos_token_id
     model.config.pad_token_id = tokenizer.pad_token_id
     model = PeftModel.from_pretrained(
         model,
-        peft_model_path,
+        model_id=peft_model_path,
         torch_dtype=model.dtype,
     )
     model.eos_token_id = tokenizer.eos_token_id
