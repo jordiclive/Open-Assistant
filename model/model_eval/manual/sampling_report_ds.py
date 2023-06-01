@@ -436,7 +436,7 @@ def main():
         deepspeed.runtime.utils.see_memory_usage("pre-from-pretrained", force=True)
     if args.benchmark:
         deepspeed.runtime.utils.see_memory_usage("post-from-pretrained", force=True)
-    model = model.eval()
+    # model = model.eval()
     print_rank0(ds_config)
     ds_engine = deepspeed.initialize(model=model, config_params=ds_config)[0]
     ds_engine.module.eval()
