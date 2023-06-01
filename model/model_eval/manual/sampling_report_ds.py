@@ -10,13 +10,21 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pydantic
 import torch
-import transformers
 from huggingface_hub import hf_hub_download
-from peft import PeftModel
 from tqdm import tqdm
-from transformers import AutoTokenizer, PreTrainedTokenizer
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
 
+import os
+
+os.environ['HF_HOME'] = '/mnt/data/jordiclive/transformers_cache'
+os.environ['TRANSFORMERS_CACHE'] = '/mnt/data/jordiclive/transformers_cache'
+os.environ['HF_DATASETS_CACHE'] = "/mnt/data/jordiclive/transformers_cache"
+import transformers
+from transformers import AutoTokenizer, PreTrainedTokenizer
+
+
+model = transformers.AutoModelForCausalLM.from_pretrained(
+    "/mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual/falcon40b", trust_remote_code=True)
 
 def add_embeddings(model, embed_path, tokenizer):
     old_embeddings = model.get_input_embeddings()
@@ -352,7 +360,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main(model):
+def main():
     """
     Usage example:
     python sampling_report.py --model-name facebook/galactica-125m --config config/default.json --prompts data/en_100_text.jsonl --report report_file.json -n 10 --verbose
@@ -547,12 +555,4 @@ def main(model):
 
 
 if __name__ == "__main__":
-    import os
-
-    os.environ['HF_HOME'] = '/mnt/data/jordiclive/transformers_cache'
-    os.environ['TRANSFORMERS_CACHE'] = '/mnt/data/jordiclive/transformers_cache'
-    os.environ['HF_DATASETS_CACHE'] = "/mnt/data/jordiclive/transformers_cache"
-    import transformers
-
-    model = transformers.AutoModelForCausalLM.from_pretrained("falcon40b", trust_remote_code=True)
-    main(model)
+    main()
