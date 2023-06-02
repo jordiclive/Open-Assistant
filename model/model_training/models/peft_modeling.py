@@ -134,3 +134,30 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
     tokenizer.save_pretrained(save_config.adapter_save_path)
     torch.save(new_embs, Path(save_config.adapter_save_path).joinpath("extra_embeddings.pt"))
+
+def save_merged_model_from_ckpt(save_config):
+    tokenizer = get_tokenizer(save_config)
+    model = get_model(save_config, tokenizer)
+    model = peft_model(model, model_name=save_config.model_name)
+    model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    model = model.merge_and_unload()
+    model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
+
+
+def save_merged_model():
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    dtype = torch.bfloat16
+    peft_model_path = "/mnt/data/jordiclive/falcon_lora_checkpoint_500"
+    model = AutoModelForCausalLM.from_pretrained(
+        "/mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual/falcon40b", trust_remote_code=True,
+        torch_dtype=dtype)
+    tokenizer = AutoTokenizer.from_pretrained(peft_model_path)
+    embed_weights = '/mnt/data/jordiclive/falcon_lora_checkpoint_500/extra_embeddings.pt'
+    model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
+    model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
+    model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    model = model.merge_and_unload()
+    model.save_pretrained("/mnt/data/jordiclive/falcon_merged_checkpoint_500", torch_dtype=dtype)
+
+if __name__ == '__main__':
+    save_merged_model()
