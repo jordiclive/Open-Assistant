@@ -115,6 +115,7 @@ class SaveLoraConfig:
     residual_dropout_lima: float = 0.3
     use_flash_attention: bool = False
     adapter_save_path: str = "adapter"
+    merged_model_path: str = "merged_model"
     cache_dir: str = ""
     model_name: str = ""
     torch_ckpt_path: str = ""
@@ -134,12 +135,15 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
     tokenizer.save_pretrained(save_config.adapter_save_path)
     torch.save(new_embs, Path(save_config.adapter_save_path).joinpath("extra_embeddings.pt"))
+    model = model.merge_and_unload()
+    model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
 
 def save_merged_model_from_ckpt(save_config):
     tokenizer = get_tokenizer(save_config)
     model = get_model(save_config, tokenizer)
     model = peft_model(model, model_name=save_config.model_name)
-    model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    model.load_state_dict(torch.load(save_config.torch_ckpt_path))
+    # model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
     model = model.merge_and_unload()
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
 
