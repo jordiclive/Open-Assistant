@@ -15,6 +15,6 @@ cd /mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual
 
 
 
-deepspeed --include=localhost:0 --master_port 61000 sampling_report_ds.py --model-name tiiuae/falcon-40b --config config/noprefix2.json --prompts data/prompt_lottery_en_250_text.jsonl --report /mnt/data/jordiclive/report_falcon_40b_lora_oasst_1_without_lima.json --verbose --mode v2_5 --half --peft_model jordiclive/falcon_lora_40b_ckpt_500_oasst_1 --model_hidden_size 8192 --dtype "bf16" 2>&1 | tee debug_sampling.txt
+deepspeed --include=localhost:0,1,2,3 --master_port 61000 sampling_report_ds.py --model-name tiiuae/falcon-40b --config config/noprefix2.json --prompts data/prompt_lottery_en_250_text.jsonl --report /mnt/data/jordiclive/report_falcon_40b_lora_oasst_1_without_lima.json --verbose --mode v2_5 --half --peft_model jordiclive/falcon_lora_40b_ckpt_500_oasst_1 --model_hidden_size 8192 --dtype "bf16" 2>&1 | tee debug_sampling.txt
 
 #deepspeed --include=localhost:0,1,2,3,4,5,6,7 --master_port 61000 sampling_report_ds.py --model-name tiiuae/falcon-40b --config config/noprefix2.json --prompts data/prompt_lottery_en_250_text.jsonl --report /mnt/data/jordiclive/report_falcon_40b_lora_oasst_1_without_lima.json --verbose --num-samples 2 --half --peft_model jordiclive/falcon_lora_40b_ckpt_500_oasst_1 --model_hidden_size 8192 --dtype "bf16" 2>&1 | tee debug_sampling.txt
