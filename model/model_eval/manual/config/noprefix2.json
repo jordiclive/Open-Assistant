@@ -2,7 +2,7 @@
   "default": {
     "generate_args": {
       "max_new_tokens": 400,
-      "min_new_tokens": 4,
+      "min_new_tokens": 2,
       "do_sample": true,
       "temperature": 1.0,
       "repetition_penalty": 1.2
