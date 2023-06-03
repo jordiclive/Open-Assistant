@@ -106,7 +106,7 @@ def peft_model(model, model_name, peft_type="lora", int8_training=False, gradien
 
 @dataclass
 class SaveLoraConfig:
-    dtype: torch.dtype = torch.float16
+    dtype: torch.dtype = torch.bfloat16
     is_reward_model: bool = False
     quantization: bool = False
     seq2seqmodel: bool = False
@@ -148,20 +148,23 @@ def save_merged_model_from_ckpt(save_config):
     model.save_pretrained(save_config.adapter_save_path, torch_dtype=save_config.dtype)
 
 
-def save_merged_model():
+def save_merged_model(save_config):
     from transformers import AutoTokenizer, AutoModelForCausalLM
     dtype = torch.bfloat16
-    peft_model_path = "/mnt/data/jordiclive/falcon_lora_checkpoint_500"
-    model = AutoModelForCausalLM.from_pretrained(
-        "/mnt/data/jordiclive/falcon/Open-Assistant/model/model_eval/manual/falcon40b", trust_remote_code=True,
-        torch_dtype=dtype)
+    peft_model_path = "jordiclive/falcon_lora_40b_ckpt_500_oasst_1"
+
+    tokenizer = get_tokenizer(save_config)
+    model = get_model(save_config, tokenizer)
+    model = peft_model(model, model_name=save_config.model_name)
+    embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
+    adapter_weights = hf_hub_download(peft_model_path, "adapter_model.bin")
     tokenizer = AutoTokenizer.from_pretrained(peft_model_path)
-    embed_weights = '/mnt/data/jordiclive/falcon_lora_checkpoint_500/extra_embeddings.pt'
-    model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
-    model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
-    model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    model.eos_token_id = tokenizer.eos_token_id
+    add_embeddings(model, embed_weights, tokenizer)
+    adapters_weights = torch.load(adapter_weights, map_location=model.device)
+    model.load_state_dict(adapters_weights, strict=False)
     model = model.merge_and_unload()
-    model.save_pretrained("/mnt/data/jordiclive/falcon_merged_checkpoint_500", torch_dtype=dtype)
+    model.save_pretrained("~/merged_falcon", torch_dtype=dtype)
 
 if __name__ == '__main__':
-    save_merged_model()
+    save_merged_model(model_name='tiiuae/falcon-40b')
