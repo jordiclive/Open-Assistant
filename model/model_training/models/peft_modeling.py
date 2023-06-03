@@ -167,4 +167,5 @@ def save_merged_model(save_config):
     model.save_pretrained("~/merged_falcon", torch_dtype=dtype)
 
 if __name__ == '__main__':
-    save_merged_model(model_name='tiiuae/falcon-40b')
+    save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b')
+    save_merged_model(save_config)
