@@ -164,7 +164,7 @@ def save_merged_model(save_config):
     adapters_weights = torch.load(adapter_weights, map_location=model.device)
     model.load_state_dict(adapters_weights, strict=False)
     model = model.merge_and_unload()
-    model.save_pretrained("~/merged_falcon", torch_dtype=dtype)
+    model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
 
 if __name__ == '__main__':
     save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b')
