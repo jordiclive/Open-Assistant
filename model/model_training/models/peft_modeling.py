@@ -166,6 +166,23 @@ def save_merged_model(save_config):
     model = model.merge_and_unload()
     model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
 
+
+def save_merged_model_llama():
+    dtype = torch.float16
+    save_config = SaveLoraConfig(model_name='/admin/home-jordiclive/llama/7B',dtype=dtype)
+    peft_model_path = "jordiclive/alpaca_gpt4-dolly_15k-vicuna-lora-7b"
+    tokenizer = get_tokenizer(save_config)
+    model = get_model(save_config, tokenizer)
+    load_peft_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    model = model.merge_and_unload()
+    model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
+
+
+
+
+
+
 if __name__ == '__main__':
-    save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b')
-    save_merged_model(save_config)
+    save_merged_model_llama()
+    # save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b')
+    # save_merged_model(save_config)
