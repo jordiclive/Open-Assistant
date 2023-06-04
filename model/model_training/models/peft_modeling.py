@@ -181,7 +181,19 @@ def save_merged_model_llama():
     model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
 
 
-
+def save_merged_model_llama():
+    dtype = torch.float16
+    save_config = SaveLoraConfig(model_name='/admin/home-jordiclive/llama/7B',dtype=dtype)
+    peft_model_path = "jordiclive/alpaca_gpt4-dolly_15k-vicuna-lora-7b"
+    import transformers
+    tokenizer = transformers.AutoTokenizer.from_pretrained(peft_model_path)
+    model = get_model(save_config, tokenizer)
+    print(model)
+    model = load_peft_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    print(model)
+    model = model.merge_and_unload()
+    print(model)
+    model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
 
 
 
