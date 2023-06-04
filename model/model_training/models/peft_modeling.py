@@ -156,6 +156,7 @@ def save_merged_model(save_config):
     tokenizer = get_tokenizer(save_config)
     model = get_model(save_config, tokenizer)
     model = peft_model(model, model_name=save_config.model_name)
+    print(model)
     embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
     adapter_weights = hf_hub_download(peft_model_path, "adapter_model.bin")
     tokenizer = AutoTokenizer.from_pretrained(peft_model_path)
@@ -163,7 +164,9 @@ def save_merged_model(save_config):
     add_embeddings(model, embed_weights, tokenizer)
     adapters_weights = torch.load(adapter_weights, map_location=model.device)
     model.load_state_dict(adapters_weights, strict=False)
+    print(model)
     model = model.merge_and_unload()
+    print(model)
     model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
 
 
@@ -197,6 +200,6 @@ def save_merged_model_llama():
 
 
 if __name__ == '__main__':
-    save_merged_model_llama()
-    # save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b')
-    # save_merged_model(save_config)
+    # save_merged_model_llama()
+    save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b')
+    save_merged_model(save_config)
