@@ -165,7 +165,7 @@ def save_merged_model(save_config):
     tokenizer = AutoTokenizer.from_pretrained(peft_model_path)
     model.eos_token_id = tokenizer.eos_token_id
     add_embeddings(model, embed_weights, tokenizer)
-    adapters_weights = torch.load(adapter_weights, map_location=model.device).to(dtype)
+    adapters_weights = torch.load(adapter_weights, map_location=model.device)
     model.load_state_dict(adapters_weights, strict=False)
     print(model)
     print(model.dtype)
