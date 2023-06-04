@@ -156,18 +156,38 @@ def save_merged_model(save_config):
     tokenizer = get_tokenizer(save_config)
     model = get_model(save_config, tokenizer)
     model = peft_model(model, model_name=save_config.model_name)
+    print(model.dtype)
+    model = model.to(dtype=dtype)
     print(model)
+    print(model.type)
     embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
     adapter_weights = hf_hub_download(peft_model_path, "adapter_model.bin")
     tokenizer = AutoTokenizer.from_pretrained(peft_model_path)
     model.eos_token_id = tokenizer.eos_token_id
     add_embeddings(model, embed_weights, tokenizer)
-    adapters_weights = torch.load(adapter_weights, map_location=model.device)
+    adapters_weights = torch.load(adapter_weights, map_location=model.device).to(dtype)
     model.load_state_dict(adapters_weights, strict=False)
     print(model)
+    print(model.dtype)
     model = model.merge_and_unload()
     print(model)
-    model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
+    print(model.dtype)
+    model.to(dtype=dtype)
+    model.save_pretrained("/fsx/home-jordiclive/merged_falcon", torch_dtype=dtype)
+
+def save_merged_model_llama():
+    dtype = torch.bfloat16
+    save_config = SaveLoraConfig(model_name='/admin/home-jordiclive/llama/7B',dtype=dtype)
+    peft_model_path = "jordiclive/alpaca_gpt4-dolly_15k-vicuna-lora-7b"
+    tokenizer = get_tokenizer(save_config)
+    model = get_model(save_config, tokenizer)
+    print(model)
+    model = load_peft_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    print(model)
+    model = model.merge_and_unload()
+    print(model)
+    model = model.to(dtype=torch.bfloat16)
+    model.save_pretrained("/fsx/home-jordiclive/merged_falcon", torch_dtype=dtype)
 
 
 def save_merged_model_llama():
@@ -181,25 +201,21 @@ def save_merged_model_llama():
     print(model)
     model = model.merge_and_unload()
     print(model)
-    model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
+    model = model.to(dtype=torch.bfloat16)
+    model.save_pretrained("/fsx/home-jordiclive/merged_falcon", torch_dtype=dtype)
 
-
-def save_merged_model_llama():
-    dtype = torch.float16
-    save_config = SaveLoraConfig(model_name='/admin/home-jordiclive/llama/7B',dtype=dtype)
-    peft_model_path = "jordiclive/alpaca_gpt4-dolly_15k-vicuna-lora-7b"
-    tokenizer = get_tokenizer(save_config)
-    model = get_model(save_config, tokenizer)
-    print(model)
-    model = load_peft_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
-    print(model)
-    model = model.merge_and_unload()
-    print(model)
-    model.save_pretrained("/admin/home-jordiclive/merged_falcon", torch_dtype=dtype)
-
+def load_model(model_path):
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    model = AutoModelForCausalLM.from_pretrained(model_path)
+    return model, tokenizer
 
 
 if __name__ == '__main__':
     # save_merged_model_llama()
     save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b')
     save_merged_model(save_config)
+    # save_merged_model(save_config)
+    # import transformers
+    # model = transformers.AutoModel.from_pretrained('/admin/home-jordiclive/Open-Assistant/model/model_training/models/falcon_lora',subfolder='merged_model')
+    # model.save_pretrained('/fsx/home-jordiclive/merged_falcon',torch_dtype=torch.bfloat16)
