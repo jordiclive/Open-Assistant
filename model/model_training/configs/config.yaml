@@ -692,6 +692,9 @@ pythia-70m-deduped:
   model_name: EleutherAI/pythia-70m-deduped
   weight_decay: 0.0
   max_length: 520
+  save_steps: 10000000
+  eval_steps: 1000
+  save_strategy: "steps"
   warmup_steps: 1000
   gradient_checkpointing: false
   gradient_accumulation_steps: 9
