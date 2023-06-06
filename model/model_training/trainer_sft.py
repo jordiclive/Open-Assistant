@@ -32,6 +32,39 @@ from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
 
+from collections import defaultdict
+import copy
+import json
+import os
+from os.path import exists, join, isdir
+from dataclasses import dataclass, field
+import sys
+from typing import Optional, Dict, Sequence
+import numpy as np
+from tqdm import tqdm
+import logging
+import bitsandbytes as bnb
+import pandas as pd
+
+import torch
+
+import argparse
+from transformers import (
+    AutoModelForCausalLM,
+
+    BitsAndBytesConfig,
+
+)
+
+
+from peft import (
+    prepare_model_for_kbit_training,
+    LoraConfig,
+    get_peft_model,
+    PeftModel
+)
+from peft.tuners.lora import LoraLayer
+
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
     out = {}
@@ -417,16 +450,85 @@ def main():
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
 
-    model = get_model(training_conf, tokenizer)
+    compute_dtype = (torch.bfloat16)
 
-    if training_conf.peft_model:
-        print("Using PEFT model")
-        model = peft_model(
-            model,
-            model_name=training_conf.model_name,
-            peft_type=training_conf.peft_type,
-            gradient_checkpointing=training_conf.gradient_checkpointing,
-        )
+    n_gpus = torch.cuda.device_count()
+    max_memory = f'{40000}MB'
+    max_memory = {i: max_memory for i in range(n_gpus)}
+    device_map = "auto"
+
+    # if we are in a distributed setting, we need to set the device map and max memory per device
+    if os.environ.get('LOCAL_RANK') is not None:
+        local_rank = int(os.environ.get('LOCAL_RANK', '0'))
+        device_map = {'': local_rank}
+        max_memory = {'': max_memory[local_rank]}
+
+    model = AutoModelForCausalLM.from_pretrained(
+        training_conf.model_name,
+        cache_dir=training_conf.cache_dir,
+        load_in_4bit=True,
+        load_in_8bit=False,
+        device_map="auto", #if cfg.world_size == 1 else cfg.device_map,
+        max_memory=max_memory,
+        trust_remote_code=True,
+        quantization_config=BitsAndBytesConfig(
+            load_in_4bit=True,
+            llm_int8_threshold=6.0,
+            llm_int8_has_fp16_weight=False,
+            bnb_4bit_compute_dtype=compute_dtype,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+        ),
+        torch_dtype=compute_dtype,
+    )
+    if compute_dtype == torch.float16:
+        major, minor = torch.cuda.get_device_capability()
+        if major >= 8:
+            print('=' * 80)
+            print('Your GPU supports bfloat16, you can accelerate training with the argument --bf16')
+            print('=' * 80)
+
+    setattr(model, 'model_parallel', True)
+    setattr(model, 'is_parallelizable', True)
+
+
+    if not args.full_finetune:
+        model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
+    if args.gradient_checkpointing:
+        model.gradient_checkpointing_enable()
+
+
+    config = LoraConfig(
+        r=64,
+        lora_alpha=16,
+        target_modules=["dense_4h_to_h", "dense", "query_key_value", "dense_h_to_4h"],
+        lora_dropout=0.05,
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
+    model = get_peft_model(model, config)
+
+    for name, module in model.named_modules():
+        if isinstance(module, LoraLayer):
+            if args.bf16:
+                module = module.to(torch.bfloat16)
+        if 'norm' in name:
+            module = module.to(torch.float32)
+        if 'lm_head' in name or 'embed_tokens' in name:
+            if hasattr(module, 'weight'):
+                if args.bf16 and module.weight.dtype == torch.float32:
+                    module = module.to(torch.bfloat16)
+    #
+    # model = get_model(training_conf, tokenizer)
+    #
+    # if training_conf.peft_model:
+    #     print("Using PEFT model")
+    #     model = peft_model(
+    #         model,
+    #         model_name=training_conf.model_name,
+    #         peft_type=training_conf.peft_type,
+    #         gradient_checkpointing=training_conf.gradient_checkpointing,
+    #     )
 
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
@@ -455,7 +557,7 @@ def main():
         os.environ["WANDB_API_KEY"] = "d8216641d549f9bb3d0c5074baa39e15dfd55030"
         wandb.init(
             project="public-sft",
-            entity="open-assistant",
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
             name=f"lora-falcon-40b-pretrain",
             config=training_conf,
