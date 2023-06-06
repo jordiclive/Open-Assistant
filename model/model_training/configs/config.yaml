@@ -573,8 +573,6 @@ sft-8-datasets:
         fraction: 0.4
 
 sft-8.1-datasets:
-  save_strategy: steps # epoch seems not to work, gets stuck with DS 0.9.1
-  save_steps: 912
   datasets:
 #    - oasst_export:
 #        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
