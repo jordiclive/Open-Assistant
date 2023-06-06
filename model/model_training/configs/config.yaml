@@ -228,6 +228,15 @@ pretrain:
     - code_alpaca:
         val_split: 0.05
         max_val_set: 250
+    - vicuna:
+        fraction: 0.5
+        val_split: 0.025
+        max_val_set: 250
+    - oa_wiki_qa_bart_10000row:
+        val_split: 0.05
+        max_val_set: 250
+    - grade_school_math_instructions:
+        val_split: 0.05
 
 sft9-stage2:
   save_strategy: steps # epoch seems not to work, gets stuck with DS 0.9.1
@@ -374,12 +383,11 @@ falcon-40b-lora:
   warmup_steps: 20
   gradient_checkpointing: true
   gradient_accumulation_steps: 1
-  per_device_train_batch_size: 16
+  per_device_train_batch_size: 14
   per_device_eval_batch_size: 8
-  eval_steps: 300
-  save_steps: 500
+  eval_steps: 500
+  save_steps: 1000
   max_grad_norm: 3
-  num_train_epochs: 4
   save_total_limit: 3
   use_flash_attention: false
   residual_dropout: 0.3
