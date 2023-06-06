@@ -576,21 +576,21 @@ sft-8.1-datasets:
   save_strategy: steps # epoch seems not to work, gets stuck with DS 0.9.1
   save_steps: 912
   datasets:
-    - oasst_export:
-        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
-        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
-        val_split: 0.05
+#    - oasst_export:
+#        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
+#        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
+#        val_split: 0.05
     - dolly15k:
         val_split: 0.05
         max_val_set: 300
-    - grade_school_math_instructions:
-        val_split: 0.05
-    - red_pajama:
-        fraction: 0.05
-        max_val_set: 1000
-    - poem_instructions:
-        fraction: 0.5
-        val_split: 0.025
+#    - grade_school_math_instructions:
+#        val_split: 0.05
+#    - red_pajama:
+#        fraction: 0.05
+#        max_val_set: 1000
+#    - poem_instructions:
+#        fraction: 0.5
+#        val_split: 0.025
 
 llama-30b-pretrain:
   dtype: fp16
