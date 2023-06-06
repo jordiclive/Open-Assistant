@@ -104,7 +104,7 @@ math:
   datasets_extra: # Will get merged with datasets
     - minimath
 
-pretrain:
+pretrain_original:
   num_train_epochs: 1
   weight_decay: 0.0
   use_custom_sampler: true
@@ -118,20 +118,20 @@ pretrain:
         max_val_set: 250
     - gpteacher_roleplay:
         val_split: 0.05
-    - red_pajama:
-        fraction: 0.25
-        max_val_set: 1000
+#    - red_pajama:
+#        fraction: 0.25
+#        max_val_set: 1000
     - wizardlm_70k:
         val_split: 0.05
         max_val_set: 500
     - joke:
         val_split: 0.05
-    - poem_instructions:
-        val_split: 0.025
-    - oa_stackexchange:
-        val_split: 0.05
-        fraction: 0.1
-        max_val_set: 1000
+#    - poem_instructions:
+#        val_split: 0.025
+#    - oa_stackexchange:
+#        val_split: 0.05
+#        fraction: 0.1
+#        max_val_set: 1000
     - tell_a_joke:
         val_split: 0.05
         max_val_set: 250
@@ -165,18 +165,94 @@ pretrain:
     - oa_wiki_qa_bart_10000row:
         val_split: 0.05
         max_val_set: 250
-    - prosocial_dialogue:
-        fraction: 0.1
-        max_val_set: 250
-    - explain_prosocial:
-        fraction: 0.075
-        max_val_set: 250
+#    - prosocial_dialogue:
+#        fraction: 0.1
+#        max_val_set: 250
+#    - explain_prosocial:
+#        fraction: 0.075
+#        max_val_set: 250
     - soda:
         fraction: 0.25
         max_val_set: 1000
     - oa_leet10k:
         val_split: 0.05
         max_val_set: 250
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+
+
+pretrain:
+  num_train_epochs: 4
+  weight_decay: 0.0
+  use_custom_sampler: true
+  sort_by_length: false
+  datasets:
+    - oa_leet10k:
+        val_split: 0.05
+        max_val_set: 250
+    - cmu_wiki_qa:
+        val_split: 0.05
+    - joke:
+        val_split: 0.05
+    - webgpt:
+        val_split: 0.05
+        max_val_set: 250
+    - alpaca_gpt4:
+        val_split: 0.025
+        max_val_set: 250
+    - gpteacher_roleplay:
+        val_split: 0.05
+    - wizardlm_70k:
+        val_split: 0.05
+        max_val_set: 500
+    - poem_instructions:
+        val_split: 0.025
+    - tell_a_joke:
+        val_split: 0.05
+        max_val_set: 250
+    - gpt4all:
+        val_split: 0.01
+        max_val_set: 1000
+    - minimath:
+        val_split: 0.05
+    - humaneval_mbpp_codegen_qa:
+        val_split: 0.05
+    - humaneval_mbpp_testgen_qa:
+        val_split: 0.05
+    - dolly15k:
+        val_split: 0.05
+        max_val_set: 300
+    - recipes:
+        val_split: 0.05
+    - code_alpaca:
+        val_split: 0.05
+        max_val_set: 250
+
+sft9-stage2:
+  save_strategy: steps # epoch seems not to work, gets stuck with DS 0.9.1
+  #save_steps: 613
+  save_steps: 691 # ~1 epoch at batch_size 128
+  use_custom_sampler: true
+  datasets:
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk" # sft-8.0
+        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
+        val_split: 0.05
+        top_k: 2
+    - vicuna:
+        fraction: 0.5
+        val_split: 0.025
+        max_val_set: 250
+    - code_alpaca:
+        fraction: 0.5
+        val_split: 0.05
+        max_val_set: 250
+    - oa_wiki_qa_bart_10000row:
+        val_split: 0.05
+        max_val_set: 250
+    - grade_school_math_instructions:
+        val_split: 0.05
     - dolly15k:
         val_split: 0.05
         max_val_set: 300
@@ -233,7 +309,7 @@ oasst-top1:
   datasets:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk" # sft-8.0
-        input_file_path: 2023-05-06_OASST_labels.jsonl.gz
+        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
         val_split: 0.05
         top_k: 1
 
@@ -259,10 +335,37 @@ falcon-7b:
   residual_dropout: 0.3
   residual_dropout_lima: true
 
-falcon-40b-lora:
+
+falcon-7b-lora:
   dtype: bf16
   log_dir: "llama_log_7b"
   learning_rate: 1e-4
+  model_name: "tiiuae/falcon-7b"
+  deepspeed_config: configs/zero_config.json
+  output_dir: falcon
+  weight_decay: 0.0
+  max_length: 2048
+  warmup_steps: 20
+  gradient_checkpointing: true
+  gradient_accumulation_steps: 1
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
+  eval_steps: 20
+  save_steps: 20
+  max_grad_norm: 3
+  num_train_epochs: 10
+  save_total_limit: 3
+  use_flash_attention: false
+  residual_dropout: 0.3
+  residual_dropout_lima: true
+  adam_beta2: 0.99
+  peft_model: true
+  peft_type: "lora"
+
+falcon-40b-lora:
+  dtype: bf16
+  log_dir: "llama_log_7b"
+  learning_rate: 5e-5
   model_name: "tiiuae/falcon-40b"
   deepspeed_config: configs/zero3_config_falcon.json
   output_dir: falcon
@@ -436,7 +539,7 @@ sft-8-datasets:
   datasets:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk" # sft-8.0
-        input_file_path: 2023-05-06_OASST_labels.jsonl.gz
+        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
         val_split: 0.05
     - dolly15k:
         val_split: 0.05
@@ -467,7 +570,7 @@ sft-8.1-datasets:
   datasets:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
-        input_file_path: 2023-05-06_OASST_labels.jsonl.gz
+        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
         val_split: 0.05
     - dolly15k:
         val_split: 0.05
@@ -672,7 +775,7 @@ pythia-12b-sft-8:
   datasets:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk"
-        input_file_path: 2023-05-06_OASST_labels.jsonl.gz
+        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
         val_split: 0.05
     - vicuna:
         val_split: 0.05

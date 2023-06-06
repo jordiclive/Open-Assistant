@@ -449,11 +449,15 @@ def main():
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         if training_conf.peft_model:
             wandb_name = f"peft-{training_conf.peft_type}-{wandb_name}"
+
+        import wandb
+
+        os.environ["WANDB_API_KEY"] = "d8216641d549f9bb3d0c5074baa39e15dfd55030"
         wandb.init(
-            project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            project="public-sft",
+            entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
-            name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
+            name=f"lora-{wandb_name}-pretrain}",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
