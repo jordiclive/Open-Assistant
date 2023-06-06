@@ -546,7 +546,7 @@ class DatabricksDolly15k(Dataset):
         if mode not in ("sft", "rl"):
             raise NotImplementedError(f"Currently only the modes 'sft' and 'rl' are implemented. Received {mode}.")
         self.mode = mode
-        data = load_dataset("OllieStanley/oa_dolly_15k", cache_dir="/p/project/ccstdl/clive1/data_cache/")
+        data = load_dataset("/p/project/ccstdl/clive1/data_cache/OllieStanley___parquet/OllieStanley--oa_dolly_15k-e5b93204720c9338/0.0.0/2a3b91fbd88a2c90d1dbbb32b460cf621d31bd5b05b934492fdef7d8d6f236ec")# cache_dir="/p/project/ccstdl/clive1/data_cache/")
         for line in data["train"]:
             if (c := self._process_instruction(line)) is not None:
                 self.rows.append(c)

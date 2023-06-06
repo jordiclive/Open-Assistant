@@ -574,13 +574,13 @@ sft-8-datasets:
 
 sft-8.1-datasets:
   datasets:
-#    - oasst_export:
-#        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
-#        input_file_path: 2023-06-02_oasst_all_labels.jsonl.gz
-#        val_split: 0.05
-    - dolly15k:
+    - oasst_export:
+        lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
+        input_file_path: 2023-04-12_oasst_ready.messages.jsonl.gz
         val_split: 0.05
-        max_val_set: 300
+#    - dolly15k:
+#        val_split: 0.05
+#        max_val_set: 300
 #    - grade_school_math_instructions:
 #        val_split: 0.05
 #    - red_pajama:
