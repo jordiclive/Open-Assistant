@@ -1,4 +1,4 @@
-source miniconda3/bin/activate mdel
+source /p/project/ccstdl/clive1/miniconda3/bin/activate mdel
 
 cd /p/project/ccstdl/clive1/Open-Assistant/model/model_training
 
