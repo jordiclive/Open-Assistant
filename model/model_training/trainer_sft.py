@@ -457,7 +457,7 @@ def main():
             project="public-sft",
             entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
-            name=f"lora-{wandb_name}-pretrain}",
+            name=f"lora-falcon-40b-pretrain",
             config=training_conf,
         )
         wandb.config["_max_length"] = training_conf.max_length
