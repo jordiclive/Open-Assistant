@@ -576,7 +576,7 @@ sft-8.1-datasets:
   datasets:
     - oasst_export:
         lang: "bg,ca,cs,da,de,en,es,fr,hr,hu,it,nl,pl,pt,ro,ru,sl,sr,sv,uk,vi,zh,ko,ja,th"
-        input_file_path: 2023-04-12_oasst_ready.messages.jsonl.gz
+        input_file_path: 2023-05-06_OASST_labels.jsonl.gz
         val_split: 0.05
 #    - dolly15k:
 #        val_split: 0.05
