@@ -427,7 +427,7 @@ def main():
             peft_type=training_conf.peft_type,
             gradient_checkpointing=training_conf.gradient_checkpointing,
         )
-    model = load_peft_finetuned_model(model, peft_model_path, tokenizer)
+    model = load_peft_finetuned_model(model, "/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000", tokenizer)
     if training_conf.quantization:
         import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
 
