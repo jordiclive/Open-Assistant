@@ -134,24 +134,84 @@ def save_adapter_model_from_ckpt(save_config: SaveLoraConfig):
 
 
 
-# def save_merged_model_from_ckpt(save_config: SaveLoraConfig):
-#     tokenizer = get_tokenizer(save_config)
-#     model = get_model(save_config, tokenizer)
-#     model = peft_model(model, model_name=save_config.model_name)
-#     model.load_state_dict(torch.load(save_config.torch_ckpt_path))
-#     model = model.merge_and_unload()
-#     # model = model.to(save_config.dtype)
-#     model.save_pretrained(save_config,dtype=save_config.dtype, max_shard_size="10GB")
-#     tokenizer.save_pretrained(save_config)
+def save_merged_model_from_ckpt(save_config: SaveLoraConfig):
+    tokenizer = get_tokenizer(save_config)
+    model = get_model(save_config, tokenizer)
+    model = load_peft_model(model, save_config.adapter_save_path, tokenizer)
+    model = model.merge_and_unload()
+    model = model.to(save_config.dtype)
+    model.save_pretrained(Path(save_config.adapter_save_path).joinpath("merged_model"), dtype=save_config.dtype, max_shard_size="10GB")
+    tokenizer.save_pretrained(save_config)
+    # model = peft_model(model, model_name=save_config.model_name)
+    # model = load_peft_model(model, peft_model_path, tokenizer)
+    # model.load_state_dict(torch.load(save_config.torch_ckpt_path))
+    # model = model.merge_and_unload()
+    # # model = model.to(save_config.dtype)
+    # model.save_pretrained(save_config,dtype=save_config.dtype, max_shard_size="10GB")
+    # tokenizer.save_pretrained(save_config)
+
+
+def load_peft_model_merge(model, peft_model_path, tokenizer):
+    embed_weights = peft_model_path.joinpath("extra_embeddings.pt")
+    model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
+    model.config.eos_token_id = tokenizer.eos_token_id
+    model.config.bos_token_id = tokenizer.bos_token_id
+    model.config.pad_token_id = tokenizer.pad_token_id
+    model = PeftModel.from_pretrained(
+        model,
+        model_id=peft_model_path,
+        torch_dtype=model.dtype,
+    )
+    model.eos_token_id = tokenizer.eos_token_id
+    add_embeddings(model, embed_weights, tokenizer)
+    return model
+
+
+def save_both_merged_model(save_config: SaveLoraConfig):
+    import os
+    if not os.path.exists(save_config.adapter_save_path):
+        os.makedirs(save_config.adapter_save_path)
+
+    adapter_path = Path(save_config.adapter_save_path).joinpath("adapter")
+    if not os.path.exists(adapter_path):
+        os.makedirs(adapter_path)
+
+    ## Adapter model
+    tokenizer = get_tokenizer(save_config)
+    model = get_model(save_config, tokenizer)
+    model = peft_model(model, model_name=save_config.model_name)
+    model.load_state_dict(torch.load(save_config.torch_ckpt_path))
+    vocab_size = tokenizer.vocab_size
+    print(f"Vocab size is {vocab_size}, and new tokenizer length is {len(tokenizer)}")
+    old_embeddings = model.get_input_embeddings()
+    new_embs = old_embeddings.weight.data[vocab_size:, :].clone()
+    new_embs = new_embs.to(save_config.dtype)
+    model.save_pretrained(adapter_path, torch_dtype=save_config.dtype)
+    torch.save(new_embs, Path(adapter_path).joinpath("extra_embeddings.pt"))
+
+    ## Merged model
+    model_path = Path(save_config.adapter_save_path)
+
+    model = get_model(save_config, tokenizer)
+    model = load_peft_model_merge(model, adapter_path, tokenizer)
+    model = model.merge_and_unload()
+    model = model.to(save_config.dtype)
+    model.save_pretrained(model_path, dtype=save_config.dtype, max_shard_size="10GB")
+    tokenizer.save_pretrained(model_path)
+    # tokenizer.save_pretrained(save_config.adapter_save_path)
+
+
 
 
 if __name__ == '__main__':
     save_config = SaveLoraConfig(dtype=torch.bfloat16,
                                  model_name="tiiuae/falcon-40b",
                                  cache_dir="/mnt/data/jordiclive/data_cache",
-                                 adapter_save_path="/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000",
+                                 adapter_save_path="/mnt/data/jordiclive/falcon/save_ckpts/both_pretrain_ckpt_18000",
                                  torch_ckpt_path="/mnt/data/jordiclive/falcon/pretrain_falcon_ckpts/checkpoint-18000/pytorch_model.bin")
-    save_adapter_model_from_ckpt(save_config)
+    save_both_merged_model(save_config)
+    # save_adapter_model_from_ckpt(save_config)
+
     # save_config = SaveLoraConfig(dtype=torch.bfloat16,
     #                              model_name="tiiuae/falcon-7b",
     #                              adapter_save_path="/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000/adapter",
