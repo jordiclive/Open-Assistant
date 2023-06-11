@@ -148,6 +148,7 @@ def save_merged_model_from_ckpt(save_config: SaveLoraConfig):
 if __name__ == '__main__':
     save_config = SaveLoraConfig(dtype=torch.bfloat16,
                                  model_name="tiiuae/falcon-40b",
+                                 cache_dir="/mnt/data/jordiclive/data_cache",
                                  adapter_save_path="/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000",
                                  torch_ckpt_path="/mnt/data/jordiclive/falcon/pretrain_falcon_ckpts/checkpoint-18000/pytorch_model.bin")
     save_merged_model_from_ckpt(save_config)
