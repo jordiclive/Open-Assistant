@@ -195,7 +195,7 @@ def save_both_merged_model(save_config: SaveLoraConfig):
     model = get_model(save_config, tokenizer)
     model = load_peft_model_merge(model, adapter_path, tokenizer)
     model = model.merge_and_unload()
-    model = model.to(save_config.dtype)
+    # model = model.to(save_config.dtype)
     model.save_pretrained(model_path, dtype=save_config.dtype, max_shard_size="10GB")
     tokenizer.save_pretrained(model_path)
     # tokenizer.save_pretrained(save_config.adapter_save_path)
