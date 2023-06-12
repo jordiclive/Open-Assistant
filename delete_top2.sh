@@ -9,5 +9,5 @@ while true; do
     done
 
     # Sleep for 45 minutes
-    sleep 2700
+    sleep 1000
 done
