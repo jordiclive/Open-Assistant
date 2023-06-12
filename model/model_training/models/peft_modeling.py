@@ -210,6 +210,8 @@ if __name__ == '__main__':
                                  adapter_save_path="/mnt/data/jordiclive/falcon/save_ckpts/both_pretrain_ckpt_18000",
                                  torch_ckpt_path="/mnt/data/jordiclive/falcon/pretrain_falcon_ckpts/checkpoint-18000/pytorch_model.bin")
     save_both_merged_model(save_config)
+
+
     # save_adapter_model_from_ckpt(save_config)
 
     # save_config = SaveLoraConfig(dtype=torch.bfloat16,
