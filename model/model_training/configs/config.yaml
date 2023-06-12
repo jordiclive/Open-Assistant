@@ -402,13 +402,13 @@ falcon-40b-lora:
 falcon-40b-lora2:
   dtype: bf16
   log_dir: "llama_log_7b"
-  learning_rate: 1e-4
+  learning_rate: 3e-5
   model_name: "tiiuae/falcon-40b"
   deepspeed_config: configs/zero3_config_falcon.json
   output_dir: falcon
   weight_decay: 0.0
   max_length: 2048
-  warmup_steps: 20
+  warmup_steps: 1000
   gradient_checkpointing: true
   gradient_accumulation_steps: 1
   per_device_train_batch_size: 8
