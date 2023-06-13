@@ -30,9 +30,8 @@ def add_embeddings(model, embed_path, tokenizer):
 
 
 def load_peft_finetuned_model(model, peft_model_path, tokenizer):
-    peft_model_path = str(Path(peft_model_path).joinpath("adapter"))
-    embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
-    adapter_model = hf_hub_download(peft_model_path, "adapter_model.bin")
+    embed_weights = hf_hub_download(peft_model_path, "adapter/extra_embeddings.pt")
+    adapter_model = hf_hub_download(peft_model_path, "adapter/adapter_model.bin")
     add_embeddings(model, embed_weights, tokenizer)
     adapters_weights = torch.load(adapter_model, map_location=model.device)
     model.load_state_dict(adapters_weights, strict=False)
@@ -44,15 +43,22 @@ def load_peft_finetuned_model(model, peft_model_path, tokenizer):
 
 
 def load_lora_model(base_model_id, repo_id, tokenizer, dtype):
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     base_model_id,
-    #     torch_dtype=dtype,
-    #     trust_remote_code=True,
-    #     cache_dir="/mnt/data/jordiclive/data_cache"
-    # )
+    model = AutoModelForCausalLM.from_pretrained(
+        base_model_id,
+        torch_dtype=dtype,
+        trust_remote_code=True,
+        cache_dir="/mnt/data/jordiclive/data_cache"
+    )
     config_path = hf_hub_download(repo_id, "adapter/adapter_config.json")
+    loaded_attributes = LoraConfig.from_json_file(config_path)
 
-    config = LoraConfig.from_pretrained(config_path)
+    config = LoraConfig()
+
+    for key, value in loaded_attributes.items():
+        if hasattr(config, key):
+            setattr(config, key, value)
+
+
     model = get_peft_model(model, config)
     model = load_peft_finetuned_model(model, repo_id, tokenizer)
     return model
