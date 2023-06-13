@@ -193,7 +193,7 @@ def save_merged_model_llama():
 def save_merged_model_llama():
     dtype = torch.bfloat16
     save_config = SaveLoraConfig(model_name='tiiuae/falcon-40b',dtype=dtype)
-    peft_model_path = "jordiclive/falcon_lora_40b_ckpt_18000_pretrain"
+    peft_model_path = "jordiclive/falcon_lora_40b_ckpt_1400_sft"
     tokenizer = get_tokenizer(save_config)
     model = get_model(save_config, tokenizer)
     print(model)
@@ -202,7 +202,7 @@ def save_merged_model_llama():
     model = model.merge_and_unload()
     print(model)
     model = model.to(dtype=torch.bfloat16)
-    model.save_pretrained("/fsx/home-jordiclive/merged_falcon", torch_dtype=dtype)
+    model.save_pretrained("/fsx/home-jordiclive/merged_falcon_1400", torch_dtype=dtype)
 
 def load_model(model_path):
     from transformers import AutoTokenizer, AutoModelForCausalLM
