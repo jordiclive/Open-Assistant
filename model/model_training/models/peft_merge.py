@@ -178,27 +178,27 @@ def save_both_merged_model(save_config: SaveLoraConfig):
 
     ## Adapter model
     tokenizer = get_tokenizer(save_config)
-    model = get_model(save_config, tokenizer)
-    model = peft_model(model, model_name=save_config.model_name)
-    model.load_state_dict(torch.load(save_config.torch_ckpt_path))
-    vocab_size = tokenizer.vocab_size
-    print(f"Vocab size is {vocab_size}, and new tokenizer length is {len(tokenizer)}")
-    old_embeddings = model.get_input_embeddings()
-    new_embs = old_embeddings.weight.data[vocab_size:, :].clone()
-    new_embs = new_embs.to(save_config.dtype)
-    model.save_pretrained(adapter_path, torch_dtype=save_config.dtype)
-    torch.save(new_embs, Path(adapter_path).joinpath("extra_embeddings.pt"))
+    # model = get_model(save_config, tokenizer)
+    # model = peft_model(model, model_name=save_config.model_name)
+    # model.load_state_dict(torch.load(save_config.torch_ckpt_path))
+    # vocab_size = tokenizer.vocab_size
+    # print(f"Vocab size is {vocab_size}, and new tokenizer length is {len(tokenizer)}")
+    # old_embeddings = model.get_input_embeddings()
+    # new_embs = old_embeddings.weight.data[vocab_size:, :].clone()
+    # new_embs = new_embs.to(save_config.dtype)
+    # model.save_pretrained(adapter_path, torch_dtype=save_config.dtype)
+    # torch.save(new_embs, Path(adapter_path).joinpath("extra_embeddings.pt"))
 
     ## Merged model
-    # model_path = Path(save_config.adapter_save_path)
-    # model = get_model(save_config, tokenizer)
-    # model = peft_model(model, save_config.model_name, peft_type="lora", int8_training=False, gradient_checkpointing=False)
-    # model = load_peft_finetuned_model(model, peft_model_path= adapter_path, tokenizer=tokenizer)
-    # model = model.merge_and_unload()
-    # model = model.to(save_config.dtype) # todo needed?
-    # model.save_pretrained(model_path, dtype=save_config.dtype, max_shard_size="10GB")
-    # tokenizer.save_pretrained(model_path)
-    #
+    model_path = Path(save_config.adapter_save_path)
+    model = get_model(save_config, tokenizer)
+    model = peft_model(model, save_config.model_name, peft_type="lora", int8_training=False, gradient_checkpointing=False)
+    model = load_peft_finetuned_model(model, peft_model_path= adapter_path, tokenizer=tokenizer)
+    model = model.merge_and_unload()
+    model = model.to(save_config.dtype) # todo needed?
+    model.save_pretrained(model_path, dtype=save_config.dtype, max_shard_size="10GB")
+    tokenizer.save_pretrained(model_path)
+
 
 
 
