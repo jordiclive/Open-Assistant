@@ -48,6 +48,7 @@ def load_lora_model(base_model_id, repo_id, tokenizer, dtype):
         base_model_id,
         torch_dtype=dtype,
         trust_remote_code=True,
+        cache_dir="/mnt/data/jordiclive/data_cache"
     )
     peft_model_path = Path(repo_id).joinpath("adapter")
     config_path = hf_hub_download(peft_model_path, "adapter_config.json")
