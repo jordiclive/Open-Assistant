@@ -13,5 +13,4 @@ export HF_DATASETS_CACHE="/mnt/data/jordiclive/transformers_cache"
 export HF_HOME="/mnt/data/jordiclive/transformers_cache"
 cd /mnt/data/jordiclive/falcon/Open-Assistant/model/model_training/models
 
-deepspeed --include=localhost:0,1,2,3,4,5,6,7 --master_port 61500 /mnt/data/jordiclive/falcon/Open-Assistant/model/model_training/trainer_sft.py
-
+deepspeed --include=localhost:0,1,2,3,4,5,6,7 --master_port 61500 test_model.py 
