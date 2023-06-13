@@ -1,4 +1,4 @@
-source /mnt/data/jordiclive/falcon_lora/bin/activate
+source /mnt/data/jordiclive/jordan_falcon/bin/activate
 
 cd /mnt/data/jordiclive/falcon/Open-Assistant/model/model_training/models
 
