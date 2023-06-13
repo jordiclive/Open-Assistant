@@ -50,8 +50,7 @@ def load_lora_model(base_model_id, repo_id, tokenizer, dtype):
     #     trust_remote_code=True,
     #     cache_dir="/mnt/data/jordiclive/data_cache"
     # )
-    peft_model_path = str(Path(repo_id).joinpath("adapter"))
-    config_path = hf_hub_download(peft_model_path, "adapter_config.json")
+    config_path = hf_hub_download(repo_id, "adapter/adapter_config.json")
 
     config = LoraConfig.from_pretrained(config_path)
     model = get_peft_model(model, config)
