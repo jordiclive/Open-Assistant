@@ -42,13 +42,12 @@ def load_peft_finetuned_model(model, peft_model_path, tokenizer):
     return model
 
 
-def load_lora_model(base_model_id, repo_id, tokenizer, dtype):
+def load_lora_model(base_model_id, repo_id, tokenizer, dtype, p = 16):
     model = AutoModelForCausalLM.from_pretrained(
-        base_model_id,
-        torch_dtype=dtype,
-        trust_remote_code=True,
-        cache_dir="/mnt/data/jordiclive/data_cache"
+        base_model_id, torch_dtype=dtype, trust_remote_code=True, cache_dir="/mnt/data/jordiclive/data_cache"
     )
+    target_size = len(tokenizer) if not p else -(-len(tokenizer) // p) * p
+    model.resize_token_embeddings(target_size)
     config_path = hf_hub_download(repo_id, "adapter/adapter_config.json")
     loaded_attributes = LoraConfig.from_json_file(config_path)
 
@@ -58,11 +57,10 @@ def load_lora_model(base_model_id, repo_id, tokenizer, dtype):
         if hasattr(config, key):
             setattr(config, key, value)
 
-
     model = get_peft_model(model, config)
     model = load_peft_finetuned_model(model, repo_id, tokenizer)
     return model
 
 
-model = load_lora_model(base_model_id=base_model_id, repo_id=repo_id, tokenizer=tokenizer,  dtype=dtype)
+model = load_lora_model(base_model_id=base_model_id, repo_id=repo_id, tokenizer=tokenizer, dtype=dtype)
 print(model)
