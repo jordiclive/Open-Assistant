@@ -207,8 +207,8 @@ if __name__ == '__main__':
     save_config = SaveLoraConfig(dtype=torch.bfloat16,
                                  model_name="tiiuae/falcon-40b",
                                  cache_dir="/mnt/data/jordiclive/data_cache",
-                                 adapter_save_path="/mnt/data/jordiclive/falcon/save_ckpts/both_pretrain_ckpt_18000",
-                                 torch_ckpt_path="/mnt/data/jordiclive/falcon/pretrain_falcon_ckpts/checkpoint-18000/pytorch_model.bin")
+                                 adapter_save_path="/mnt/data/jordiclive/falcon/save_ckpts/both_sft_ckpt_1400",
+                                 torch_ckpt_path="/mnt/data/jordiclive/falcon/sft_falcon_ckpts/checkpoint-1400/pytorch_model.bin")
     save_both_merged_model(save_config)
 
 
