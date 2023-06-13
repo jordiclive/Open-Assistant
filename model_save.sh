@@ -13,4 +13,4 @@ export HF_DATASETS_CACHE="/mnt/data/jordiclive/transformers_cache"
 export HF_HOME="/mnt/data/jordiclive/transformers_cache"
 
 
-python peft_modeling.py
+python peft_modeling.py 2>&1 | tee debug_falcon.txt
