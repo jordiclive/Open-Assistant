@@ -416,8 +416,8 @@ falcon-40b-lora2:
   eval_steps: 100
   save_steps: 275
   max_grad_norm: 3
-  num_train_epochs: 7
-  save_total_limit: 2
+  num_train_epochs: 8
+  save_total_limit: 3
   use_flash_attention: false
   residual_dropout: 0.3
   residual_dropout_lima: true

@@ -42,7 +42,7 @@ def load_peft_finetuned_model(model, peft_model_path, tokenizer):
     return model
 
 
-def load_lora_model(base_model_id, repo_id, tokenizer, dtype, p = 16):
+def load_lora_model(base_model_id, repo_id, tokenizer, dtype, p=16):
     model = AutoModelForCausalLM.from_pretrained(
         base_model_id, torch_dtype=dtype, trust_remote_code=True, cache_dir="/mnt/data/jordiclive/data_cache"
     )
