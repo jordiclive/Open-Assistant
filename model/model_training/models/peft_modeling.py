@@ -189,7 +189,7 @@ def save_both_merged_model(save_config: SaveLoraConfig):
     model.save_pretrained(adapter_path, torch_dtype=save_config.dtype)
     torch.save(new_embs, Path(adapter_path).joinpath("extra_embeddings.pt"))
 
-    # ## Merged model
+    ## Merged model
     model_path = Path(save_config.adapter_save_path)
     model = get_model(save_config, tokenizer)
     model = peft_model(model, save_config.model_name, peft_type="lora", int8_training=False, gradient_checkpointing=False)
