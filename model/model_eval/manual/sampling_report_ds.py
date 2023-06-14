@@ -401,25 +401,33 @@ def main():
         model_args["load_in_8bit"] = args.int8
         model_args["device_map"] = "auto"
 
-    if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
-        from transformers import AutoModelForCausalLM
-
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
-        model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
-        skip_input_tokens = True
-    elif args.model_type.lower() == "t5conditional":
-        from transformers import T5ForConditionalGeneration
-
-        tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
-        model = T5ForConditionalGeneration.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
-        skip_input_tokens = False
-    else:
-        raise RuntimeError("Invalid model_type specified")
-
-    if args.peft_model is not None:
-        tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
-        model = load_peft_model(model, args.peft_model, tokenizer)
-
+    # if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
+    #     from transformers import AutoModelForCausalLM
+    #
+    #     tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+    #     model = AutoModelForCausalLM.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
+    #     skip_input_tokens = True
+    # elif args.model_type.lower() == "t5conditional":
+    #     from transformers import T5ForConditionalGeneration
+    #
+    #     tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+    #     model = T5ForConditionalGeneration.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
+    #     skip_input_tokens = False
+    # else:
+    #     raise RuntimeError("Invalid model_type specified")
+    #
+    # if args.peft_model is not None:
+    #     tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+    #     model = load_peft_model(model, args.peft_model, tokenizer)
+    #
+    skip_input_tokens = True
+    tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1_merged")
+    model = AutoModelForCausalLM.from_pretrained(
+        "jordiclive/falcon_lora_40b_ckpt_500_oasst_1_merged",
+        cache_dir = '/mnt/data/jordiclive/transformers_cache',
+        torch_dtype = torch.bfloat16,
+        trust_remote_code = True,
+    )
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
 
@@ -441,6 +449,8 @@ def main():
     ds_engine = deepspeed.initialize(model=model, config_params=ds_config)[0]
     ds_engine.module.eval()
     model = ds_engine.module
+
+
 
     print(f"Loading prompts file: {args.prompts}")
     prompts = load_jsonl(input_file_path=args.prompts)[:5]
