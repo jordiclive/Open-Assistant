@@ -418,7 +418,7 @@ def main():
 
     if args.n:
         prompts = prompts[: args.n]
-
+    prompts = prompts[:248]
     total_prompts = len(prompts)
     local_chunk = total_prompts // world_size
     if local_rank == world_size - 1:
