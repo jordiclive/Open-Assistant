@@ -421,11 +421,23 @@ def main():
     #     model = load_peft_model(model, args.peft_model, tokenizer)
     #
     skip_input_tokens = True
-    tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1_merged")
+    # tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1_merged")
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     "jordiclive/falcon_lora_40b_ckpt_500_oasst_1_merged",
+    #     cache_dir = '/mnt/data/jordiclive/transformers_cache',
+    #     torch_dtype = torch.bfloat16,
+    #     trust_remote_code = True,
+    # )
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
+
+    repo_id = "jordiclive/falcon_lora_40b_ckpt_500_oasst_1_merged"
+    dtype = torch.bfloat16
+    tokenizer = AutoTokenizer.from_pretrained(repo_id, subfolder = "tokenizer")
     model = AutoModelForCausalLM.from_pretrained(
-        "jordiclive/falcon_lora_40b_ckpt_500_oasst_1_merged",
-        cache_dir = '/mnt/data/jordiclive/transformers_cache',
-        torch_dtype = torch.bfloat16,
+        repo_id,
+        subfolder = "merged_model",
+        torch_dtype = dtype,
         trust_remote_code = True,
     )
     print("special_tokens_map:", tokenizer.special_tokens_map)
