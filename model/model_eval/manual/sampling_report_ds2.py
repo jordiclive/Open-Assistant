@@ -13,16 +13,91 @@ import torch
 from huggingface_hub import hf_hub_download
 from tqdm import tqdm
 from peft import LoraConfig, PeftModel, PrefixTuningConfig, get_peft_model, prepare_model_for_int8_training
-import transformers
-from transformers import AutoTokenizer, PreTrainedTokenizer, AutoModelForCausalLM
 
 import os
 
 os.environ['HF_HOME'] = '/mnt/data/jordiclive/transformers_cache'
 os.environ['TRANSFORMERS_CACHE'] = '/mnt/data/jordiclive/transformers_cache'
 os.environ['HF_DATASETS_CACHE'] = "/mnt/data/jordiclive/transformers_cache"
+import transformers
+from transformers import AutoTokenizer, PreTrainedTokenizer, AutoModelForCausalLM
 
 
+def add_embeddings(model, embed_path, tokenizer):
+    old_embeddings = model.get_input_embeddings()
+    old_num_tokens, old_embedding_dim = old_embeddings.weight.shape[0], old_embeddings.weight.shape[1]
+    new_embeddings = torch.nn.Embedding(old_num_tokens, old_embedding_dim)
+    new_embeddings.to(old_embeddings.weight.device, dtype=old_embeddings.weight.dtype)
+    model._init_weights(new_embeddings)
+    embed_weights = torch.load(embed_path, map_location=old_embeddings.weight.device)
+    vocab_size = tokenizer.vocab_size
+    new_embeddings.weight.data[:vocab_size, :] = old_embeddings.weight.data[:vocab_size, :]
+    new_embeddings.weight.data[vocab_size: vocab_size + embed_weights.shape[0], :] = embed_weights.to(
+        new_embeddings.weight.dtype
+    ).to(new_embeddings.weight.device)
+    model.set_input_embeddings(new_embeddings)
+    model.tie_weights()
+
+
+def load_peft_model(model, peft_model_path, tokenizer):
+    embed_weights = hf_hub_download(peft_model_path, "extra_embeddings.pt")
+    model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
+    model.config.eos_token_id = tokenizer.eos_token_id
+    model.config.bos_token_id = tokenizer.bos_token_id
+    model.config.pad_token_id = tokenizer.pad_token_id
+    model = PeftModel.from_pretrained(
+        model,
+        model_id=peft_model_path,
+        torch_dtype=model.dtype,
+    )
+    model.eos_token_id = tokenizer.eos_token_id
+    add_embeddings(model, embed_weights, tokenizer)
+    return model
+
+
+def peft_model(model, model_name, peft_type="lora", int8_training=False, gradient_checkpointing=False):
+    if peft_type == "lora":
+        if "falcon" in model_name:
+            target_modules = ["dense_4h_to_h", "dense", "query_key_value", "dense_h_to_4h"]
+            r = 64
+        elif "llama" in model_name:
+            target_modules = ["k_proj", "q_proj", "o_proj", "v_proj"]
+            # target_modules = ["down_proj", "k_proj", "q_proj", "gate_proj", "o_proj", "up_proj", "v_proj"]
+            if "65" in model_name:
+                r = 16
+            else:
+                r = 8
+        else:
+            raise ValueError(
+                f"Invalid model name '{model_name}'. The model name should contain 'falcon' or 'llama', Simply find target_modules for it"
+            )
+        config = LoraConfig(
+            r=r,
+            lora_alpha=16,
+            target_modules=target_modules,
+            lora_dropout=0.05,
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+    elif peft_type == "prefix-tuning":
+        config = PrefixTuningConfig(
+            num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024, task_type="CAUSAL_LM"
+        )
+    else:
+        raise ValueError("peft_method config is lora or prefix-tuning")
+    model = get_peft_model(model, config)
+    if int8_training:
+        model = prepare_model_for_int8_training(model)
+
+    model.print_trainable_parameters()
+    return model
+
+
+def load_peft_finetuned_model(model, peft_model_path, tokenizer):
+    add_embeddings(model, Path(peft_model_path).joinpath("extra_embeddings.pt"), tokenizer)
+    adapters_weights = torch.load(Path(peft_model_path).joinpath("adapter_model.bin"), map_location=model.device)
+    model.load_state_dict(adapters_weights, strict=False)
+    return model
 
 
 QA_SPECIAL_TOKENS = {"Question": "<human>", "Answer": "<bot>", "StartPrefix": "<prefix>", "EndPrefix": "</prefix>"}
@@ -75,16 +150,16 @@ def load_jsonl(input_file_path: Union[str, Path]) -> List[Union[dict, str]]:
         input_file_path = Path(input_file_path)
 
     if input_file_path.suffix == ".gz":
-        file_in = gzip.open(str(input_file_path), mode = "tr", encoding = "UTF-8")
+        file_in = gzip.open(str(input_file_path), mode="tr", encoding="UTF-8")
     else:
-        file_in = input_file_path.open("r", encoding = "UTF-8")
+        file_in = input_file_path.open("r", encoding="UTF-8")
 
     items = []
 
     with file_in:
         # read one message tree per line
         for line in file_in:
-            obj = json.loads(line, object_pairs_hook = OrderedDict)
+            obj = json.loads(line, object_pairs_hook=OrderedDict)
             items.append(obj)
 
     return items
@@ -114,20 +189,20 @@ def sample(
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
     elif mode == "v2_5":
-        # if sampling_config.system_profile and len(sampling_config.system_profile) > 0:
-        #     system_fragments = [QA_SPECIAL_TOKENS_V2_5["system"]]
-        #     for k, v in sampling_config.system_profile.items():
-        #         if isinstance(v, float):
-        #             system_fragments.append(f"{k}: {v:0.1f}")
-        #         elif isinstance(v, str):
-        #             system_fragments.append(f"{k}: {v}")
-        #         else:
-        #             system_fragments.append(f"{k}: {v}")
-        #     system_fragments.append(tokenizer.eos_token)
-        #     system_tag = "\n".join(system_fragments)
-        # else:
-        #     system_tag = ""
-        system_tag = ""
+        if sampling_config.system_profile and len(sampling_config.system_profile) > 0:
+            system_fragments = [QA_SPECIAL_TOKENS_V2_5["system"]]
+            for k, v in sampling_config.system_profile.items():
+                if isinstance(v, float):
+                    system_fragments.append(f"{k}: {v:0.1f}")
+                elif isinstance(v, str):
+                    system_fragments.append(f"{k}: {v}")
+                else:
+                    system_fragments.append(f"{k}: {v}")
+            system_fragments.append(tokenizer.eos_token)
+            system_tag = "\n".join(system_fragments)
+        else:
+            system_tag = ""
+
         input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{tokenizer.eos_token}{system_tag}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
         print("input_text", input_text)
     else:
@@ -137,18 +212,18 @@ def sample(
     sampling_params = sampling_config.generate_args
     inputs = tokenizer(
         input_text,
-        return_tensors = "pt",
-        max_length = max_input_len,
-        pad_to_max_length = False,
-        truncation = True,
+        return_tensors="pt",
+        max_length=max_input_len,
+        pad_to_max_length=False,
+        truncation=True,
     ).to(device)
     for t in inputs:
         if torch.is_tensor(inputs[t]):
             inputs[t] = inputs[t].to(torch.cuda.current_device())
     input_ids = inputs.input_ids
     outputs = model.generate(
-        input_ids = input_ids,
-        pad_token_id = tokenizer.eos_token_id,
+        input_ids=input_ids,
+        pad_token_id=tokenizer.eos_token_id,
         **sampling_params,
     )
     if skip_input_tokens:
@@ -163,7 +238,7 @@ def merge_configs(*configs: Tuple[Optional[SamplingConfig]]) -> Optional[Samplin
     for c in configs:
         if not merged:
             if c:
-                merged = c.copy(deep = True)
+                merged = c.copy(deep=True)
         else:
             # simple fields
             fields = ["name", "pre_text", "human_name", "bot_name", "add_prefix_tokens"]
@@ -208,18 +283,18 @@ def sample_prompt_continuations(
                     break  # don't repeat greedy sampling
                 output_tokens, sampling_params = sample(
                     p,
-                    model = model,
-                    tokenizer = tokenizer,
-                    mode = mode,
-                    sampling_config = merge_configs(config.default, sc),
-                    device = device,
-                    skip_input_tokens = skip_input_tokens,
-                    max_input_len = max_input_len,
+                    model=model,
+                    tokenizer=tokenizer,
+                    mode=mode,
+                    sampling_config=merge_configs(config.default, sc),
+                    device=device,
+                    skip_input_tokens=skip_input_tokens,
+                    max_input_len=max_input_len,
                 )
                 output = tokenizer.decode(
                     output_tokens,
-                    truncate_before_pattern = [r"\n\n^#", "^'''", "\n\n\n"],  # only used for codegen model
-                    skip_special_tokens = skip_special_tokens,
+                    truncate_before_pattern=[r"\n\n^#", "^'''", "\n\n\n"],  # only used for codegen model
+                    skip_special_tokens=skip_special_tokens,
                 )
 
                 if verbose:
@@ -229,10 +304,10 @@ def sample_prompt_continuations(
                 outputs.append(output)
 
             sampling_results.append(
-                SamplingResult(sampling_config = sc.name, sampling_params = sampling_params, outputs = outputs)
+                SamplingResult(sampling_config=sc.name, sampling_params=sampling_params, outputs=outputs)
             )
 
-        prompt_results.append(PromptResults(prompt = p, results = sampling_results))
+        prompt_results.append(PromptResults(prompt=p, results=sampling_results))
     return prompt_results
 
 
@@ -245,39 +320,39 @@ def load_configs(path: Path) -> Configuration:
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--device", default = "cuda", type = str, help = "device to use")
-    parser.add_argument("--device-index", default = 0, type = int, help = "device index")
-    parser.add_argument("--model-name", type = str, default = "facebook/galactica-125m")
+    parser.add_argument("--device", default="cuda", type=str, help="device to use")
+    parser.add_argument("--device-index", default=0, type=int, help="device index")
+    parser.add_argument("--model-name", type=str, default="facebook/galactica-125m")
     parser.add_argument(
         "--mode",
-        type = str,
-        default = "legacy",
-        help = "legacy, v2",
+        type=str,
+        default="legacy",
+        help="legacy, v2",
     )
     parser.add_argument(
-        "--prompts", type = str, help = "jsonl string prompts input file name", default = "./data/en_100_text.jsonl.gz"
+        "--prompts", type=str, help="jsonl string prompts input file name", default="./data/en_100_text.jsonl.gz"
     )
-    parser.add_argument("--report", type = str, help = "json sampling report output file name")
-    parser.add_argument("--seed", type = int, default = "42", help = "psoudo random number generator seed")
-    parser.add_argument("--verbose", action = "store_true", default = False)
-    parser.add_argument("-n", type = int, help = "number of promtps to use (default: all)")
-    parser.add_argument("--num-samples", type = int, default = 2, help = "number of sampling runs per configuration")
-    parser.add_argument("--config", type = str, default = "config/default.json", help = "configuration file path")
-    parser.add_argument("--half", action = "store_true", default = False, help = "use float16")
-    parser.add_argument("--int8", action = "store_true", default = False, help = "use int8 quantization")
-    parser.add_argument("--skip-special-tokens", action = "store_true", default = False)
-    parser.add_argument("--model-type", type = str, default = "CausalLM", help = "CausalLM, T5Conditional, LLaMA")
-    parser.add_argument("--max-input-len", type = int, help = "max token counts for input")
-    parser.add_argument("--auth-token", type = str)
-    parser.add_argument("--num-threads", type = int, default = 8)
-    parser.add_argument("--peft_model", type = str, default = None)
-    parser.add_argument("--local_rank", required = False, type = int, help = "used by dist launchers")
-    parser.add_argument("--batch_size", default = 1, type = int, help = "batch size")
-    parser.add_argument("--benchmark", action = "store_true", help = "additionally run benchmark")
-    parser.add_argument("--cpu_offload", action = "store_true", help = "whether to activate CPU offload")
-    parser.add_argument("--nvme_offload_path", help = "whether to activate NVME offload and the path on nvme")
-    parser.add_argument("--dtype", type = str, default = None)
-    parser.add_argument("--model_hidden_size", type = int, default = 8192)
+    parser.add_argument("--report", type=str, help="json sampling report output file name")
+    parser.add_argument("--seed", type=int, default="42", help="psoudo random number generator seed")
+    parser.add_argument("--verbose", action="store_true", default=False)
+    parser.add_argument("-n", type=int, help="number of promtps to use (default: all)")
+    parser.add_argument("--num-samples", type=int, default=2, help="number of sampling runs per configuration")
+    parser.add_argument("--config", type=str, default="config/default.json", help="configuration file path")
+    parser.add_argument("--half", action="store_true", default=False, help="use float16")
+    parser.add_argument("--int8", action="store_true", default=False, help="use int8 quantization")
+    parser.add_argument("--skip-special-tokens", action="store_true", default=False)
+    parser.add_argument("--model-type", type=str, default="CausalLM", help="CausalLM, T5Conditional, LLaMA")
+    parser.add_argument("--max-input-len", type=int, help="max token counts for input")
+    parser.add_argument("--auth-token", type=str)
+    parser.add_argument("--num-threads", type=int, default=8)
+    parser.add_argument("--peft_model", type=str, default=None)
+    parser.add_argument("--local_rank", required=False, type=int, help="used by dist launchers")
+    parser.add_argument("--batch_size", default=1, type=int, help="batch size")
+    parser.add_argument("--benchmark", action="store_true", help="additionally run benchmark")
+    parser.add_argument("--cpu_offload", action="store_true", help="whether to activate CPU offload")
+    parser.add_argument("--nvme_offload_path", help="whether to activate NVME offload and the path on nvme")
+    parser.add_argument("--dtype", type=str, default=None)
+    parser.add_argument("--model_hidden_size", type=int, default=8192)
 
     return parser.parse_args()
 
@@ -362,13 +437,13 @@ def main():
     if args.cpu_offload and args.nvme_offload_path:
         raise ValueError("Use one of --cpu_offload or --nvme_offload_path and not both")
     if args.cpu_offload:
-        ds_config["zero_optimization"]["offload_param"] = dict(device = "cpu", pin_memory = True)
+        ds_config["zero_optimization"]["offload_param"] = dict(device="cpu", pin_memory=True)
     if args.nvme_offload_path:
         ds_config["zero_optimization"]["offload_param"] = dict(
-            device = "nvme",
-            pin_memory = True,
-            nvme_path = args.nvme_offload_path,
-            buffer_size = 4e9,
+            device="nvme",
+            pin_memory=True,
+            nvme_path=args.nvme_offload_path,
+            buffer_size=4e9,
         )
 
     dschf = HfDeepSpeedConfig(ds_config)  # this tells from_pretrained to instantiate directly on gpus
@@ -379,17 +454,41 @@ def main():
         model_args["load_in_8bit"] = args.int8
         model_args["device_map"] = "auto"
 
+    # if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
+    #     from transformers import AutoModelForCausalLM
+    # from huggingface_hub import snapshot_download
+    # snapshot_download("tiiuae/falcon-40b", local_dir="falcon40b", local_dir_use_symlinks=False)
+    # model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
+    # model = transformers.AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b",trust_remote_code=True,revision="6e61c89")
 
     skip_input_tokens = True
-    print(model_name)
-    print(args.model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    # elif args.model_type.lower() == "t5conditional":
+    #     from transformers import T5ForConditionalGeneration
+    #
+    #     tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+    #     model = T5ForConditionalGeneration.from_pretrained(model_name, use_auth_token=args.auth_token, **model_args)
+    #     skip_input_tokens = False
+    # else:
+    #     raise RuntimeError("Invalid model_type specified")
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
     model = AutoModelForCausalLM.from_pretrained(
-        args.model_name,
-        cache_dir = '/mnt/data/jordiclive/transformers_cache',
-        torch_dtype = torch.bfloat16,
-        trust_remote_code = True,
+        "tiiuae/falcon-40b",
+        cache_dir='/mnt/data/jordiclive/transformers_cache',
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
     )
+    if args.peft_model is not None:
+        tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+        print('LEN tokenizer', len(tokenizer))
+        old_embeddings = model.get_input_embeddings()
+        print('old_embeddings', old_embeddings.weight.shape)
+        embed_weights = '/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000/extra_embeddings.pt'
+        model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
+        old_embeddings = model.get_input_embeddings()
+        print('new_num_tokens', old_embeddings.weight.shape)
+        peft_model_path = '/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000'
+        model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
+        model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
 
     print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
@@ -398,28 +497,29 @@ def main():
     input_text = f"{QA_SPECIAL_TOKENS_V2_5['prompter']}Hi!{tokenizer.eos_token}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
     tr = tokenizer(input_text)
     print(tr)
-    decoded = tokenizer.decode(tr.input_ids, skip_special_tokens = False)
+    decoded = tokenizer.decode(tr.input_ids, skip_special_tokens=False)
     print("decoded:", decoded)
 
     if args.benchmark:
         torch.cuda.empty_cache()
         gc.collect()
-        deepspeed.runtime.utils.see_memory_usage("pre-from-pretrained", force = True)
+        deepspeed.runtime.utils.see_memory_usage("pre-from-pretrained", force=True)
     if args.benchmark:
-        deepspeed.runtime.utils.see_memory_usage("post-from-pretrained", force = True)
+        deepspeed.runtime.utils.see_memory_usage("post-from-pretrained", force=True)
     model = model.eval()
     print_rank0(ds_config)
-    ds_engine = deepspeed.initialize(model = model, config_params = ds_config)[0]
+    ds_engine = deepspeed.initialize(model=model, config_params=ds_config)[0]
     ds_engine.module.eval()
     model = ds_engine.module
 
     print(f"Loading prompts file: {args.prompts}")
-    prompts = load_jsonl(input_file_path = args.prompts)
+    prompts = load_jsonl(input_file_path=args.prompts)
+    prompts = prompts[:8]
     print(f"prompt count: {len(prompts)}")
 
     if args.n:
         prompts = prompts[: args.n]
-    prompts = prompts[:8]
+
     total_prompts = len(prompts)
     local_chunk = total_prompts // world_size
     if local_rank == world_size - 1:
@@ -431,21 +531,21 @@ def main():
     if "auth_token" in args_dict:
         del args_dict["auth_token"]
     report = SamplingReport(
-        model_name = model_name,
-        date = datetime.utcnow().isoformat(),
-        args = args_dict,
-        prompts = sample_prompt_continuations(
-            prompts = prompts,
-            model = model,
-            tokenizer = tokenizer,
-            mode = args.mode,
-            config = config,
-            device = device,
-            num_samples = args.num_samples,
-            skip_special_tokens = args.skip_special_tokens,
-            skip_input_tokens = skip_input_tokens,
-            verbose = args.verbose,
-            max_input_len = args.max_input_len,
+        model_name=model_name,
+        date=datetime.utcnow().isoformat(),
+        args=args_dict,
+        prompts=sample_prompt_continuations(
+            prompts=prompts,
+            model=model,
+            tokenizer=tokenizer,
+            mode=args.mode,
+            config=config,
+            device=device,
+            num_samples=args.num_samples,
+            skip_special_tokens=args.skip_special_tokens,
+            skip_input_tokens=skip_input_tokens,
+            verbose=args.verbose,
+            max_input_len=args.max_input_len,
         ),
     )
 
@@ -459,9 +559,9 @@ def main():
 
     report_path = Path(report_filename)
     print(f"writing report: {str(report_path)}")
-    with report_path.open(mode = "wt", encoding = "UTF-8") as rf:
-        x = report.dict(exclude_none = True)
-        json.dump(x, rf, indent = 2)
+    with report_path.open(mode="wt", encoding="UTF-8") as rf:
+        x = report.dict(exclude_none=True)
+        json.dump(x, rf, indent=2)
 
 
 if __name__ == "__main__":
