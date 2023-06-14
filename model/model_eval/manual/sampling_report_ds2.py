@@ -114,20 +114,20 @@ def sample(
     if mode == "v2":
         input_text = f"{prefix}{QA_SPECIAL_TOKENS['Question']}{prompt}{QA_SPECIAL_TOKENS['Answer']}"
     elif mode == "v2_5":
-        if sampling_config.system_profile and len(sampling_config.system_profile) > 0:
-            system_fragments = [QA_SPECIAL_TOKENS_V2_5["system"]]
-            for k, v in sampling_config.system_profile.items():
-                if isinstance(v, float):
-                    system_fragments.append(f"{k}: {v:0.1f}")
-                elif isinstance(v, str):
-                    system_fragments.append(f"{k}: {v}")
-                else:
-                    system_fragments.append(f"{k}: {v}")
-            system_fragments.append(tokenizer.eos_token)
-            system_tag = "\n".join(system_fragments)
-        else:
-            system_tag = ""
-
+        # if sampling_config.system_profile and len(sampling_config.system_profile) > 0:
+        #     system_fragments = [QA_SPECIAL_TOKENS_V2_5["system"]]
+        #     for k, v in sampling_config.system_profile.items():
+        #         if isinstance(v, float):
+        #             system_fragments.append(f"{k}: {v:0.1f}")
+        #         elif isinstance(v, str):
+        #             system_fragments.append(f"{k}: {v}")
+        #         else:
+        #             system_fragments.append(f"{k}: {v}")
+        #     system_fragments.append(tokenizer.eos_token)
+        #     system_tag = "\n".join(system_fragments)
+        # else:
+        #     system_tag = ""
+        system_tag = ""
         input_text = f"{prefix}{QA_SPECIAL_TOKENS_V2_5['prompter']}{prompt}{tokenizer.eos_token}{system_tag}{QA_SPECIAL_TOKENS_V2_5['assistant']}"
         print("input_text", input_text)
     else:
