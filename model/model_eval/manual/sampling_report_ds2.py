@@ -483,6 +483,7 @@ def main():
         cache_dir='/mnt/data/jordiclive/transformers_cache',
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
+        use_auth_token="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"
     )
     # args.peft_model = True
     # if args.peft_model is not None:
