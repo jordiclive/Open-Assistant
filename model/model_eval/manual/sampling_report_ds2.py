@@ -382,7 +382,7 @@ def main():
 
     skip_input_tokens = True
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token = args.auth_token)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name,
         cache_dir = '/mnt/data/jordiclive/transformers_cache',
