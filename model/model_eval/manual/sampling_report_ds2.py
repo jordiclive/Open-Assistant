@@ -470,7 +470,7 @@ def main():
     #     skip_input_tokens = False
     # else:
     #     raise RuntimeError("Invalid model_type specified")
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token,trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1", use_auth_token=args.auth_token,trust_remote_code=True)
     print(tokenizer)
     model = AutoModelForCausalLM.from_pretrained(
         "tiiuae/falcon-40b",
