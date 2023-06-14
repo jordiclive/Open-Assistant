@@ -456,8 +456,8 @@ def main():
 
     # if args.model_type.lower() == "causallm" or args.model_type.lower() == "llama":
     #     from transformers import AutoModelForCausalLM
-    # from huggingface_hub import snapshot_download
-    # snapshot_download("tiiuae/falcon-40b", local_dir="falcon40b", local_dir_use_symlinks=False)
+# from huggingface_hub import snapshot_download
+# snapshot_download("tiiuae/falcon-40b", local_dir="falcon40b", local_dir_use_symlinks=False)
     # model = transformers.AutoModel.from_pretrained("/mnt/data/jordiclive/data_cache/models--tiiuae--falcon-40b/snapshots/b0462812b2f53caab9ccc64051635a74662fc73b",trust_remote_code=True)
     # model = transformers.AutoModelForCausalLM.from_pretrained("tiiuae/falcon-40b",trust_remote_code=True,revision="6e61c89")
 
@@ -472,34 +472,28 @@ def main():
     #     raise RuntimeError("Invalid model_type specified")
     tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1", use_auth_token=args.auth_token,trust_remote_code=True)
     print(tokenizer)
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     "tiiuae/falcon-40b",
-    #     cache_dir='/mnt/data/jordiclive/transformers_cache',
-    #     torch_dtype=torch.bfloat16,
-    #     trust_remote_code=True,
-    # )
     model = AutoModelForCausalLM.from_pretrained(
-        "OpenAssistant/falcon-40b-lora-sft-1.1k",
+        "tiiuae/falcon-40b",
         cache_dir='/mnt/data/jordiclive/transformers_cache',
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
-        use_auth_token="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"
     )
-    # args.peft_model = True
-    # if args.peft_model is not None:
-    #     # tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
-    #     print('LEN tokenizer', len(tokenizer))
-    #     old_embeddings = model.get_input_embeddings()
-    #     print('old_embeddings', old_embeddings.weight.shape)
-    #     embed_weights = '/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000/extra_embeddings.pt'
-    #     model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
-    #     old_embeddings = model.get_input_embeddings()
-    #     print('new_num_tokens', old_embeddings.weight.shape)
-    #     peft_model_path = '/mnt/data/jordiclive/falcon/save_ckpts/pretrain_ckpt_18000'
-    #     model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
-    #     model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
-    #
-    # print("special_tokens_map:", tokenizer.special_tokens_map)
+
+    args.peft_model = True
+    if args.peft_model is not None:
+        # tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+        print('LEN tokenizer', len(tokenizer))
+        old_embeddings = model.get_input_embeddings()
+        print('old_embeddings', old_embeddings.weight.shape)
+        embed_weights = '/mnt/data/jordiclive/falcon/falcon40b/extra_embeddings.pt'
+        model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
+        old_embeddings = model.get_input_embeddings()
+        print('new_num_tokens', old_embeddings.weight.shape)
+        peft_model_path = '/mnt/data/jordiclive/falcon/falcon40b'
+        model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
+        model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+
+    print("special_tokens_map:", tokenizer.special_tokens_map)
     print(f"eos_token='{tokenizer.eos_token}', eos_token_id={tokenizer.eos_token_id}")
 
     print("Tokenizer check:")
