@@ -470,7 +470,8 @@ def main():
     #     skip_input_tokens = False
     # else:
     #     raise RuntimeError("Invalid model_type specified")
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, use_auth_token=args.auth_token,trust_remote_code=True)
+    print(tokenizer)
     model = AutoModelForCausalLM.from_pretrained(
         "tiiuae/falcon-40b",
         cache_dir='/mnt/data/jordiclive/transformers_cache',
