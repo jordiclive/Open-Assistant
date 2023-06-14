@@ -480,7 +480,7 @@ def main():
     )
     args.peft_model = True
     if args.peft_model is not None:
-        tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
+        # tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
         print('LEN tokenizer', len(tokenizer))
         old_embeddings = model.get_input_embeddings()
         print('old_embeddings', old_embeddings.weight.shape)
