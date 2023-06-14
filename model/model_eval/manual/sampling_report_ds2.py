@@ -478,6 +478,7 @@ def main():
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
     )
+    args.peft_model = True
     if args.peft_model is not None:
         tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
         print('LEN tokenizer', len(tokenizer))
