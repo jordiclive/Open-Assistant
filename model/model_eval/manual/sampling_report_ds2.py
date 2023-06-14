@@ -381,7 +381,8 @@ def main():
 
 
     skip_input_tokens = True
-
+    print(model_name)
+    print(args.model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name,
