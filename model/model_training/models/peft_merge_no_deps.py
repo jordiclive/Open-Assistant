@@ -317,10 +317,14 @@ def load_peft_model_merge(model, peft_model_path, tokenizer):
 
 def save_merged_model_again(save_config):
     tokenizer = get_tokenizer(save_config)
+    print('Loading Model.....')
     model = get_model(save_config, tokenizer)
+    print('Create Dummy Peft')
     model = peft_model(model, save_config.model_name, peft_type="lora", int8_training=False, gradient_checkpointing=True)
+    print('Load PEFT weights')
     model = load_peft_finetuned_model(model, peft_model_path= "/mnt/data/jordiclive/falcon/falcon-lora-1.1k", tokenizer=tokenizer)
 
+    print('Merge and unload')
     model = model.merge_and_unload()
     model = model.to(save_config.dtype)  # todo needed?
 
