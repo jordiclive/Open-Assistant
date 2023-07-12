@@ -3,7 +3,6 @@ import gzip
 import json
 import random
 import re
-import os
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
@@ -50,10 +49,9 @@ def load_peft_model(model, peft_model_path, tokenizer):
         model,
         model_id=peft_model_path,
         torch_dtype=model.dtype,
-        device_map="auto"
     )
     model.eos_token_id = tokenizer.eos_token_id
-    # add_embeddings(model, embed_weights, tokenizer)
+    add_embeddings(model, embed_weights, tokenizer)
     return model
 
 
@@ -474,31 +472,34 @@ def main():
     #     raise RuntimeError("Invalid model_type specified")
     tokenizer = AutoTokenizer.from_pretrained("jordiclive/falcon_lora_40b_ckpt_500_oasst_1", use_auth_token=args.auth_token,trust_remote_code=True)
     print(tokenizer)
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     "tiiuae/falcon-40b",
-    #     cache_dir='/mnt/data/jordiclive/transformers_cache',
-    #     torch_dtype=torch.bfloat16,
-    #     trust_remote_code=True,
-    # )
-    model = AutoModelForCausalLM.from_pretrained('/mnt/data/jordiclive/falcon/merged_falcon_take2',torch_dtype=torch.bfloat16,trust_remote_code=True)
 
-    args.peft_model = True
+
+    model = AutoModelForCausalLM.from_pretrained(
+        "tiiuae/falcon-40b",
+        cache_dir='/mnt/data/jordiclive/transformers_cache',
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+    )
+    model = AutoModelForCausalLM.from_pretrained(
+    '/mnt/data/jordiclive/falcon/merged_falcon_take2',
+        cache_dir='/mnt/data/jordiclive/transformers_cache',
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+    )
+
+    # args.peft_model = True
     # if args.peft_model is not None:
     #     # tokenizer = AutoTokenizer.from_pretrained(args.peft_model)
-    #     # print('LEN tokenizer', len(tokenizer))
-    #     # old_embeddings = model.get_input_embeddings()
-    #     # print('old_embeddings', old_embeddings.weight.shape)
+    #     print('LEN tokenizer', len(tokenizer))
+    #     old_embeddings = model.get_input_embeddings()
+    #     print('old_embeddings', old_embeddings.weight.shape)
     #     embed_weights = '/mnt/data/jordiclive/falcon/falcon-lora-1.1k/extra_embeddings.pt'
-    #     # model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
-    #     # old_embeddings = model.get_input_embeddings()
-    #     # print('new_num_tokens', old_embeddings.weight.shape)
+    #     model.resize_token_embeddings(tokenizer.vocab_size + torch.load(embed_weights).shape[0])
+    #     old_embeddings = model.get_input_embeddings()
+    #     print('new_num_tokens', old_embeddings.weight.shape)
     #     peft_model_path = "/mnt/data/jordiclive/falcon/falcon-lora-1.1k"
-    #
-    #
     #     model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
-    #
-    #
-    #     # model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
+    #     model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
     #     print('Merge and unload')
     #     model = model.merge_and_unload()
     #     model = model.to(torch.bfloat16)
