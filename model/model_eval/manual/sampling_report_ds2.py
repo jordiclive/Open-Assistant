@@ -493,9 +493,9 @@ def main():
         peft_model_path = "/mnt/data/jordiclive/falcon/falcon-lora-1.1k"
 
 
-        # model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
+        model = peft_model(model, "falcon", peft_type="lora", int8_training=False, gradient_checkpointing=False)
 
-        model = load_peft_model(model, peft_model_path, tokenizer)
+
         # model = load_peft_finetuned_model(model, peft_model_path=peft_model_path, tokenizer=tokenizer)
         print('Merge and unload')
         model = model.merge_and_unload()
