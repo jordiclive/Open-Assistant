@@ -3,6 +3,7 @@ import gzip
 import json
 import random
 import re
+import os
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
