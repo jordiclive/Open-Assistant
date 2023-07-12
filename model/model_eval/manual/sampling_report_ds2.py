@@ -523,7 +523,7 @@ def main():
 
     print(f"Loading prompts file: {args.prompts}")
     prompts = load_jsonl(input_file_path=args.prompts)
-    prompts = prompts[:8]
+    prompts = prompts[:12]
     print(f"prompt count: {len(prompts)}")
 
     if args.n:
