@@ -3,6 +3,7 @@ import gzip
 import json
 import random
 import re
+import os
 os.environ['HF_HOME'] = '/mnt/data/jordiclive/transformers_cache'
 os.environ['TRANSFORMERS_CACHE'] = '/mnt/data/jordiclive/transformers_cache'
 os.environ['HF_DATASETS_CACHE'] = "/mnt/data/jordiclive/transformers_cache"
