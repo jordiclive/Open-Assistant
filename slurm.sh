@@ -1,4 +1,4 @@
-source /mnt/data/jordiclive/falcon_lora/bin/activate
+conda activate /mnt/data/jordiclive/jordan_scaled
 
 cd /mnt/data/jordiclive/falcon/Open-Assistant/model/model_training
 
