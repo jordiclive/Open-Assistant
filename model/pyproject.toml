@@ -16,7 +16,7 @@ dependencies = [
     "deepspeed>=0.9.5",
     "evaluate>=0.4.0",
     "fastlangid>=1.0.11",
-    "flash_attn @ git+https://github.com/Dao-AILab/flash-attention.git",
+#    "flash_attn @ git+https://github.com/Dao-AILab/flash-attention.git",
     "gdown",
     "trlx @ git+https://github.com/CarperAI/trlx.git",
     "ninja>=1.11.1",
