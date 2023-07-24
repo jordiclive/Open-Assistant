@@ -582,7 +582,7 @@ oasst-top1-lora:
 
 
 lora-llama2-70b:
-  dtype: bf16
+  dtype: fp16
   log_dir: "llama_lora_log_65b"
 
   model_name: "/mnt/data/llama2/Llama-2-70b-hf-sp" #"/mnt/data/llama2/Llama-2-7b-hf-sp" #"/mnt/data/llama2/Llama-2-70b-hf"
@@ -594,8 +594,8 @@ lora-llama2-70b:
 
   gradient_checkpointing: true
   gradient_accumulation_steps: 1
-  per_device_train_batch_size: 1
-  per_device_eval_batch_size: 1
+  per_device_train_batch_size: 12
+  per_device_eval_batch_size: 5
 
   use_flash_attention: True
   residual_dropout: 0.0

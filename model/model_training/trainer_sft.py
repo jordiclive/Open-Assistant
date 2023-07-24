@@ -331,7 +331,6 @@ def main():
         tokenizer = AutoTokenizer.from_pretrained(training_conf.model_name)
     else:
         tokenizer = get_tokenizer(training_conf)
-    print("VOCAB_SIZE",tokenizer.vocab_size)
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
 
