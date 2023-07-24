@@ -56,7 +56,7 @@ generation_config = GenerationConfig(
 
 
 
-def format_system_prompt(prompt, tokenizer,):
+def format_system_prompt(prompt, tokenizer):
     eos_token = tokenizer.eos_token
     return "{}{}{}{}".format("<|prompter|>", prompt, eos_token, "<|assistant|>")
 
@@ -68,7 +68,7 @@ def generate(
     max_new_tokens=100,
     device=device,
 ):
-    prompt = format_system_prompt(prompt, eos_token=tokenizer.eos_token)  # OpenAssistant Prompt Format expected
+    prompt = format_system_prompt(prompt, tokenizer=tokenizer)  # OpenAssistant Prompt Format expected
 
     model = model.half().to(device)
     input_ids = tokenizer(prompt, return_tensors="pt").input_ids.to(device)
