@@ -422,12 +422,12 @@ def main():
     #     model = LlamaForCausalLM.from_pretrained(training_conf.model_name,torch_dtype=torch.float16)
     # else:
     #     model = get_model(training_conf, tokenizer)
-    # model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp",torch_dtype= torch.float16, max_shard_size="10GB")
-    # tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp")
-    # import time
-    # time.sleep(60*30)
-    # raise ValueError("Done")
-    superhot = RopePatch.from_config(training_conf) if training_conf.superhot else None
+    # # model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp",torch_dtype= torch.float16, max_shard_size="10GB")
+    # # tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp")
+    # # import time
+    # # time.sleep(60*30)
+    # # raise ValueError("Done")
+    # superhot = RopePatch.from_config(training_conf) if training_conf.superhot else None
     # if superhot:
     #     superhot.patch(model)
     #
