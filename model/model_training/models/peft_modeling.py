@@ -62,36 +62,19 @@ def prepare_model_for_gradient_checkpointing(model):
     return model
 
 
-def peft_model(model, model_name, peft_type="lora", int8_training=False, gradient_checkpointing=False):
-    if peft_type == "lora":
-        if "falcon" in model_name:
-            target_modules = ["dense_4h_to_h", "dense", "query_key_value", "dense_h_to_4h"]
-            r = 64
-        elif "llama" in model_name:
-            target_modules = ["down_proj", "k_proj", "q_proj", "gate_proj", "o_proj", "up_proj", "v_proj"]
-            if "65" in model_name:
-                r = 16
-            else:
-                r = 64
-        else:
-            raise ValueError(
-                f"Invalid model name '{model_name}'. The model name should contain 'falcon' or 'llama', Simply find target_modules for it"
-            )
-        r = 64
-        config = LoraConfig(
-            r=r,
-            lora_alpha=16,
-            target_modules=target_modules,
-            lora_dropout=0.05,
-            bias="none",
-            task_type="CAUSAL_LM",
-        )
-    elif peft_type == "prefix-tuning":
-        config = PrefixTuningConfig(
-            num_virtual_tokens=30, prefix_projection=True, encoder_hidden_size=1024, task_type="CAUSAL_LM"
-        )
-    else:
-        raise ValueError("peft_method config is lora or prefix-tuning")
+def peft_model(model, int8_training=False, gradient_checkpointing=False):
+
+    target_modules = ["down_proj", "k_proj", "q_proj", "gate_proj", "o_proj", "up_proj", "v_proj"]
+    r = 64
+    config = LoraConfig(
+        r=r,
+        lora_alpha=16,
+        target_modules=target_modules,
+        lora_dropout=0.05,
+        bias="none",
+        task_type="CAUSAL_LM",
+    )
+
     model = get_peft_model(model, config)
     if int8_training:
         model = prepare_model_for_int8_training(model)
