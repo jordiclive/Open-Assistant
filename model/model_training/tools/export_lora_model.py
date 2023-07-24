@@ -119,7 +119,7 @@ def main():
         print(f"Unsupported dtpye: {args.dtype}")
         sys.exit(1)
 
-    if not args.hf_repo_name and not args.output_folder:
+    if not args.hf_repo_name and not args.output_dir:
         print(
             "Please specify either `--hf_repo_name` to push to HF or `--output_folder` "
             "to export the model to a local folder."
