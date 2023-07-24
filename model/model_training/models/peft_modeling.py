@@ -65,7 +65,7 @@ def prepare_model_for_gradient_checkpointing(model):
 def peft_model(model, int8_training=False, gradient_checkpointing=False):
 
     target_modules = ["down_proj", "k_proj", "q_proj", "gate_proj", "o_proj", "up_proj", "v_proj"]
-    r = 64
+    r = 32
     config = LoraConfig(
         r=r,
         lora_alpha=16,
