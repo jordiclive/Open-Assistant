@@ -1,4 +1,4 @@
-conda activate /mnt/data/jordiclive/jordan_lora
+conda activate ikkaenv
 
 cd /mnt/data/jordiclive/falcon/Open-Assistant/model/model_training
 
