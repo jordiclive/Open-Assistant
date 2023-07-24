@@ -32,7 +32,7 @@ from transformers.trainer_pt_utils import IterableDatasetShard
 from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, LlamaForCausalLM
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
     out = {}
@@ -421,7 +421,7 @@ def main():
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
     if training_conf.peft_model:
-        model = AutoModelForCausalLM.from_pretrained(training_conf.model_name)
+        model = LlamaForCausalLM.from_pretrained(training_conf.model_name,dtype=torch.float16)
     else:
         model = get_model(training_conf, tokenizer)
     # model.save_pretrained("/mnt/data/llama2/Llama-2-7b-hf-sp",torch_dtype= torch.float16, max_shard_size="10GB")
