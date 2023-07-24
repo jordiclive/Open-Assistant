@@ -73,6 +73,7 @@ def peft_model(model, int8_training=False, gradient_checkpointing=False):
         lora_dropout=0.05,
         bias="none",
         task_type="CAUSAL_LM",
+        modules_to_save=["wte", "lm_head"]
     )
 
     model = get_peft_model(model, config)
