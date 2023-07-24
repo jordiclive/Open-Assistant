@@ -73,7 +73,7 @@ def peft_model(model, int8_training=False, gradient_checkpointing=False):
         lora_dropout=0.05,
         bias="none",
         task_type="CAUSAL_LM",
-        modules_to_save=["lm_head", "embed_tokens"]
+        # modules_to_save=["lm_head", "embed_tokens"]
     )
 
     model = get_peft_model(model, config)

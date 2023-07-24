@@ -32,7 +32,7 @@ from transformers.trainer_pt_utils import IterableDatasetShard
 from transformers.trainer_utils import seed_worker
 from transformers.training_args import OptimizerNames
 from transformers.utils import is_datasets_available
-
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 def compute_metrics(eval_pred, preprocess_fns, metrics):
     out = {}
@@ -327,8 +327,12 @@ def main():
 
     init_rng(training_conf)
 
+    # if training_conf.peft_model:
+    #     tokenizer = AutoTokenizer.from_pretrained(training_conf.model_name)
+    # else:
+    #     tokenizer = get_tokenizer(training_conf)
     tokenizer = get_tokenizer(training_conf)
-
+    print("VOCAB_SIZE",tokenizer.vocab_size)
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
 
@@ -416,8 +420,11 @@ def main():
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
+    # if training_conf.peft_model:
+    #     model = AutoModelForCausalLM.from_pretrained(training_conf.model_name)
+    # else:
+    #     model = get_model(training_conf, tokenizer)
     model = get_model(training_conf, tokenizer)
-
     model.save_pretrained("/mnt/data/llama2/Llama-2-7b-hf-sp",torch_dtype= torch.float16, max_shard_size="10GB")
     tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-7b-hf-sp")
     raise ValueError("Done")
