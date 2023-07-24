@@ -481,7 +481,7 @@ def main():
     X = iter(trainer.get_train_dataloader())
     a = []
     for i in X:
-        a.append(i['input_ids'].shape()[1])
+        a.append(i['input_ids'].size[1])
     print(max(a))
     trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
