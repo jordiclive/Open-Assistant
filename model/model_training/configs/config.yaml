@@ -585,7 +585,7 @@ lora-llama2-70b:
   dtype: bf16
   log_dir: "llama_lora_log_65b"
 
-  model_name: "/mnt/data/llama2/Llama-2-7b-hf" #"/mnt/data/llama2/Llama-2-70b-hf"
+  model_name: "/mnt/data/llama2/Llama-2-7b-hf-sp" #"/mnt/data/llama2/Llama-2-70b-hf"
   output_dir: llama_model_70b_lora
   weight_decay: 0.0
 

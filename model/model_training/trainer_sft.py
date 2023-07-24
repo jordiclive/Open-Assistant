@@ -428,7 +428,7 @@ def main():
     # tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-7b-hf-sp")
     # import time
     # time.sleep(60*30)
-    raise ValueError("Done")
+    # raise ValueError("Done")
     superhot = RopePatch.from_config(training_conf) if training_conf.superhot else None
     if superhot:
         superhot.patch(model)
