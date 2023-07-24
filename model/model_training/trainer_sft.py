@@ -446,8 +446,8 @@ def main():
 
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
-            project="supervised-finetuning",
-            entity=training_conf.wandb_entity,
+            project="lora70b",
+            entity="jordanclive",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
