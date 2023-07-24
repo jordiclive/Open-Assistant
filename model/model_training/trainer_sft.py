@@ -418,51 +418,51 @@ def main():
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
-    # if training_conf.peft_model:
-    #     model = LlamaForCausalLM.from_pretrained(training_conf.model_name,torch_dtype=torch.float16)
-    # else:
-    #     model = get_model(training_conf, tokenizer)
-    # # model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp",torch_dtype= torch.float16, max_shard_size="10GB")
-    # # tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp")
-    # # import time
-    # # time.sleep(60*30)
-    # # raise ValueError("Done")
-    # superhot = RopePatch.from_config(training_conf) if training_conf.superhot else None
-    # if superhot:
-    #     superhot.patch(model)
-    #
-    # if training_conf.peft_model:
-    #     print("Using PEFT model")
-    #     model = peft_model(model, gradient_checkpointing=True)
-    #
-    # if training_conf.quantization:
-    #     import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
-    #
-    #     for module in model.modules():
-    #         if isinstance(module, torch.nn.Embedding):
-    #             bitsandbytes.optim.GlobalOptimManager.get_instance().register_module_override(
-    #                 module, "weight", {"optim_bits": 32}
-    #             )
-    #
-    # if training_conf.fuse_gelu:
-    #     model = fuse_gelu(model)
-    #
-    # if not training_conf.log_wandb:
-    #     os.environ["WANDB_MODE"] = "offline"
-    #
-    # if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
-    #     import wandb
-    #
-    #     wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
-    #     wandb.init(
-    #         project="lora70b",
-    #         entity="jordanclive",
-    #         resume=training_conf.resume_from_checkpoint,
-    #         name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
-    #         config=training_conf,
-    #     )
-    #     wandb.config["_max_length"] = training_conf.max_length
-    #     wandb.config["_val_max_length"] = training_conf.val_max_length
+    if training_conf.peft_model:
+        model = LlamaForCausalLM.from_pretrained(training_conf.model_name,torch_dtype=torch.float16)
+    else:
+        model = get_model(training_conf, tokenizer)
+    # model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp",torch_dtype= torch.float16, max_shard_size="10GB")
+    # tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp")
+    # import time
+    # time.sleep(60*30)
+    # raise ValueError("Done")
+    superhot = RopePatch.from_config(training_conf) if training_conf.superhot else None
+    if superhot:
+        superhot.patch(model)
+
+    if training_conf.peft_model:
+        print("Using PEFT model")
+        model = peft_model(model, gradient_checkpointing=True)
+
+    if training_conf.quantization:
+        import bitsandbytes  # This is noisy, so delay importing until after argument parsing so it doesn't make --help noisy
+
+        for module in model.modules():
+            if isinstance(module, torch.nn.Embedding):
+                bitsandbytes.optim.GlobalOptimManager.get_instance().register_module_override(
+                    module, "weight", {"optim_bits": 32}
+                )
+
+    if training_conf.fuse_gelu:
+        model = fuse_gelu(model)
+
+    if not training_conf.log_wandb:
+        os.environ["WANDB_MODE"] = "offline"
+
+    if training_conf.log_wandb and (not training_conf.deepspeed or training_conf.local_rank == 0):
+        import wandb
+
+        wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
+        wandb.init(
+            project="lora70b",
+            entity="jordanclive",
+            resume=training_conf.resume_from_checkpoint,
+            name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
+            config=training_conf,
+        )
+        wandb.config["_max_length"] = training_conf.max_length
+        wandb.config["_val_max_length"] = training_conf.val_max_length
     model = AutoModelForCausalLM.from_pretrained("EleutherAI/pythia-70m-deduped-v0")
     trainer = SFTTrainer(
         model=model,
@@ -478,11 +478,11 @@ def main():
         compute_metrics=partial(compute_metrics, metrics=metrics, preprocess_fns=preprocess_fns),
         preprocess_logits_for_metrics=preprocess_logits_for_metrics,
     )
-    X = iter(trainer.get_train_dataloader())
-    a = []
-    for i in X:
-        a.append(i['input_ids'].size(1))
-    print(max(a))
+    # X = iter(trainer.get_train_dataloader())
+    # a = []
+    # for i in X:
+    #     a.append(i['input_ids'].size(1))
+    # print(max(a))
     trainer.train(resume_from_checkpoint=training_conf.resume_from_checkpoint)
     trainer.save_model()
     tokenizer.save_pretrained(output_dir)
