@@ -585,8 +585,10 @@ lora-llama2-70b:
   dtype: bf16
   log_dir: "llama_lora_log_65b"
 
-  model_name: "/mnt/data/llama2/Llama-2-70b-hf" #"/mnt/data/llama2/Llama-2-7b-hf-sp" #"/mnt/data/llama2/Llama-2-70b-hf"
-  peft_model: false
+  model_name: "/mnt/data/llama2/Llama-2-70b-hf-sp" #"/mnt/data/llama2/Llama-2-7b-hf-sp" #"/mnt/data/llama2/Llama-2-70b-hf"
+  peft_model: true
+  max_length: 2048
+
   output_dir: llama_model_70b_lora
   weight_decay: 0.0
 
@@ -601,7 +603,6 @@ lora-llama2-70b:
   use_custom_sampler: true
 
   learning_rate: 1e-4
-  max_length: 4096
   warmup_steps: 300
   max_grad_norm: 3.0
   adam_beta2: 0.99
@@ -609,7 +610,7 @@ lora-llama2-70b:
   deepspeed_config: configs/zero_config_sft_65b.json
   save_strategy: steps
   save_steps: 5
-  eval_steps: 250
+  eval_steps: 10
   num_train_epochs: 12
   save_total_limit: 2
 
