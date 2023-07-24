@@ -421,7 +421,7 @@ def main():
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
     if training_conf.peft_model:
-        model = LlamaForCausalLM.from_pretrained(training_conf.model_name,dtype=torch.float16)
+        model = LlamaForCausalLM.from_pretrained(training_conf.model_name,torch_dtype=torch.float16)
     else:
         model = get_model(training_conf, tokenizer)
     # model.save_pretrained("/mnt/data/llama2/Llama-2-7b-hf-sp",torch_dtype= torch.float16, max_shard_size="10GB")
