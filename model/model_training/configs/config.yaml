@@ -593,7 +593,7 @@ lora-llama2-70b:
   weight_decay: 0.0
 
   gradient_checkpointing: true
-  gradient_accumulation_steps: 1
+  gradient_accumulation_steps: 8
   per_device_train_batch_size: 2
   per_device_eval_batch_size: 1
 
