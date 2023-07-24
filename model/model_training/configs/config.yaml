@@ -587,7 +587,7 @@ lora-llama2-70b:
 
   model_name: "/mnt/data/llama2/Llama-2-70b-hf-sp" #"/mnt/data/llama2/Llama-2-7b-hf-sp" #"/mnt/data/llama2/Llama-2-70b-hf"
   peft_model: true
-  max_length: 2048
+  max_length: 4096
 
   output_dir: llama_model_70b_lora
   weight_decay: 0.0
