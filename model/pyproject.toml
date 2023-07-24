@@ -22,7 +22,7 @@ dependencies = [
     "ninja>=1.11.1",
     "nltk>=3.8.1",
     "numpy>=1.22.4",
-    "peft==0.2.0",
+    "peft==0.5.0",
     "py7zr",
     "PyYAML>=6.0",
     "sentencepiece>=0.1.97",
@@ -32,7 +32,7 @@ dependencies = [
     "langcodes==3.3.0",
     "tqdm>=4.65.0",
     "pydantic==1.10.7",
-    "transformers @ git+https://github.com/huggingface/transformers.git@e4a52b6a1536b1d9ef1ac55168bc4fede25605bc",
+    "transformers @ git+https://github.com/huggingface/transformers.git",
     "wandb>=0.15.5",
 ]
 
