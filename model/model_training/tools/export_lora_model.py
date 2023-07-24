@@ -25,18 +25,6 @@ def parse_args():
     parser.add_argument("--hf_repo_name", type=str, help="Huggingface repository name")
     parser.add_argument("--auth_token", type=str, help="User access token")
     parser.add_argument("--output_dir", type=str, help="output folder path")
-    parser.add_argument(
-        "--max_position_embeddings",
-        type=int,
-        default=16384,
-        help="Max Position Embeddings",
-    )
-    parser.add_argument(
-        "--position_interpolation_scale",
-        type=float,
-        default=0.125,
-        help="Position interpolation scale",
-    )
     parser.add_argument("--max_shard_size", type=str, default="10GB")
     parser.add_argument("--cache_dir", type=str)
     return parser.parse_args()

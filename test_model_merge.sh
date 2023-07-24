@@ -1,6 +1,6 @@
 conda activate jordan_lora
 
-cd /mnt/data/jordiclive/falcon/Open-Assistant/model/model_training
+vim /mnt/data/jordiclive/falcon/Open-Assistant/model/model_training/debug_falcon.txt
 
 export PYTHONPATH="/mnt/data/jordiclive/falcon/Open-Assistant/model/model_training:$PYTHONPATH"
 export PYTHONPATH="/mnt/data/jordiclive/falcon/Open-Assistant/model:$PYTHONPATH"
