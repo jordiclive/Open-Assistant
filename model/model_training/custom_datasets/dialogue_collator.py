@@ -73,7 +73,7 @@ class DialogueDataCollator:
             messages = format_pairs(messages, self.tokenizer.eos_token)
 
         flatten_message = self.tokenizer(
-            "".join(messages),
+            "".join(messages) *50,
             max_length=max_length,
             truncation=truncation,
             padding=False,
