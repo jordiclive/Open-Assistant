@@ -463,7 +463,6 @@ def main():
         )
         wandb.config["_max_length"] = training_conf.max_length
         wandb.config["_val_max_length"] = training_conf.val_max_length
-    model = AutoModelForCausalLM.from_pretrained("EleutherAI/pythia-70m-deduped-v0")
     trainer = SFTTrainer(
         model=model,
         args=args,

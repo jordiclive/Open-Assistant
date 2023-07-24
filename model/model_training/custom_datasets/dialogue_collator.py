@@ -207,3 +207,4 @@ class DialogueDataCollator:
         batch["targets"] = torch.roll(batch.input_ids, -1, -1)
 
         return batch
+
