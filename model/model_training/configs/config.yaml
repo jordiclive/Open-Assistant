@@ -609,8 +609,8 @@ lora-llama2-70b:
   peft_type: "lora"
   deepspeed_config: configs/zero_config_sft_65b.json
   save_strategy: steps
-  eval_steps: 500
-  save_steps: 500
+  eval_steps: 100
+  save_steps: 100
   num_train_epochs: 10
   save_total_limit: 4
 
