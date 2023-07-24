@@ -456,7 +456,7 @@ def main():
         wandb_name = training_conf.model_name.replace(os.getenv("HOME", "/home/ubuntu"), "")
         wandb.init(
             project="lora70b",
-            entity="jordanclive",
+            entity="open-assistant",
             resume=training_conf.resume_from_checkpoint,
             name=f"{wandb_name}-{training_conf.log_dir}-finetuned",
             config=training_conf,
