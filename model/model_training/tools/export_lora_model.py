@@ -6,7 +6,7 @@ from pathlib import Path
 import torch
 from model_training.models.peft_modeling import peft_model
 
-from transformers import (GenerationConfig, AutoTokenizer, AutoModelForCausalLM
+from transformers import GenerationConfig, AutoTokenizer, AutoModelForCausalLM
 
 
 def parse_args():
