@@ -610,7 +610,7 @@ lora-llama2-70b:
   save_strategy: steps
   eval_steps: 50
   save_steps: 50
-  num_train_epochs: 5
+  num_train_epochs: 7
   save_total_limit: 4
   residual_dropout: 0.3
   residual_dropout_lima: true
