@@ -598,21 +598,22 @@ lora-llama2-70b:
   per_device_eval_batch_size: 1
 
   use_flash_attention: True
-  residual_dropout: 0.0
 
   use_custom_sampler: true
 
-  learning_rate: 1e-4
-  warmup_steps: 100
+  learning_rate: 5e-5
+  warmup_steps: 50
   max_grad_norm: 3.0
   adam_beta2: 0.99
   peft_type: "lora"
   deepspeed_config: configs/zero_config_sft_65b.json
   save_strategy: steps
-  eval_steps: 100
-  save_steps: 100
-  num_train_epochs: 10
+  eval_steps: 50
+  save_steps: 50
+  num_train_epochs: 5
   save_total_limit: 4
+  residual_dropout: 0.3
+  residual_dropout_lima: true
 
 
 pythia-70m-deduped:
