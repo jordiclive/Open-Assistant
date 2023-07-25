@@ -122,7 +122,7 @@ def main():
         # todo test
         print("tokenizer EOS token!",tokenizer.eos_token,tokenizer.eos_token_id)
         print("testing original Model")
-        test_output(model, tokenizer)
+        # test_output(model, tokenizer)
         # finish
 
         # dummy PEFT MODEL
@@ -153,7 +153,7 @@ def main():
             )
             print('Loading from pytorch_model.bin')
     print("testing Adapter Model pre merge...")
-    test_output(model, tokenizer)
+    # test_output(model, tokenizer)
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
@@ -172,7 +172,7 @@ def main():
         model.to(dtype=torch_dtype)
         print("Saving merged Model...")
         print("testing Adapter Model post merge...")
-        test_output(model, tokenizer)
+        # test_output(model, tokenizer)
         model.save_pretrained(args.output_dir, max_shard_size=args.max_shard_size)
         tokenizer.save_pretrained(args.output_dir)
 
