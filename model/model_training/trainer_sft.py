@@ -424,8 +424,8 @@ def main():
     # else:
     #     model = get_model(training_conf, tokenizer)
     model = get_model(training_conf, tokenizer)
-    model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp-2",torch_dtype= torch.float16, max_shard_size="10GB")
-    tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp-2")
+    # model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp-2",torch_dtype= torch.float16, max_shard_size="10GB")
+    # tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp-2")
     import time
     time.sleep(60*30)
     raise ValueError("Done")
