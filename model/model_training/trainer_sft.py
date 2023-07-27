@@ -327,11 +327,11 @@ def main():
 
     init_rng(training_conf)
     #
-    # if training_conf.peft_model:
-    #     tokenizer = AutoTokenizer.from_pretrained(training_conf.model_name)
-    # else:
-    #     tokenizer = get_tokenizer(training_conf)
-    tokenizer = get_tokenizer(training_conf)
+    if training_conf.peft_model:
+        tokenizer = AutoTokenizer.from_pretrained(training_conf.model_name)
+    else:
+        tokenizer = get_tokenizer(training_conf)
+    # tokenizer = get_tokenizer(training_conf)
     if not training_conf.deepspeed or training_conf.local_rank == 0:
         tokenizer_sanity_check(tokenizer)
 
@@ -419,13 +419,13 @@ def main():
         sampler = None
 
     metrics, preprocess_fns = get_metrics(training_conf, tokenizer)
-    # if training_conf.peft_model:
-    #     model = LlamaForCausalLM.from_pretrained(training_conf.model_name,torch_dtype=torch.float16)
-    # else:
-    #     model = get_model(training_conf, tokenizer)
-    model = get_model(training_conf, tokenizer)
-    # model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp-2",torch_dtype= torch.float16, max_shard_size="10GB")
-    # tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-sp-2")
+    if training_conf.peft_model:
+        model = LlamaForCausalLM.from_pretrained(training_conf.model_name,torch_dtype=torch.float16)
+    else:
+        model = get_model(training_conf, tokenizer)
+    # model = get_model(training_conf, tokenizer)
+    model.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-oasst-2",torch_dtype= torch.float16, max_shard_size="10GB")
+    tokenizer.save_pretrained("/mnt/data/llama2/Llama-2-70b-hf-oasst-2")
     import time
     time.sleep(60*30)
     raise ValueError("Done")
