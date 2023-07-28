@@ -859,7 +859,7 @@ llama2_13b_orcacode2_8k:
   learning_rate: 1e-5
   model_name: OpenAssistant/llama2-13b-orca-8k-3319
   deepspeed_config: configs/zero_config_pretrain.json
-  weight_decay: 1e-6
+  weight_decay: 0.0
   max_length: 8192
   warmup_steps: 100
   peft_model: false
